@@ -4,7 +4,7 @@ export default function BrandStrip() {
   return (
     <div className="relative h-48 sm:h-64 lg:h-80 overflow-hidden">
       <Image
-        src="/images/process-curing.png"
+        src="/images/process-curing.webp"
         alt="Candles curing in the workshop"
         fill
         className="object-cover"

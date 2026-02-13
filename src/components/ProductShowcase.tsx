@@ -5,22 +5,22 @@ import { useEffect, useRef, useState } from "react";
 
 const products = [
   {
-    image: "/images/product-cherry.png",
+    image: "/images/product-cherry.webp",
     name: "Cherry Cheesecake",
     desc: "Rich cherry tartness meets creamy vanilla base",
   },
   {
-    image: "/images/product-lemon.png",
+    image: "/images/product-lemon.webp",
     name: "Lemon Pound Cake",
     desc: "Bright citrus zest with buttery cake warmth",
   },
   {
-    image: "/images/product-strawberry.png",
+    image: "/images/product-strawberry.webp",
     name: "Strawberry Pound Cake",
     desc: "Sweet strawberry layered with golden cake notes",
   },
   {
-    image: "/images/product-blueberry.png",
+    image: "/images/product-blueberry.webp",
     name: "Blueberry Pancakes",
     desc: "Warm maple syrup and fresh blueberry medley",
   },

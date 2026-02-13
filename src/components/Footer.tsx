@@ -12,7 +12,7 @@ export default function Footer() {
           <div>
             <div className="relative w-40 h-40 mb-6 -ml-2 opacity-80">
               <Image
-                src="/images/logo-embossed.png"
+                src="/images/logo-embossed.webp"
                 alt="Canterbury Candles"
                 fill
                 className="object-contain"

@@ -67,7 +67,7 @@ export default function Hero() {
           <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
             <div className="relative w-72 h-72 sm:w-96 sm:h-96 lg:w-[28rem] lg:h-[28rem] animate-gentle-float">
               <Image
-                src="/images/logo-green.png"
+                src="/images/logo-green.webp"
                 alt="Canterbury Candles logo"
                 fill
                 priority

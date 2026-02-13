@@ -28,25 +28,25 @@ function useInView(threshold = 0.2) {
 
 const processSteps = [
   {
-    image: "/images/process-jars.jpg",
+    image: "/images/process-jars.webp",
     alt: "Mason jars prepped with wicks",
     title: "Prepare",
     desc: "Each 16oz mason jar is fitted with a cotton wick, centered and secured by hand.",
   },
   {
-    image: "/images/process-pots.jpg",
+    image: "/images/process-pots.webp",
     alt: "Stainless steel melting pots on stove",
     title: "Melt",
     desc: "Our coconut & soy blend is carefully melted in small batches, temperature-controlled for the perfect consistency.",
   },
   {
-    image: "/images/process-curing.png",
+    image: "/images/process-curing.webp",
     alt: "Candles curing on trays with wick holders",
     title: "Pour & Cure",
     desc: "Fragrance oils are blended at the precise moment, then poured and left to cure — patience makes the scent.",
   },
   {
-    image: "/images/product-finished.jpg",
+    image: "/images/product-finished.webp",
     alt: "Finished Canterbury Candles product with bronze lid",
     title: "Finish",
     desc: "Bronze lids sealed, labels applied by hand. Each candle is inspected before it reaches you.",
