@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import type { ScentSelection } from "./ScentGrid";
+import Reveal from "./Reveal";
 
 interface OrderFormProps {
   selections: ScentSelection;
@@ -51,7 +52,7 @@ export default function OrderForm({ selections }: OrderFormProps) {
 
   if (submitted) {
     return (
-      <section id="order" className="relative bg-cream-dark py-28 lg:py-40">
+      <section id="order" className="relative bg-cream py-28 lg:py-40">
         <div className="mx-auto max-w-2xl px-6 text-center lg:px-12">
           <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-forest-100">
             <svg className="h-8 w-8 text-forest-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -112,10 +113,11 @@ export default function OrderForm({ selections }: OrderFormProps) {
   }
 
   return (
-    <section id="order" className="relative bg-cream-dark py-28 lg:py-40">
+    <section id="order" className="relative bg-cream py-28 lg:py-40">
       <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
         <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-24">
           {/* Left: Info */}
+          <Reveal>
           <div>
             <span className="mb-4 inline-block font-[family-name:var(--font-dm-sans)] text-xs font-medium tracking-[0.25em] text-bronze-600 uppercase">
               Place Your Order
@@ -177,8 +179,10 @@ export default function OrderForm({ selections }: OrderFormProps) {
               </div>
             )}
           </div>
+          </Reveal>
 
           {/* Right: Form */}
+          <Reveal delay={200}>
           <div>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -270,6 +274,7 @@ export default function OrderForm({ selections }: OrderFormProps) {
               </p>
             </form>
           </div>
+          </Reveal>
         </div>
       </div>
     </section>

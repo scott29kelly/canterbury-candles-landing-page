@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import Reveal from "./Reveal";
 
 export interface ScentSelection {
   [scent: string]: number;
@@ -52,16 +53,18 @@ export default function ScentGrid({ selections, onSelectionsChange }: ScentGridP
       <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
         {/* Header */}
         <div className="mb-16 flex flex-col gap-6 lg:mb-24 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <span className="mb-4 inline-block font-[family-name:var(--font-dm-sans)] text-xs font-medium tracking-[0.25em] text-bronze-500 uppercase">
-              14 Signature Scents
-            </span>
-            <h2 className="font-[family-name:var(--font-cormorant)] text-4xl leading-[1.15] font-light text-cream sm:text-5xl lg:text-6xl">
-              Choose your
-              <br />
-              <span className="italic text-bronze-400">favorites.</span>
-            </h2>
-          </div>
+          <Reveal>
+            <div>
+              <span className="mb-4 inline-block font-[family-name:var(--font-dm-sans)] text-xs font-medium tracking-[0.25em] text-bronze-500 uppercase">
+                14 Signature Scents
+              </span>
+              <h2 className="font-[family-name:var(--font-cormorant)] text-4xl leading-[1.15] font-light text-cream sm:text-5xl lg:text-6xl">
+                Choose your
+                <br />
+                <span className="italic text-bronze-400">favorites.</span>
+              </h2>
+            </div>
+          </Reveal>
 
           {/* Floating cart summary */}
           {totalItems > 0 && (

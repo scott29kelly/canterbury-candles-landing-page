@@ -14,17 +14,17 @@ export default function Hero() {
       </div>
 
       {/* Main content grid */}
-      <div className="relative z-10 mx-auto grid min-h-screen max-w-[1440px] grid-cols-1 items-center gap-8 px-6 py-24 lg:grid-cols-12 lg:gap-0 lg:px-12">
+      <div className="relative z-10 mx-auto grid min-h-screen max-w-[1440px] grid-cols-1 items-center gap-8 px-6 py-32 lg:grid-cols-12 lg:gap-0 lg:px-12">
         {/* Left: Text */}
         <div className="order-2 flex flex-col items-center text-center lg:col-span-5 lg:order-1 lg:items-start lg:text-left">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-bronze-500/30 bg-bronze-500/10 px-4 py-1.5">
+          <div className="animate-fade-in-up mb-8 inline-flex items-center gap-2 rounded-full border border-bronze-500/30 bg-bronze-500/10 px-4 py-1.5 opacity-0">
             <span className="h-1.5 w-1.5 rounded-full bg-bronze-400" />
             <span className="font-[family-name:var(--font-dm-sans)] text-xs font-medium tracking-[0.2em] text-bronze-300 uppercase">
               Hand-Poured &middot; Small Batch
             </span>
           </div>
 
-          <h1 className="font-[family-name:var(--font-cormorant)] text-5xl leading-[1.1] font-light tracking-tight text-cream sm:text-6xl lg:text-7xl">
+          <h1 className="animate-fade-in-up animation-delay-200 font-[family-name:var(--font-cormorant)] text-5xl leading-[1.1] font-light tracking-tight text-cream opacity-0 sm:text-6xl lg:text-7xl">
             Scent is
             <br />
             <span className="font-medium italic text-bronze-400">memory,</span>
@@ -32,12 +32,12 @@ export default function Hero() {
             poured.
           </h1>
 
-          <p className="mt-8 max-w-md font-[family-name:var(--font-dm-sans)] text-base leading-relaxed font-light text-forest-200/70">
+          <p className="animate-fade-in-up animation-delay-400 mt-8 max-w-md font-[family-name:var(--font-dm-sans)] text-base leading-relaxed font-light text-forest-200/70 opacity-0">
             Coconut &amp; soy wax, hand-blended in small batches.
             14&nbsp;signature scents in 16oz mason jars with bronze&nbsp;lids.
           </p>
 
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
+          <div className="animate-fade-in-up animation-delay-600 mt-10 flex flex-col items-center gap-4 opacity-0 sm:flex-row">
             <a
               href="#scents"
               className="group inline-flex items-center gap-3 rounded-full bg-bronze-500 px-8 py-3.5 font-[family-name:var(--font-dm-sans)] text-sm font-medium tracking-wide text-forest-950 transition-all duration-300 hover:bg-bronze-400 hover:shadow-lg hover:shadow-bronze-500/20"
@@ -66,7 +66,7 @@ export default function Hero() {
           </div>
 
           {/* Price callout */}
-          <div className="mt-16 flex items-baseline gap-3 border-t border-forest-700/40 pt-6">
+          <div className="animate-fade-in-up animation-delay-800 mt-16 flex items-baseline gap-3 border-t border-forest-700/40 pt-6 opacity-0">
             <span className="font-[family-name:var(--font-cormorant)] text-4xl font-light text-bronze-400">
               $14
             </span>
@@ -82,7 +82,7 @@ export default function Hero() {
         {/* Right: Image composition */}
         <div className="relative order-1 flex items-center justify-center lg:col-span-7 lg:order-2">
           {/* Main product image */}
-          <div className="relative">
+          <div className="animate-scale-in animation-delay-200 relative opacity-0">
             <div className="relative z-20 h-[420px] w-[280px] overflow-hidden rounded-2xl shadow-2xl shadow-black/40 sm:h-[520px] sm:w-[340px] lg:h-[600px] lg:w-[400px]">
               <Image
                 src="/images/product-cherry.jpg"
@@ -95,7 +95,7 @@ export default function Hero() {
             </div>
 
             {/* Offset secondary image */}
-            <div className="absolute -right-8 -bottom-12 z-30 hidden h-[200px] w-[160px] overflow-hidden rounded-xl shadow-xl shadow-black/30 sm:block lg:-right-16 lg:-bottom-16 lg:h-[260px] lg:w-[200px]">
+            <div className="animate-fade-in-up animation-delay-600 absolute -right-8 -bottom-12 z-30 hidden h-[200px] w-[160px] overflow-hidden rounded-xl opacity-0 shadow-xl shadow-black/30 sm:block lg:-right-16 lg:-bottom-16 lg:h-[260px] lg:w-[200px]">
               <Image
                 src="/images/product-lemon.jpg"
                 alt="Canterbury Candles — Lemon Pound Cake"
@@ -105,7 +105,7 @@ export default function Hero() {
               />
             </div>
 
-            {/* Background decorative circle */}
+            {/* Background decorative circles */}
             <div className="absolute -top-16 -left-16 z-10 h-[320px] w-[320px] rounded-full border border-bronze-500/10 lg:-top-24 lg:-left-24 lg:h-[480px] lg:w-[480px]" />
             <div className="absolute -top-8 -left-8 z-10 h-[320px] w-[320px] rounded-full border border-bronze-500/5 lg:-top-12 lg:-left-12 lg:h-[480px] lg:w-[480px]" />
           </div>
@@ -113,7 +113,7 @@ export default function Hero() {
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2">
+      <div className="animate-fade-in animation-delay-1000 absolute bottom-8 left-1/2 z-20 -translate-x-1/2 opacity-0">
         <div className="flex flex-col items-center gap-2">
           <span className="font-[family-name:var(--font-dm-sans)] text-[10px] tracking-[0.3em] text-forest-300/30 uppercase">
             Scroll
