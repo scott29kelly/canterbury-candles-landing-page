@@ -4,8 +4,11 @@ import { useState, useCallback } from "react";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import Story from "@/components/Story";
+import BrandStrip from "@/components/BrandStrip";
+import ProductShowcase from "@/components/ProductShowcase";
 import ScentGrid from "@/components/ScentGrid";
 import OrderForm from "@/components/OrderForm";
+import FloatingCart from "@/components/FloatingCart";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -28,9 +31,12 @@ export default function Home() {
       <Navigation />
       <Hero />
       <Story />
+      <BrandStrip />
+      <ProductShowcase />
       <ScentGrid selected={selectedScents} onToggle={toggleScent} />
       <OrderForm selected={selectedScents} onRemove={removeScent} />
       <Footer />
+      <FloatingCart count={selectedScents.length} />
     </main>
   );
 }
