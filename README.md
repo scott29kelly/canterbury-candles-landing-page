@@ -1,0 +1,1 @@
+# Canterbury Candles\n\nHand-poured artisan candle landing page built with Next.js + Tailwind.\n\n## Getting Started\n\n```bash\nnpm install\nnpm run dev\n```\n\n## Deploy\n\nDeploy to Vercel:\n\n```bash\nnpx vercel\n```
