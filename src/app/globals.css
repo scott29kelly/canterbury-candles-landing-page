@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Forest Green Scale */
+  --color-forest-950: #0D1F16;
+  --color-forest-900: #1B3A2D;
+  --color-forest-800: #2D5741;
+  --color-forest-700: #3A7254;
+  --color-forest-600: #4A8D68;
+  --color-forest-500: #5BA87D;
+  --color-forest-400: #7FBF9A;
+  --color-forest-300: #A3D4B6;
+  --color-forest-200: #C7E9D3;
+  --color-forest-100: #E8F5ED;
+  --color-forest-50: #F3FAF6;
+
+  /* Bronze Scale */
+  --color-bronze-900: #5C3A1E;
+  --color-bronze-800: #7A4E2A;
+  --color-bronze-700: #976237;
+  --color-bronze-600: #B87333;
+  --color-bronze-500: #CD853F;
+  --color-bronze-400: #D4A574;
+  --color-bronze-300: #E0C4A0;
+  --color-bronze-200: #ECDCC6;
+  --color-bronze-100: #F5EDE3;
+  --color-bronze-50: #FAF6F1;
+
+  /* Cream */
+  --color-cream: #FAF6F1;
+  --color-cream-dark: #F0E8DC;
+
+  /* Warm Brown */
+  --color-bark-900: #2A1F16;
+  --color-bark-800: #4A3728;
+  --color-bark-700: #6B4E3D;
+  --color-bark-600: #8A6A55;
+  --color-bark-500: #A48773;
+
+  /* Fonts */
+  --font-serif: "Cormorant Garamond", "Georgia", serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-bark-900);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection color */
+::selection {
+  background: var(--color-forest-200);
+  color: var(--color-forest-900);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-cream);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-bronze-400);
+  border-radius: 3px;
+}
