@@ -7,22 +7,22 @@ const steps = [
   {
     num: "01",
     title: "Prepare",
-    desc: "Mason jars are fitted with cotton wicks, each centered by hand.",
-    image: "/images/process-jars.jpg",
+    desc: "Mason jars are fitted with cotton wicks, each centered by hand. The workspace is clean, intentional — every jar placed with care.",
+    image: "/images/process-jars.webp",
     alt: "Empty mason jars with cotton wicks ready for pouring",
   },
   {
     num: "02",
     title: "Melt & Blend",
-    desc: "Coconut and soy wax melted in small batches. Fragrance oils measured precisely.",
-    image: "/images/process-melting.jpg",
+    desc: "Coconut and soy wax melted in small stainless steel batches on the stove. Fragrance oils measured with precision, not guesswork.",
+    image: "/images/process-melting.webp",
     alt: "Stainless steel pouring pots on the stove for wax melting",
   },
   {
     num: "03",
     title: "Pour & Cure",
-    desc: "Each jar hand-poured and left to cure. The wax crystallizes into its final form.",
-    image: "/images/process-curing.png",
+    desc: "Each jar hand-poured and left to cure. The wax crystallizes slowly, locking in scent. No shortcuts, just patience.",
+    image: "/images/process-curing.webp",
     alt: "Freshly poured candles curing on trays with fragrance oils and tools",
   },
 ];
@@ -36,8 +36,8 @@ export default function Story() {
       ref={sectionRef}
       className="relative overflow-hidden bg-cream py-24 lg:py-32"
     >
-      {/* Section header */}
       <div className="mx-auto max-w-7xl px-6 lg:px-12">
+        {/* Section header */}
         <div data-animate className="mb-20 max-w-2xl opacity-0">
           <span className="mb-4 inline-block text-xs tracking-[0.4em] text-bronze uppercase">
             The Process
@@ -65,13 +65,13 @@ export default function Story() {
               style={{ animationDelay: `${i * 150}ms` }}
             >
               {/* Image */}
-              <div className="relative flex-1 overflow-hidden rounded-2xl">
+              <div className="group relative flex-1 overflow-hidden rounded-2xl">
                 <div className="aspect-[4/3] relative">
                   <Image
                     src={step.image}
                     alt={step.alt}
                     fill
-                    className="object-cover transition-transform duration-700 hover:scale-105"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                 </div>
@@ -105,7 +105,10 @@ export default function Story() {
         </div>
 
         {/* Real product showcase */}
-        <div data-animate className="mt-24 flex flex-col items-center opacity-0 lg:mt-32">
+        <div
+          data-animate
+          className="mt-24 flex flex-col items-center opacity-0 lg:mt-32"
+        >
           <div className="mb-8 text-center">
             <span className="text-xs tracking-[0.4em] text-bronze uppercase">
               The Result
@@ -113,7 +116,7 @@ export default function Story() {
           </div>
           <div className="relative mx-auto max-w-xs overflow-hidden rounded-2xl shadow-2xl shadow-bark/10">
             <Image
-              src="/images/product-real.jpg"
+              src="/images/product-real.webp"
               alt="Finished Canterbury Candles product with bronze lid and label"
               width={400}
               height={600}

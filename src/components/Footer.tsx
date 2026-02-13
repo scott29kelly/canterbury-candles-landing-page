@@ -10,7 +10,7 @@ export default function Footer() {
           {/* Logo mark */}
           <div className="mb-8 w-48 opacity-60">
             <Image
-              src="/images/logo-green.png"
+              src="/images/logo-green.webp"
               alt="Canterbury Candles"
               width={400}
               height={400}
@@ -42,7 +42,13 @@ export default function Footer() {
             >
               <rect x="2" y="2" width="20" height="20" rx="5" />
               <circle cx="12" cy="12" r="5" />
-              <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
+              <circle
+                cx="17.5"
+                cy="6.5"
+                r="1.5"
+                fill="currentColor"
+                stroke="none"
+              />
             </svg>
             @canterburycandles2025
           </a>

@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
+import SectionDivider from "@/components/SectionDivider";
 import Story from "@/components/Story";
+import ProductShowcase from "@/components/ProductShowcase";
 import ScentGrid from "@/components/ScentGrid";
 import OrderForm from "@/components/OrderForm";
 import Footer from "@/components/Footer";
+import FloatingCart from "@/components/FloatingCart";
 
 export default function Home() {
   const [selected, setSelected] = useState<Record<string, number>>({});
@@ -49,19 +52,31 @@ export default function Home() {
     });
   }, []);
 
+  const { totalItems, totalPrice } = useMemo(() => {
+    const items = Object.values(selected);
+    const qty = items.reduce((sum, q) => sum + q, 0);
+    return { totalItems: qty, totalPrice: qty * 14 };
+  }, [selected]);
+
   return (
     <>
       <Nav />
       <Hero />
+      <SectionDivider variant="forest-to-cream" />
       <Story />
+      <SectionDivider variant="cream-to-cream-dark" />
+      <ProductShowcase />
+      <SectionDivider variant="cream-dark-to-forest" />
       <ScentGrid
         selected={selected}
         onToggle={handleToggle}
         onIncrement={handleIncrement}
         onDecrement={handleDecrement}
       />
+      <SectionDivider variant="forest-to-cream" />
       <OrderForm selected={selected} onRemove={handleRemove} />
       <Footer />
+      <FloatingCart totalItems={totalItems} totalPrice={totalPrice} />
     </>
   );
 }

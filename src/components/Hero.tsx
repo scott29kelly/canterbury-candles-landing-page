@@ -29,7 +29,7 @@ export default function Hero() {
         {/* Logo */}
         <div className="animate-scale-in mb-8 w-[280px] sm:w-[340px] lg:w-[400px]">
           <Image
-            src="/images/logo-green.png"
+            src="/images/logo-green.webp"
             alt="Canterbury Candles logo"
             width={800}
             height={800}
@@ -57,7 +57,7 @@ export default function Hero() {
           >
             Explore Scents
             <svg
-              className="h-4 w-4 transition-transform group-hover:translate-x-1"
+              className="h-4 w-4 transition-transform group-hover:translate-y-0.5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -81,12 +81,14 @@ export default function Hero() {
 
         {/* Price badge */}
         <div className="animate-fade-up animation-delay-500 mt-12 opacity-0">
-          <div className="inline-flex items-center gap-3 rounded-full border border-cream/10 bg-cream/5 px-6 py-2 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-3 rounded-full border border-cream/10 bg-cream/5 px-6 py-2.5 backdrop-blur-sm">
             <span className="text-sm text-cream/40 line-through">$20</span>
             <span className="text-lg font-heading font-semibold text-bronze-light">
               $14
             </span>
-            <span className="text-xs text-cream/50 uppercase tracking-wider">each</span>
+            <span className="text-xs text-cream/50 uppercase tracking-wider">
+              each
+            </span>
           </div>
         </div>
       </div>
