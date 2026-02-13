@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest: #1a3a2a;
+  --color-forest-light: #2d4a3e;
+  --color-forest-muted: #3d5a4e;
+  --color-bronze: #c4944a;
+  --color-bronze-light: #d4a85a;
+  --color-bronze-dark: #a07a3a;
+  --color-cream: #f7f3eb;
+  --color-cream-dark: #ede6d8;
+  --color-bark: #6b4c30;
+  --color-charcoal: #2a2a2a;
+  --color-charcoal-light: #4a4a4a;
+
+  --font-display: var(--font-playfair);
+  --font-body: var(--font-dm-sans);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-charcoal);
+  background-color: var(--color-cream);
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--color-bronze);
+  color: var(--color-cream);
+}
+
+/* Scroll-triggered fade-in animation */
+.animate-in {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.animate-in-delay-1 {
+  transition-delay: 0.1s;
+}
+.animate-in-delay-2 {
+  transition-delay: 0.2s;
+}
+.animate-in-delay-3 {
+  transition-delay: 0.3s;
+}
+.animate-in-delay-4 {
+  transition-delay: 0.4s;
+}
+
+/* Subtle grain texture overlay */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-cream);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-bronze);
+  border-radius: 3px;
+}
+
+/* Form input focus styles */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-bronze);
+}
+
+/* Image placeholder gradient */
+.img-placeholder {
+  background: linear-gradient(
+    135deg,
+    var(--color-forest) 0%,
+    var(--color-forest-light) 50%,
+    var(--color-bark) 100%
+  );
+}

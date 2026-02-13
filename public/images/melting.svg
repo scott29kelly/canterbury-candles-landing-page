@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6b4c30"/>
+      <stop offset="50%" stop-color="#1a3a2a"/>
+      <stop offset="100%" stop-color="#2d4a3e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg2)"/>
+  <!-- Pot silhouettes -->
+  <ellipse cx="400" cy="400" rx="120" ry="30" fill="#c4944a" opacity="0.08"/>
+  <rect x="280" y="400" width="240" height="160" rx="4" fill="#c4944a" opacity="0.06"/>
+  <ellipse cx="400" cy="560" rx="120" ry="30" fill="#c4944a" opacity="0.08"/>
+  <ellipse cx="750" cy="420" rx="100" ry="25" fill="#c4944a" opacity="0.06"/>
+  <rect x="650" y="420" width="200" height="130" rx="4" fill="#c4944a" opacity="0.05"/>
+  <ellipse cx="750" cy="550" rx="100" ry="25" fill="#c4944a" opacity="0.06"/>
+  <!-- Steam -->
+  <path d="M380 360 Q370 320 390 280" fill="none" stroke="#f7f3eb" stroke-width="1.5" opacity="0.06"/>
+  <path d="M420 350 Q410 310 430 270" fill="none" stroke="#f7f3eb" stroke-width="1.5" opacity="0.05"/>
+  <text x="600" y="750" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#f7f3eb" opacity="0.15" letter-spacing="8">BLENDING</text>
+</svg>
