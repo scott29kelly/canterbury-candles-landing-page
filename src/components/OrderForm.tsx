@@ -52,7 +52,7 @@ export default function OrderForm({ selections }: OrderFormProps) {
 
   if (submitted) {
     return (
-      <section id="order" className="relative bg-cream py-28 lg:py-40">
+      <section id="order" className="relative bg-bronze-50 py-28 lg:py-40">
         <div className="mx-auto max-w-2xl px-6 text-center lg:px-12">
           <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-forest-100">
             <svg className="h-8 w-8 text-forest-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -113,7 +113,7 @@ export default function OrderForm({ selections }: OrderFormProps) {
   }
 
   return (
-    <section id="order" className="relative bg-cream py-28 lg:py-40">
+    <section id="order" className="relative bg-bronze-50 py-28 lg:py-40">
       <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
         <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-24">
           {/* Left: Info */}

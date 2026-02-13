@@ -5,7 +5,7 @@ interface DividerProps {
 export default function Divider({ variant = "cream-to-dark" }: DividerProps) {
   const colors = {
     "cream-to-dark": { from: "from-cream", to: "to-forest-950" },
-    "dark-to-cream": { from: "from-forest-950", to: "to-cream" },
+    "dark-to-cream": { from: "from-forest-950", to: "to-bronze-50" },
     "cream-to-cream": { from: "from-cream", to: "to-cream" },
   };
 

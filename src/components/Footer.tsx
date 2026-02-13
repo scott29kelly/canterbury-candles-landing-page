@@ -2,8 +2,19 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="relative bg-forest-950 py-16 lg:py-24">
-      <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+    <footer className="relative overflow-hidden bg-forest-950 py-16 lg:py-24">
+      {/* Subtle background image */}
+      <div className="pointer-events-none absolute inset-0 opacity-[0.04]">
+        <Image
+          src="/images/process-jars.jpg"
+          alt=""
+          fill
+          className="object-cover"
+          sizes="100vw"
+          aria-hidden="true"
+        />
+      </div>
+      <div className="relative z-10 mx-auto max-w-[1440px] px-6 lg:px-12">
         <div className="flex flex-col items-center gap-8 lg:flex-row lg:justify-between">
           {/* Logo */}
           <div className="flex flex-col items-center gap-4 lg:items-start">

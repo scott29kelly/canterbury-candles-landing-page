@@ -22,7 +22,7 @@ export default function Home() {
       <Divider variant="dark-to-cream" />
       <OrderForm selections={selections} />
       {/* Cream to footer dark transition */}
-      <div className="h-16 bg-gradient-to-b from-cream to-forest-950" />
+      <div className="h-16 bg-gradient-to-b from-bronze-50 to-forest-950" />
       <Footer />
     </>
   );
