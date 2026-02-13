@@ -16,6 +16,7 @@ const displayFont = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://canterbury-candles.vercel.app"),
   title: "Canterbury Candles | Hand-Poured Coconut/Soy Blend",
   description:
     "Browse 14 handcrafted Canterbury Candles scents, select your favorites, and submit an order request.",
