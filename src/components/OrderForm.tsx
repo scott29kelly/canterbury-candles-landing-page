@@ -76,7 +76,7 @@ export default function OrderForm({ selections }: OrderFormProps) {
           </p>
 
           {/* Order recap */}
-          <div className="mx-auto mt-10 max-w-sm rounded-2xl border border-forest-800/10 bg-cream p-6 text-left">
+          <div className="mx-auto mt-10 max-w-sm rounded-2xl border border-forest-800/10 bg-white/60 p-6 text-left">
             <h3 className="mb-4 font-[family-name:var(--font-dm-sans)] text-xs font-medium tracking-[0.2em] text-bark-500 uppercase">
               Order Summary
             </h3>
@@ -135,7 +135,7 @@ export default function OrderForm({ selections }: OrderFormProps) {
 
             {/* Order summary sidebar */}
             {hasSelections && (
-              <div className="mt-10 rounded-2xl border border-forest-800/10 bg-cream p-6">
+              <div className="mt-10 rounded-2xl border border-forest-800/10 bg-white/60 p-6">
                 <h3 className="mb-4 font-[family-name:var(--font-dm-sans)] text-xs font-medium tracking-[0.2em] text-bark-500 uppercase">
                   Your Selection
                 </h3>
@@ -199,7 +199,7 @@ export default function OrderForm({ selections }: OrderFormProps) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Full name"
-                  className="w-full rounded-xl border border-bark-800/10 bg-cream px-5 py-3.5 font-[family-name:var(--font-dm-sans)] text-sm text-bark-900 placeholder-bark-500/40 transition-colors focus:border-forest-700/40 focus:ring-2 focus:ring-forest-700/10 focus:outline-none"
+                  className="w-full rounded-xl border border-bark-800/10 bg-white/70 px-5 py-3.5 font-[family-name:var(--font-dm-sans)] text-sm text-bark-900 placeholder-bark-500/40 transition-colors focus:border-forest-700/40 focus:ring-2 focus:ring-forest-700/10 focus:outline-none"
                 />
               </div>
 
@@ -217,7 +217,7 @@ export default function OrderForm({ selections }: OrderFormProps) {
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
                   placeholder="Phone number or @handle"
-                  className="w-full rounded-xl border border-bark-800/10 bg-cream px-5 py-3.5 font-[family-name:var(--font-dm-sans)] text-sm text-bark-900 placeholder-bark-500/40 transition-colors focus:border-forest-700/40 focus:ring-2 focus:ring-forest-700/10 focus:outline-none"
+                  className="w-full rounded-xl border border-bark-800/10 bg-white/70 px-5 py-3.5 font-[family-name:var(--font-dm-sans)] text-sm text-bark-900 placeholder-bark-500/40 transition-colors focus:border-forest-700/40 focus:ring-2 focus:ring-forest-700/10 focus:outline-none"
                 />
               </div>
 
@@ -234,7 +234,7 @@ export default function OrderForm({ selections }: OrderFormProps) {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Pickup preferences, gift wrapping, etc."
-                  className="w-full resize-none rounded-xl border border-bark-800/10 bg-cream px-5 py-3.5 font-[family-name:var(--font-dm-sans)] text-sm text-bark-900 placeholder-bark-500/40 transition-colors focus:border-forest-700/40 focus:ring-2 focus:ring-forest-700/10 focus:outline-none"
+                  className="w-full resize-none rounded-xl border border-bark-800/10 bg-white/70 px-5 py-3.5 font-[family-name:var(--font-dm-sans)] text-sm text-bark-900 placeholder-bark-500/40 transition-colors focus:border-forest-700/40 focus:ring-2 focus:ring-forest-700/10 focus:outline-none"
                 />
               </div>
 
