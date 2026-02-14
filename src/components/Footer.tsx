@@ -23,7 +23,7 @@ export default function Footer() {
               Canterbury Candles
             </h3>
             <p className="text-blush/35 leading-relaxed text-sm max-w-sm mx-auto">
-              Hand-poured coconut &amp; soy blend candles, crafted in small
+              Hand-poured coconut, soy &amp; beeswax blend candles, crafted in small
               batches with intention and care.
             </p>
           </div>

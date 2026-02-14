@@ -118,7 +118,7 @@ export default function Hero() {
               transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             >
               <p className="text-gold text-xs md:text-sm tracking-[0.35em] uppercase mb-5 font-medium">
-                Hand-Poured &middot; Small Batch &middot; Artisan
+                Hand-Poured &middot; Small Batch &middot; All-Cotton Wick &middot; No Added Dyes
               </p>
               <h1 className="font-display text-blush text-4xl md:text-5xl lg:text-7xl xl:text-[5.5rem] leading-[1.05] tracking-tight mb-6">
                 Canterbury
@@ -143,7 +143,7 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="text-blush/70 text-base md:text-lg max-w-md mx-auto lg:mx-0 leading-relaxed mb-4"
             >
-              Coconut &amp; soy blend candles, lovingly crafted in small batches.
+              Coconut, soy &amp; beeswax blend candles, lovingly crafted in small batches.
               Each flame tells a story of care, patience, and intention.
             </motion.p>
 
@@ -154,7 +154,7 @@ export default function Hero() {
               className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-10"
             >
               <p className="text-gold-muted text-xs tracking-[0.25em] uppercase">
-                14 Signature Scents &middot; 16oz Mason Jars
+                14 Signature Scents &middot; 8oz &amp; 16oz Mason Jars &middot; 75+ Hour Burn Time
               </p>
             </motion.div>
 

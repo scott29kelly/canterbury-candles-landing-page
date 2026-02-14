@@ -190,20 +190,29 @@ export default function Scents() {
 
           {/* Price callout */}
           <AnimateIn className="text-center mb-16 md:mb-20">
-            <div className="inline-flex items-baseline gap-3">
-              <span className="text-rose-gray/60 line-through text-xl">
-                $20
-              </span>
-              <span className="font-display text-gold text-5xl md:text-6xl">
-                $14
-              </span>
-              <span className="text-rose-gray text-sm tracking-widest uppercase">
-                per candle
-              </span>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10">
+              <div className="flex items-baseline gap-2">
+                <span className="font-display text-gold text-5xl md:text-6xl">
+                  $15
+                </span>
+                <span className="text-rose-gray text-sm tracking-widest uppercase">
+                  8oz
+                </span>
+              </div>
+              <div className="hidden sm:block w-px h-10 bg-gold/20" />
+              <div className="flex items-baseline gap-2">
+                <span className="font-display text-gold text-5xl md:text-6xl">
+                  $25
+                </span>
+                <span className="text-rose-gray text-sm tracking-widest uppercase">
+                  16oz
+                </span>
+              </div>
             </div>
-            <p className="text-rose-gray/60 text-sm mt-2">
-              16oz mason jar &middot; coconut &amp; soy blend &middot; bronze
-              lid
+            <p className="text-rose-gray/60 text-sm mt-4">
+              8oz &amp; 16oz mason jars &middot; coconut, soy &amp; beeswax
+              blend &middot; 75+ hour burn time &middot; all-cotton wick
+              &middot; no added dyes
             </p>
           </AnimateIn>
 

@@ -18,7 +18,7 @@ const processSteps = [
     alt: "Eleven stainless steel pouring pitchers heating on electric stovetop",
     title: "Blend",
     description:
-      "Our proprietary coconut & soy wax blend is slowly melted and infused with premium fragrance oils at the perfect temperature.",
+      "Our proprietary coconut, soy & beeswax blend is slowly melted and infused with premium fragrance oils at the perfect temperature.",
   },
   {
     image: "/images/workspace-candle-making.png",
@@ -113,7 +113,7 @@ export default function Story() {
           <div className="w-12 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-8" />
           <p className="text-rose-gray max-w-2xl mx-auto text-lg leading-relaxed">
             Every Canterbury candle is a labor of love — hand-poured in small
-            batches using a coconut &amp; soy wax blend that burns cleaner and
+            batches using a coconut, soy &amp; beeswax blend that burns cleaner and
             longer than conventional wax.
           </p>
         </AnimateIn>
@@ -177,9 +177,9 @@ export default function Story() {
             caption="The tools"
           />
           <DetailImage
-            src="/images/frosted-wax-candles.jpg"
-            alt="Two round wax candles showing crystalline frosting patterns"
-            caption="Natural frosting"
+            src="/images/logo-metallic-bronze.png"
+            alt="Canterbury Candles metallic bronze logo on textured background"
+            caption="The brand"
           />
           <DetailImage
             src="/images/candle-product-shot.jpg"
