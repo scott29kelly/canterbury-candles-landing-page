@@ -183,10 +183,10 @@ export default function Hero() {
               <div className="absolute -inset-8 rounded-full border border-gold/5 hidden lg:block" />
 
               {/* Main product image */}
-              <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
+              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
                 <Image
-                  src="/images/candle-product-shot.jpg"
-                  alt="Canterbury Candles hand-poured candle in mason jar with bronze lid"
+                  src="/images/logo-header-hero-shot.jpeg"
+                  alt="Canterbury Candles branded mason jar candle with rustic ingredients"
                   fill
                   className="object-cover"
                   priority
