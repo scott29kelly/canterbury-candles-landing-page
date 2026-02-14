@@ -89,7 +89,7 @@ export default function Hero() {
         className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16"
         style={{ opacity: contentOpacity, y: contentY }}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-screen py-24 lg:py-0">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-screen py-24 lg:pt-28 lg:pb-0">
           {/* Left — Brand messaging */}
           <div className="order-2 lg:order-1 text-center lg:text-left">
             {/* Headline */}
@@ -177,10 +177,10 @@ export default function Hero() {
             transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="order-1 lg:order-2 relative"
           >
-            <div className="relative mx-auto max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
-              {/* Decorative gold ring behind image */}
-              <div className="absolute -inset-4 rounded-full border border-gold/10 hidden lg:block" />
-              <div className="absolute -inset-8 rounded-full border border-gold/5 hidden lg:block" />
+            <div className="relative mx-auto max-w-sm md:max-w-md lg:max-w-md xl:max-w-lg">
+              {/* Diffuse gold sunburst glow behind image */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(201,169,110,0.28)_0%,_rgba(201,169,110,0.13)_30%,_rgba(201,169,110,0.05)_55%,_transparent_75%)] blur-2xl pointer-events-none" />
+              <div className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 w-[180%] h-[120%] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(212,168,67,0.16)_0%,_rgba(212,168,67,0.07)_40%,_transparent_70%)] blur-3xl pointer-events-none" />
 
               {/* Main product image */}
               <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
@@ -195,8 +195,6 @@ export default function Hero() {
                 {/* Gradient vignette */}
                 <div className="absolute inset-0 bg-gradient-to-t from-burgundy/30 via-transparent to-transparent" />
               </div>
-
-
             </div>
           </motion.div>
         </div>
