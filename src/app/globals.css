@@ -115,16 +115,6 @@ select:focus {
   }
 }
 
-/* Scroll indicator pulse */
-@keyframes scroll-pulse {
-  0%, 100% { opacity: 0.3; transform: translateY(0); }
-  50% { opacity: 0.7; transform: translateY(6px); }
-}
-
-.scroll-indicator {
-  animation: scroll-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
 /* Ken Burns slow zoom for gallery */
 @keyframes ken-burns {
   0% { transform: scale(1); }
@@ -153,7 +143,6 @@ select:focus {
 
 /* Disable heavy animations for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .scroll-indicator,
   .ken-burns {
     animation: none !important;
   }
@@ -171,11 +160,6 @@ select:focus {
 
 /* Disable / simplify heavy animations on mobile for performance */
 @media (max-width: 767px) {
-  .scroll-indicator {
-    animation: none;
-    opacity: 0.5;
-  }
-
   .ken-burns {
     animation: none;
   }

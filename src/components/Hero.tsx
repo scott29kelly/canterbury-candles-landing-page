@@ -118,7 +118,7 @@ export default function Hero() {
               transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             >
               <p className="text-gold text-xs md:text-sm tracking-[0.35em] uppercase mb-5 font-medium">
-                Hand-Poured &middot; Small Batch &middot; All-Cotton Wick &middot; No Added Dyes
+                Hand-Poured &middot; Small Batch &middot; Artisan
               </p>
               <h1 className="font-display text-blush text-4xl md:text-5xl lg:text-7xl xl:text-[5.5rem] leading-[1.05] tracking-tight mb-6">
                 Canterbury
@@ -154,7 +154,7 @@ export default function Hero() {
               className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-10"
             >
               <p className="text-gold-muted text-xs tracking-[0.25em] uppercase">
-                14 Signature Scents &middot; 8oz &amp; 16oz Mason Jars &middot; 75+ Hour Burn Time
+                14 Signature Scents &middot; 8oz &amp; 16oz Mason Jars
               </p>
             </motion.div>
 
@@ -218,16 +218,6 @@ export default function Hero() {
           </motion.div>
         </div>
       </motion.div>
-
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 scroll-indicator">
-        <div className="flex flex-col items-center gap-3">
-          <p className="text-blush/30 text-[10px] tracking-[0.3em] uppercase">
-            Discover
-          </p>
-          <div className="w-px h-10 bg-gradient-to-b from-gold/40 to-transparent" />
-        </div>
-      </div>
     </section>
   );
 }
