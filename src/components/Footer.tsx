@@ -37,7 +37,7 @@ export default function Footer() {
               href="#story"
               className="text-blush/40 text-sm tracking-widest uppercase hover:text-gold transition-colors duration-300"
             >
-              Our Story
+              Our Process
             </a>
             <span className="hidden sm:inline text-gold/20">&middot;</span>
             <a
