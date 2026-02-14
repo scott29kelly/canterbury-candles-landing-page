@@ -154,7 +154,7 @@ export default function Hero() {
               className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-10"
             >
               <p className="text-gold-muted text-xs tracking-[0.25em] uppercase">
-                14 Signature Scents &middot; 8oz &amp; 16oz Mason Jars
+                14 Signature Scents &middot; Mason Jars
               </p>
             </motion.div>
 

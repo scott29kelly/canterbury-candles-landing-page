@@ -51,7 +51,7 @@ const sans = localFont({
 export const metadata: Metadata = {
   title: "Canterbury Candles — Hand-Poured, Small Batch",
   description:
-    "Artisan coconut, soy & beeswax blend candles, hand-poured in small batches. 14 signature scents in 8oz & 16oz mason jars with bronze lids.",
+    "Artisan coconut, soy & beeswax blend candles, hand-poured in small batches. 14 signature scents in mason jars with bronze lids.",
   keywords: [
     "candles",
     "hand-poured candles",

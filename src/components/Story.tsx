@@ -25,7 +25,7 @@ const processSteps = [
     alt: "Overhead view of full candle-making workspace with trays of jars and wax in various stages",
     title: "Pour",
     description:
-      "Hand-poured into 16oz mason jars, each candle is given time to cure and set — no rushing, no shortcuts.",
+      "Hand-poured into mason jars, each candle is given time to cure and set — no rushing, no shortcuts.",
   },
 ];
 

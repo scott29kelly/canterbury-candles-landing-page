@@ -210,7 +210,7 @@ export default function Scents() {
               </div>
             </div>
             <p className="text-rose-gray/60 text-sm mt-4">
-              8oz &amp; 16oz mason jars &middot; coconut, soy &amp; beeswax
+              Mason jars &middot; coconut, soy &amp; beeswax
               blend &middot; 75+ hour burn time &middot; all-cotton wick
               &middot; no added dyes
             </p>
