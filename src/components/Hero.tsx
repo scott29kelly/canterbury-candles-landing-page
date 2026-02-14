@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "motion/react";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(false);
@@ -18,19 +18,23 @@ function useIsMobile(breakpoint = 768) {
 
 function GoldParticles() {
   const isMobile = useIsMobile();
-  const count = isMobile ? 6 : 18;
-  const particles = Array.from({ length: count }, (_, i) => ({
-    id: i,
-    left: `${5 + Math.random() * 90}%`,
-    size: 2 + Math.random() * 3,
-    delay: Math.random() * 8,
-    duration: 6 + Math.random() * 8,
-    alt: i % 3 === 0,
-  }));
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 18 }, (_, i) => ({
+        id: i,
+        left: `${5 + Math.random() * 90}%`,
+        size: 2 + Math.random() * 3,
+        delay: Math.random() * 8,
+        duration: 6 + Math.random() * 8,
+        alt: i % 3 === 0,
+      })),
+    []
+  );
+  const visible = isMobile ? particles.slice(0, 6) : particles;
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
-      {particles.map((p) => (
+      {visible.map((p) => (
         <span
           key={p.id}
           className="absolute rounded-full"
