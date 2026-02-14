@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import AnimateIn from "./AnimateIn";
 
 const processSteps = [
@@ -39,15 +39,23 @@ function ParallaxImage({
   priority?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
   });
-  const y = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
+  const y = useTransform(scrollYProgress, [0, 1], isMobile ? ["0%", "0%"] : ["-8%", "8%"]);
 
   return (
     <div ref={ref} className="relative overflow-hidden aspect-[4/3]">
-      <motion.div className="absolute inset-[-16%]" style={{ y }}>
+      <motion.div className={isMobile ? "absolute inset-0" : "absolute inset-[-16%]"} style={{ y }}>
         <Image
           src={src}
           alt={alt}
@@ -91,10 +99,10 @@ function DetailImage({
 
 export default function Story() {
   return (
-    <section id="story" className="py-24 md:py-36 bg-blush relative">
+    <section id="story" className="py-16 md:py-24 lg:py-36 bg-blush relative">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16">
         {/* Section header */}
-        <AnimateIn className="text-center mb-20 md:mb-28">
+        <AnimateIn className="text-center mb-12 md:mb-20 lg:mb-28">
           <p className="text-gold text-sm tracking-[0.3em] uppercase mb-4">
             Our Process
           </p>
@@ -111,13 +119,13 @@ export default function Story() {
         </AnimateIn>
 
         {/* Process steps */}
-        <div className="space-y-24 md:space-y-36">
+        <div className="space-y-16 md:space-y-24 lg:space-y-36">
           {processSteps.map((step, i) => (
             <div
               key={step.title}
               className={`flex flex-col ${
                 i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-              } items-center gap-10 md:gap-16 lg:gap-24`}
+              } items-center gap-6 md:gap-16 lg:gap-24`}
             >
               {/* Image */}
               <AnimateIn
@@ -145,7 +153,7 @@ export default function Story() {
               >
                 {/* Large watermark step number */}
                 <span
-                  className="font-display text-8xl md:text-9xl leading-none bg-gradient-to-b from-gold/25 to-gold/5 bg-clip-text text-transparent select-none"
+                  className="font-display text-7xl md:text-8xl lg:text-9xl leading-none bg-gradient-to-b from-gold/25 to-gold/5 bg-clip-text text-transparent select-none"
                 >
                   {String(i + 1).padStart(2, "0")}
                 </span>
@@ -162,7 +170,7 @@ export default function Story() {
         </div>
 
         {/* Detail images row */}
-        <div className="mt-24 md:mt-36 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="mt-16 md:mt-24 lg:mt-36 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           <DetailImage
             src="/images/crafting-supplies.jpg"
             alt="Measuring cup, metal pouring pot, glass jars, wick clips on paper towel"
@@ -186,7 +194,7 @@ export default function Story() {
         </div>
 
         {/* Pull quote on parchment */}
-        <AnimateIn className="mt-24 md:mt-36">
+        <AnimateIn className="mt-16 md:mt-24 lg:mt-36">
           <div className="bg-parchment relative py-16 px-8 md:px-16 text-center overflow-hidden">
             {/* Subtle texture */}
             <div className="absolute inset-0 grain" />
@@ -201,7 +209,7 @@ export default function Story() {
               <div className="text-gold text-5xl font-display leading-none mb-6">
                 &ldquo;
               </div>
-              <p className="font-display text-burgundy text-2xl md:text-3xl italic leading-relaxed">
+              <p className="font-display text-burgundy text-xl md:text-2xl lg:text-3xl italic leading-relaxed">
                 We don&apos;t mass-produce. Each candle passes through our
                 hands, poured with the same care we&apos;d put into one made
                 for our own home.

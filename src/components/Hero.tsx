@@ -2,10 +2,24 @@
 
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
+
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [breakpoint]);
+  return isMobile;
+}
 
 function GoldParticles() {
-  const particles = Array.from({ length: 18 }, (_, i) => ({
+  const isMobile = useIsMobile();
+  const count = isMobile ? 6 : 18;
+  const particles = Array.from({ length: count }, (_, i) => ({
     id: i,
     left: `${5 + Math.random() * 90}%`,
     size: 2 + Math.random() * 3,
@@ -40,13 +54,14 @@ function GoldParticles() {
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
+  const isMobile = useIsMobile();
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 0.5], ["0%", "12%"]);
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", isMobile ? "0%" : "25%"]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, isMobile ? 1 : 0]);
+  const contentY = useTransform(scrollYProgress, [0, 0.5], ["0%", isMobile ? "0%" : "12%"]);
 
   return (
     <section
@@ -89,7 +104,7 @@ export default function Hero() {
         className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16"
         style={{ opacity: contentOpacity, y: contentY }}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-screen py-24 lg:pt-28 lg:pb-0">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center min-h-screen py-24 lg:pt-28 lg:pb-0">
           {/* Left — Brand messaging */}
           <div className="order-2 lg:order-1 text-center lg:text-left">
             {/* Headline */}
@@ -101,7 +116,7 @@ export default function Hero() {
               <p className="text-gold text-xs md:text-sm tracking-[0.35em] uppercase mb-5 font-medium">
                 Hand-Poured &middot; Small Batch &middot; Artisan
               </p>
-              <h1 className="font-display text-blush text-5xl md:text-6xl lg:text-7xl xl:text-[5.5rem] leading-[1.05] tracking-tight mb-6">
+              <h1 className="font-display text-blush text-4xl md:text-5xl lg:text-7xl xl:text-[5.5rem] leading-[1.05] tracking-tight mb-6">
                 Canterbury
                 <span className="block text-gold italic">Candles</span>
               </h1>
@@ -177,7 +192,7 @@ export default function Hero() {
             transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="order-1 lg:order-2 relative"
           >
-            <div className="relative mx-auto max-w-sm md:max-w-md lg:max-w-md xl:max-w-lg">
+            <div className="relative mx-auto max-w-[280px] sm:max-w-sm md:max-w-md lg:max-w-md xl:max-w-lg">
               {/* Diffuse gold sunburst glow behind image */}
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(201,169,110,0.28)_0%,_rgba(201,169,110,0.13)_30%,_rgba(201,169,110,0.05)_55%,_transparent_75%)] blur-2xl pointer-events-none" />
               <div className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 w-[180%] h-[120%] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(212,168,67,0.16)_0%,_rgba(212,168,67,0.07)_40%,_transparent_70%)] blur-3xl pointer-events-none" />

@@ -89,7 +89,7 @@ export default function Navigation() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className={`md:hidden p-2 transition-colors z-60 relative ${
+            className={`md:hidden p-2.5 transition-colors z-60 relative ${
               mobileOpen
                 ? "text-blush hover:text-gold"
                 : scrolled

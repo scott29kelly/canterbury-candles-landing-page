@@ -82,7 +82,7 @@ export default function OrderForm() {
   };
 
   return (
-    <section id="order" className="py-24 md:py-36 bg-parchment relative overflow-hidden">
+    <section id="order" className="py-16 md:py-24 lg:py-36 bg-parchment relative overflow-hidden">
       {/* Texture */}
       <div className="absolute inset-0 grain" />
 
@@ -94,7 +94,7 @@ export default function OrderForm() {
 
       <div className="max-w-4xl mx-auto px-6 md:px-12 relative z-10">
         {/* Section header */}
-        <AnimateIn className="text-center mb-16 md:mb-20">
+        <AnimateIn className="text-center mb-10 md:mb-16 lg:mb-20">
           <p className="text-gold text-sm tracking-[0.3em] uppercase mb-4">
             Get Yours
           </p>
@@ -123,7 +123,7 @@ export default function OrderForm() {
               <motion.form
                 key="form"
                 onSubmit={handleSubmit}
-                className="space-y-10"
+                className="space-y-8 md:space-y-10"
                 initial={{ opacity: 1 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
@@ -250,7 +250,7 @@ export default function OrderForm() {
 
                 {/* Submit */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-4">
-                  <div className="text-rose-gray text-sm">
+                  <div className="text-rose-gray text-sm text-center sm:text-left">
                     {selectedScents.length > 0 ? (
                       <span>
                         <span className="text-burgundy font-medium">

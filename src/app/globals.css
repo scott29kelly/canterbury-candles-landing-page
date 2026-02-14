@@ -150,3 +150,33 @@ select:focus {
   0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
   50% { opacity: 1; transform: scale(1) rotate(180deg); }
 }
+
+/* Disable heavy animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-indicator,
+  .ken-burns {
+    animation: none !important;
+  }
+
+  .btn-shimmer:hover {
+    animation: none !important;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Disable / simplify heavy animations on mobile for performance */
+@media (max-width: 767px) {
+  .scroll-indicator {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .ken-burns {
+    animation: none;
+  }
+}

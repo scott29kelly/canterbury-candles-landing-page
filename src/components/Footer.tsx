@@ -32,7 +32,7 @@ export default function Footer() {
           <div className="w-16 h-px bg-gradient-to-r from-transparent via-gold/25 to-transparent mx-auto mb-12" />
 
           {/* Links row */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-12">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-12">
             <a
               href="#story"
               className="text-blush/40 text-sm tracking-widest uppercase hover:text-gold transition-colors duration-300"

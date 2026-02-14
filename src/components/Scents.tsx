@@ -139,23 +139,27 @@ function FeaturedCard({ scent }: { scent: FeaturedScent }) {
           className="object-cover transition-transform duration-700 group-hover:scale-105"
           sizes="(max-width: 640px) 80vw, (max-width: 1024px) 40vw, 25vw"
         />
-        {/* Glass-morphism overlay on hover */}
-        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+        {/* Glass-morphism overlay on hover (desktop only) */}
+        <div className="hidden md:block absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
           <div className="bg-burgundy/80 backdrop-blur-md p-5">
             <p className="text-blush/80 text-sm leading-relaxed">
               {scent.notes}
             </p>
           </div>
         </div>
-        {/* Permanent gradient at bottom for text readability */}
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent group-hover:opacity-0 transition-opacity duration-500" />
+        {/* Permanent gradient at bottom for text readability (desktop only) */}
+        <div className="hidden md:block absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent group-hover:opacity-0 transition-opacity duration-500" />
       </div>
 
-      {/* Name below image */}
+      {/* Name and notes below image */}
       <div className="mt-4 text-center">
         <h3 className="font-display text-burgundy text-lg md:text-xl group-hover:text-gold transition-colors duration-300">
           {scent.name}
         </h3>
+        {/* Scent notes visible on mobile, hidden on desktop (shown via hover overlay) */}
+        <p className="md:hidden text-rose-gray text-sm mt-1 leading-relaxed">
+          {scent.notes}
+        </p>
       </div>
     </div>
   );
@@ -165,11 +169,11 @@ export default function Scents() {
   return (
     <section id="scents" className="relative overflow-hidden">
       {/* Featured scents — blush background */}
-      <div className="py-24 md:py-36 bg-blush relative">
+      <div className="py-16 md:py-24 lg:py-36 bg-blush relative">
         <div className="absolute inset-0 grain" />
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 relative z-10">
           {/* Section header */}
-          <AnimateIn className="text-center mb-16 md:mb-24">
+          <AnimateIn className="text-center mb-10 md:mb-16 lg:mb-24">
             <p className="text-gold text-sm tracking-[0.3em] uppercase mb-4">
               The Collection
             </p>
@@ -218,7 +222,7 @@ export default function Scents() {
       </div>
 
       {/* Remaining scents — burgundy background */}
-      <div className="py-20 md:py-28 bg-burgundy relative grain">
+      <div className="py-16 md:py-20 lg:py-28 bg-burgundy relative grain">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 relative z-10">
           <AnimateIn className="text-center mb-12">
             <p className="text-gold text-sm tracking-[0.3em] uppercase mb-3">
@@ -232,7 +236,7 @@ export default function Scents() {
           {/* Text grid for remaining scents */}
           <StaggerContainer
             stagger={0.12}
-            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-7 gap-3 md:gap-4"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-3 md:gap-4"
           >
             {remainingScents.map((scent) => (
               <StaggerItem key={scent.name} variant="fadeUp" className="h-full">
