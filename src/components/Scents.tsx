@@ -4,144 +4,134 @@ import Image from "next/image";
 import AnimateIn from "./AnimateIn";
 import { StaggerContainer, StaggerItem } from "./AnimateIn";
 
-interface FeaturedScent {
-  name: string;
-  image: string;
-  notes: string;
-}
+const SCENT_IMAGE_MAP: Record<string, string> = {
+  "Aspen Woods": "/images/product-aspen-woods.jpg",
+  "Blueberry Muffins": "/images/product-blueberry-muffins.jpg",
+  "Blueberry Pancakes": "/images/product-blueberry-pancakes.jpg",
+  "Cherry Cheesecake": "/images/product-cherry-cheesecake.jpg",
+  "Espresso": "/images/product-espresso.jpg",
+  "Fruit Loops": "/images/product-fruit-loops.jpg",
+  "Gingerbread": "/images/product-gingerbread.jpg",
+  "Glazed Donuts": "/images/product-glazed-donuts.jpg",
+  "Lemon Pound Cake": "/images/product-lemon-pound-cake.jpg",
+  "Pumpkin Pecan Waffles": "/images/product-pumkin-pecan-waffles.jpg",
+  "Snickerdoodle": "/images/product-snickerdoodle.jpg",
+  "Spring Flowers": "/images/product-spring-flowers.jpg",
+  "Strawberry Pound Cake": "/images/product-strawberry-pound-cake.jpg",
+  "Watermelon Lemonade": "/images/product-watermelon-lemonade.jpg",
+};
 
 interface Scent {
   name: string;
   tag: string;
-  note: string;
+  notes: string;
   accent: string;
 }
 
-const featuredScents: FeaturedScent[] = [
-  {
-    name: "Strawberry Pound Cake",
-    image: "/images/product-strawberry-pound-cake.png",
-    notes: "Ripe strawberries, vanilla cake, whipped cream",
-  },
-  {
-    name: "Lemon Pound Cake",
-    image: "/images/product-lemon-pound-cake.png",
-    notes: "Bright lemon zest, buttery pound cake, sweet cream",
-  },
-  {
-    name: "Cherry Cheesecake",
-    image: "/images/product-cherry-cheesecake.png",
-    notes: "Ripe cherries, creamy cheesecake, graham crust",
-  },
-  {
-    name: "Blueberry Pancakes",
-    image: "/images/product-blueberry-pancakes.png",
-    notes: "Fresh blueberries, maple syrup, warm butter",
-  },
-];
-
-const remainingScents: Scent[] = [
+const scents: Scent[] = [
   {
     name: "Aspen Woods",
     tag: "Woody",
-    note: "Earthy cedar, crisp mountain air, and warm amber",
+    notes: "Earthy cedar, crisp mountain air, and warm amber",
     accent: "bg-[#5a6b4f]",
   },
   {
     name: "Blueberry Muffins",
     tag: "Bakery",
-    note: "Warm blueberry, buttery crumble, vanilla glaze",
+    notes: "Warm blueberry, buttery crumble, vanilla glaze",
     accent: "bg-[#4a5a8a]",
   },
   {
     name: "Blueberry Pancakes",
     tag: "Bakery",
-    note: "Fresh blueberries, maple syrup, warm butter",
+    notes: "Fresh blueberries, maple syrup, warm butter",
     accent: "bg-[#5a6a9a]",
   },
   {
     name: "Cherry Cheesecake",
     tag: "Bakery",
-    note: "Ripe cherries, creamy cheesecake, graham crust",
+    notes: "Ripe cherries, creamy cheesecake, graham crust",
     accent: "bg-[#8a3a4a]",
   },
   {
     name: "Espresso",
     tag: "Classic",
-    note: "Rich dark roast, caramel undertones, smooth finish",
+    notes: "Rich dark roast, caramel undertones, smooth finish",
     accent: "bg-[#5a3a2a]",
   },
   {
     name: "Fruit Loops",
     tag: "Fruity",
-    note: "Bright citrus medley, sweet cereal, morning joy",
+    notes: "Bright citrus medley, sweet cereal, morning joy",
     accent: "bg-[#c4784a]",
   },
   {
     name: "Gingerbread",
     tag: "Bakery",
-    note: "Warm ginger, cinnamon spice, dark molasses",
+    notes: "Warm ginger, cinnamon spice, dark molasses",
     accent: "bg-[#8a5a3a]",
   },
   {
     name: "Glazed Donuts",
     tag: "Bakery",
-    note: "Warm dough, sweet vanilla glaze, powdered sugar",
+    notes: "Warm dough, sweet vanilla glaze, powdered sugar",
     accent: "bg-[#c4a44a]",
   },
   {
     name: "Lemon Pound Cake",
     tag: "Bakery",
-    note: "Bright lemon zest, buttery pound cake, sweet cream",
+    notes: "Bright lemon zest, buttery pound cake, sweet cream",
     accent: "bg-[#c4b44a]",
   },
   {
     name: "Pumpkin Pecan Waffles",
     tag: "Bakery",
-    note: "Spiced pumpkin, toasted pecans, maple drizzle",
+    notes: "Spiced pumpkin, toasted pecans, maple drizzle",
     accent: "bg-[#b47a3a]",
   },
   {
     name: "Snickerdoodle",
     tag: "Bakery",
-    note: "Cinnamon sugar, warm vanilla, fresh-baked cookies",
+    notes: "Cinnamon sugar, warm vanilla, fresh-baked cookies",
     accent: "bg-[#c49a6a]",
   },
   {
     name: "Spring Flowers",
     tag: "Floral",
-    note: "Jasmine, lily of the valley, soft green stems",
+    notes: "Jasmine, lily of the valley, soft green stems",
     accent: "bg-[#7a9a6a]",
   },
   {
     name: "Strawberry Pound Cake",
     tag: "Bakery",
-    note: "Ripe strawberries, vanilla cake, whipped cream",
+    notes: "Ripe strawberries, vanilla cake, whipped cream",
     accent: "bg-[#c45a6a]",
   },
   {
     name: "Watermelon Lemonade",
     tag: "Fruity",
-    note: "Sweet watermelon, tart lemon, summer breeze",
+    notes: "Sweet watermelon, tart lemon, summer breeze",
     accent: "bg-[#6a9a5a]",
   },
 ];
 
-function FeaturedCard({ scent }: { scent: FeaturedScent }) {
+function ScentCard({ scent }: { scent: Scent }) {
+  const image = SCENT_IMAGE_MAP[scent.name];
+
   return (
     <div className="group relative">
       {/* Image */}
       <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-parchment">
         <Image
-          src={scent.image}
+          src={image}
           alt={`${scent.name} scented candle in mason jar`}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-105"
-          sizes="(max-width: 640px) 80vw, (max-width: 1024px) 40vw, 25vw"
+          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 14vw"
         />
         {/* Glass-morphism overlay on hover (desktop only) */}
         <div className="hidden md:block absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
-          <div className="bg-burgundy/80 backdrop-blur-md p-5">
+          <div className="bg-burgundy/80 backdrop-blur-md p-4">
             <p className="text-blush/80 text-sm leading-relaxed">
               {scent.notes}
             </p>
@@ -152,12 +142,15 @@ function FeaturedCard({ scent }: { scent: FeaturedScent }) {
       </div>
 
       {/* Name and notes below image */}
-      <div className="mt-4 text-center">
-        <h3 className="font-display text-burgundy text-lg md:text-xl group-hover:text-gold transition-colors duration-300">
+      <div className="mt-3 text-center">
+        <p className="text-gold/60 text-[10px] tracking-[0.2em] uppercase mb-1">
+          {scent.tag}
+        </p>
+        <h3 className="font-display text-burgundy text-base md:text-lg group-hover:text-gold transition-colors duration-300 leading-tight">
           {scent.name}
         </h3>
         {/* Scent notes visible on mobile, hidden on desktop (shown via hover overlay) */}
-        <p className="md:hidden text-rose-gray text-sm mt-1 leading-relaxed">
+        <p className="md:hidden text-rose-gray text-xs mt-1 leading-relaxed">
           {scent.notes}
         </p>
       </div>
@@ -168,7 +161,6 @@ function FeaturedCard({ scent }: { scent: FeaturedScent }) {
 export default function Scents() {
   return (
     <section id="scents" className="relative overflow-hidden">
-      {/* Featured scents — blush background */}
       <div className="py-16 md:py-24 lg:py-36 bg-blush relative">
         <div className="absolute inset-0 grain" />
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 relative z-10">
@@ -216,66 +208,20 @@ export default function Scents() {
             </p>
           </AnimateIn>
 
-          {/* Featured product grid */}
+          {/* Unified product grid */}
           <StaggerContainer
-            stagger={0.35}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"
+            stagger={0.08}
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-5 md:gap-6"
           >
-            {featuredScents.map((scent) => (
+            {scents.map((scent) => (
               <StaggerItem key={scent.name} variant="fadeUp">
-                <FeaturedCard scent={scent} />
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </div>
-      </div>
-
-      {/* Remaining scents — burgundy background */}
-      <div className="py-16 md:py-20 lg:py-28 bg-burgundy relative grain">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 relative z-10">
-          <AnimateIn className="text-center mb-12">
-            <p className="text-gold text-sm tracking-[0.3em] uppercase mb-3">
-              All 14 Scents
-            </p>
-            <h3 className="font-display text-blush text-2xl md:text-3xl">
-              The Full Collection
-            </h3>
-          </AnimateIn>
-
-          {/* Text grid for remaining scents */}
-          <StaggerContainer
-            stagger={0.12}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-3 md:gap-4"
-          >
-            {remainingScents.map((scent) => (
-              <StaggerItem key={scent.name} variant="fadeUp" className="h-full">
-                <div className="h-full group relative bg-burgundy-light/30 border border-blush/5 p-5 hover:border-gold/30 transition-all duration-500 hover:bg-burgundy-light/50">
-                  <div className="flex items-start justify-between mb-3">
-                    <div
-                      className={`w-2.5 h-2.5 rounded-full ${scent.accent} ring-2 ring-blush/10 group-hover:ring-gold/30 transition-all duration-300`}
-                    />
-                    <span className="text-blush/25 text-[10px] tracking-[0.2em] uppercase group-hover:text-gold/50 transition-colors duration-300">
-                      {scent.tag}
-                    </span>
-                  </div>
-
-                  <h4 className="font-display text-blush text-base mb-2 group-hover:text-gold transition-colors duration-300">
-                    {scent.name}
-                  </h4>
-
-                  <p className="text-blush/35 text-sm leading-relaxed group-hover:text-blush/55 transition-colors duration-300">
-                    {scent.note}
-                  </p>
-
-                  {/* Animated bottom accent */}
-                  <div className="absolute bottom-0 left-0 w-0 h-px bg-gradient-to-r from-gold to-gold-light group-hover:w-full transition-all duration-700" />
-                </div>
+                <ScentCard scent={scent} />
               </StaggerItem>
             ))}
           </StaggerContainer>
 
           {/* CTA */}
-          <AnimateIn className="text-center mt-14">
+          <AnimateIn className="text-center mt-14 md:mt-20">
             <a
               href="#order"
               className="group inline-flex items-center gap-3 btn-shimmer text-burgundy px-10 py-5 text-sm tracking-widest uppercase font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-gold/25"
