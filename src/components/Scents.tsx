@@ -219,25 +219,6 @@ export default function Scents() {
               </StaggerItem>
             ))}
           </StaggerContainer>
-
-          {/* CTA */}
-          <AnimateIn className="text-center mt-14 md:mt-20">
-            <a
-              href="#order"
-              className="group inline-flex items-center gap-3 btn-shimmer text-burgundy px-10 py-5 text-sm tracking-widest uppercase font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-gold/25"
-            >
-              Order Your Favorites
-              <svg
-                className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-1"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 5v14M5 12l7 7 7-7" />
-              </svg>
-            </a>
-          </AnimateIn>
         </div>
       </div>
     </section>
