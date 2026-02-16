@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import AnimateIn from "./AnimateIn";
-import { StaggerContainer, StaggerItem } from "./AnimateIn";
 
 const SCENT_IMAGE_MAP: Record<string, string> = {
   "Aspen Woods": "/images/product-aspen-woods.jpg",
@@ -209,16 +208,13 @@ export default function Scents() {
           </AnimateIn>
 
           {/* Unified product grid */}
-          <StaggerContainer
-            stagger={0.08}
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-5 md:gap-6"
-          >
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-5 md:gap-6">
             {scents.map((scent) => (
-              <StaggerItem key={scent.name} variant="fadeUp">
+              <AnimateIn key={scent.name} variant="fadeUp">
                 <ScentCard scent={scent} />
-              </StaggerItem>
+              </AnimateIn>
             ))}
-          </StaggerContainer>
+          </div>
         </div>
       </div>
     </section>
