@@ -208,9 +208,9 @@ export default function Scents() {
           </AnimateIn>
 
           {/* Unified product grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-5 md:gap-6">
+          <div className="flex flex-wrap justify-center gap-5 md:gap-6">
             {scents.map((scent) => (
-              <AnimateIn key={scent.name} variant="fadeUp">
+              <AnimateIn key={scent.name} variant="fadeUp" className="w-[calc(50%-0.625rem)] sm:w-[calc(33.333%-0.834rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)] xl:w-[calc(20%-1.2rem)] 2xl:w-[calc(14.285%-1.286rem)]">
                 <ScentCard scent={scent} />
               </AnimateIn>
             ))}
