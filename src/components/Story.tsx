@@ -69,34 +69,6 @@ function ParallaxImage({
   );
 }
 
-function DetailImage({
-  src,
-  alt,
-  caption,
-}: {
-  src: string;
-  alt: string;
-  caption: string;
-}) {
-  return (
-    <AnimateIn variant="scaleIn" className="relative group">
-      <div className="relative overflow-hidden aspect-square">
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-          sizes="(max-width: 768px) 50vw, 25vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-burgundy/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      </div>
-      <p className="text-rose-gray text-xs tracking-[0.15em] uppercase mt-3 text-center">
-        {caption}
-      </p>
-    </AnimateIn>
-  );
-}
-
 export default function Story() {
   return (
     <section id="story" className="py-16 md:py-24 lg:py-36 bg-blush relative">
@@ -167,30 +139,6 @@ export default function Story() {
               </AnimateIn>
             </div>
           ))}
-        </div>
-
-        {/* Detail images row */}
-        <div className="mt-16 md:mt-24 lg:mt-36 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          <DetailImage
-            src="/images/crafting-supplies.jpg"
-            alt="Measuring cup, metal pouring pot, glass jars, wick clips on paper towel"
-            caption="The tools"
-          />
-          <DetailImage
-            src="/images/logo-metallic-bronze.png"
-            alt="Canterbury Candles metallic bronze logo on textured background"
-            caption="The brand"
-          />
-          <DetailImage
-            src="/images/candle-product-shot.jpg"
-            alt="Single Canterbury Candles jar, clean product shot"
-            caption="The finished pour"
-          />
-          <DetailImage
-            src="/images/empty-jars-prepped.jpg"
-            alt="Glass jars with wicks ready for pouring"
-            caption="Ready to fill"
-          />
         </div>
 
         {/* Pull quote on parchment */}
