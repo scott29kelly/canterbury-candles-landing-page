@@ -216,154 +216,106 @@ export default function OrderForm() {
               <motion.form
                 key="form"
                 onSubmit={handleSubmit}
-                className="space-y-8 md:space-y-10"
+                className="space-y-6 md:space-y-8"
                 initial={{ opacity: 1 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                {/* Contact info — underline-only inputs */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Contact info — compact grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
-                    >
-                      Name
-                    </label>
+                    <label htmlFor="name" className="block text-burgundy text-[10px] tracking-widest uppercase mb-1.5 font-medium">Name</label>
                     <input
                       type="text"
                       id="name"
                       name="name"
                       required
-                      className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                      className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-2.5 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none text-sm"
                       placeholder="Your name"
                     />
                   </div>
                   <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
-                    >
-                      Email
-                    </label>
+                    <label htmlFor="email" className="block text-burgundy text-[10px] tracking-widest uppercase mb-1.5 font-medium">Email</label>
                     <input
                       type="email"
                       id="email"
                       name="email"
                       required
-                      className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                      className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-2.5 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none text-sm"
                       placeholder="your@email.com"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="phone"
-                    className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
-                  >
-                    Phone{" "}
-                    <span className="text-rose-gray normal-case tracking-normal font-normal">
-                      (optional)
-                    </span>
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
-                    placeholder="(555) 123-4567"
-                  />
-                </div>
-
-                {/* Shipping address — required for delivery */}
-                <div className="space-y-6">
                   <div>
-                    <h3 className="text-burgundy text-xs tracking-widest uppercase mb-4 font-medium">
-                      Shipping Address
-                    </h3>
-                    <p className="text-rose-gray text-sm mb-4 -mt-2">
-                      Required for delivery. We&apos;ll ship your order to this address.
-                    </p>
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="addressLine1"
-                      className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
-                    >
-                      Street address
+                    <label htmlFor="phone" className="block text-burgundy text-[10px] tracking-widest uppercase mb-1.5 font-medium">
+                      Phone <span className="text-rose-gray/70 normal-case tracking-normal font-normal">(opt)</span>
                     </label>
                     <input
-                      type="text"
-                      id="addressLine1"
-                      name="addressLine1"
-                      required
-                      autoComplete="street-address"
-                      className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
-                      placeholder="123 Main St"
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-2.5 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none text-sm"
+                      placeholder="(555) 123-4567"
                     />
                   </div>
-                  <div>
-                    <label
-                      htmlFor="addressLine2"
-                      className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
-                    >
-                      Apt, suite, unit{" "}
-                      <span className="text-rose-gray normal-case tracking-normal font-normal">
-                        (optional)
-                      </span>
-                    </label>
-                    <input
-                      type="text"
-                      id="addressLine2"
-                      name="addressLine2"
-                      autoComplete="address-line2"
-                      className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
-                      placeholder="Apt 4B"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                </div>
+
+                {/* Shipping address — compact inline layout per checkout UX best practices */}
+                <div className="space-y-4">
+                  <h3 className="text-burgundy text-xs tracking-widest uppercase font-medium">
+                    Shipping Address
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-[1fr_8rem] gap-4">
                     <div>
-                      <label
-                        htmlFor="city"
-                        className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
-                      >
-                        City
-                      </label>
+                      <label htmlFor="addressLine1" className="sr-only">Street address</label>
+                      <input
+                        type="text"
+                        id="addressLine1"
+                        name="addressLine1"
+                        required
+                        autoComplete="street-address"
+                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-2.5 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none text-sm"
+                        placeholder="Street address"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="addressLine2" className="sr-only">Apt, suite, unit</label>
+                      <input
+                        type="text"
+                        id="addressLine2"
+                        name="addressLine2"
+                        autoComplete="address-line2"
+                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-2.5 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none text-sm"
+                        placeholder="Apt, suite"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label htmlFor="city" className="sr-only">City</label>
                       <input
                         type="text"
                         id="city"
                         name="city"
                         required
                         autoComplete="address-level2"
-                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-2.5 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none text-sm"
                         placeholder="City"
                       />
                     </div>
                     <div>
-                      <label
-                        htmlFor="state"
-                        className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
-                      >
-                        State
-                      </label>
+                      <label htmlFor="state" className="sr-only">State</label>
                       <input
                         type="text"
                         id="state"
                         name="state"
                         required
                         autoComplete="address-level1"
-                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-2.5 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none text-sm"
                         placeholder="State"
                       />
                     </div>
                     <div>
-                      <label
-                        htmlFor="zip"
-                        className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
-                      >
-                        ZIP code
-                      </label>
+                      <label htmlFor="zip" className="sr-only">ZIP code</label>
                       <input
                         type="text"
                         id="zip"
@@ -371,8 +323,8 @@ export default function OrderForm() {
                         required
                         inputMode="numeric"
                         autoComplete="postal-code"
-                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
-                        placeholder="12345"
+                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-2.5 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none text-sm"
+                        placeholder="ZIP"
                       />
                     </div>
                   </div>
@@ -555,21 +507,15 @@ export default function OrderForm() {
 
                 {/* Special instructions */}
                 <div>
-                  <label
-                    htmlFor="message"
-                    className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
-                  >
-                    Special Instructions{" "}
-                    <span className="text-rose-gray normal-case tracking-normal font-normal">
-                      (optional)
-                    </span>
+                  <label htmlFor="message" className="block text-burgundy text-[10px] tracking-widest uppercase mb-1.5 font-medium">
+                    Special Instructions <span className="text-rose-gray/70 normal-case tracking-normal font-normal">(opt)</span>
                   </label>
                   <textarea
                     id="message"
                     name="message"
-                    rows={3}
-                    className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none resize-none"
-                    placeholder="Any special requests, delivery preferences, or questions..."
+                    rows={2}
+                    className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-2.5 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none resize-none text-sm"
+                    placeholder="Special requests, delivery notes..."
                   />
                 </div>
 
