@@ -88,8 +88,8 @@ export default function Scents() {
                 </span>
               </div>
             </div>
-            <p className="text-rose-gray/60 text-sm mt-4">
-              Mason jars &middot; coconut, soy &amp; beeswax blend &middot; {PRODUCT_DETAILS.waxType} &middot; {PRODUCT_DETAILS.wickType} &middot; {PRODUCT_DETAILS.burnTime} &middot; {PRODUCT_DETAILS.origin}
+            <p className="text-rose-gray/60 text-sm mt-8">
+              Coconut, paraffin-free soy &amp; beeswax blend &middot; {PRODUCT_DETAILS.wickType} &middot; {PRODUCT_DETAILS.burnTime} &middot; {PRODUCT_DETAILS.origin}
             </p>
           </AnimateIn>
 

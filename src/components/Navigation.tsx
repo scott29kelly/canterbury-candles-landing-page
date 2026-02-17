@@ -44,8 +44,19 @@ export default function Navigation() {
           {/* Brand */}
           <a
             href="#"
-            className="group"
+            className="group flex items-center gap-2"
           >
+            <div className={`relative rounded-full overflow-hidden transition-all duration-500 ${
+              scrolled ? "w-9 h-9" : "w-10 h-10"
+            }`}>
+              <Image
+                src="/images/logo-burgundy-pink.png"
+                alt="Canterbury Candles"
+                fill
+                className="object-cover"
+                sizes="40px"
+              />
+            </div>
             <span className={`font-display text-lg tracking-wide transition-colors duration-300 ${
               scrolled
                 ? "text-burgundy group-hover:text-burgundy-light"
