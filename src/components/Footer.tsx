@@ -74,7 +74,7 @@ export default function Footer() {
             </a>
             <div className="mt-6">
               <Image
-                src="/images/qr-instagram.png"
+                src="/images/IG-link.jpg"
                 alt="Scan to follow Canterbury Candles on Instagram"
                 width={112}
                 height={112}
