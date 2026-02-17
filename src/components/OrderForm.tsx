@@ -145,7 +145,11 @@ export default function OrderForm() {
           name: formData.get("name"),
           email: formData.get("email"),
           phone: formData.get("phone") || undefined,
-          address: formData.get("address") || undefined,
+          addressLine1: formData.get("addressLine1"),
+          addressLine2: formData.get("addressLine2") || undefined,
+          city: formData.get("city"),
+          state: formData.get("state"),
+          zip: formData.get("zip"),
           message: formData.get("message") || undefined,
           items: lineItems,
           total: totalPrice,
@@ -272,23 +276,106 @@ export default function OrderForm() {
                   />
                 </div>
 
-                <div>
-                  <label
-                    htmlFor="address"
-                    className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
-                  >
-                    Mailing Address{" "}
-                    <span className="text-rose-gray normal-case tracking-normal font-normal">
-                      (optional)
-                    </span>
-                  </label>
-                  <textarea
-                    id="address"
-                    name="address"
-                    rows={3}
-                    className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none resize-none"
-                    placeholder="Street, city, state, ZIP"
-                  />
+                {/* Shipping address — required for delivery */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-burgundy text-xs tracking-widest uppercase mb-4 font-medium">
+                      Shipping Address
+                    </h3>
+                    <p className="text-rose-gray text-sm mb-4 -mt-2">
+                      Required for delivery. We&apos;ll ship your order to this address.
+                    </p>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="addressLine1"
+                      className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
+                    >
+                      Street address
+                    </label>
+                    <input
+                      type="text"
+                      id="addressLine1"
+                      name="addressLine1"
+                      required
+                      autoComplete="street-address"
+                      className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                      placeholder="123 Main St"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="addressLine2"
+                      className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
+                    >
+                      Apt, suite, unit{" "}
+                      <span className="text-rose-gray normal-case tracking-normal font-normal">
+                        (optional)
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      id="addressLine2"
+                      name="addressLine2"
+                      autoComplete="address-line2"
+                      className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                      placeholder="Apt 4B"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                    <div>
+                      <label
+                        htmlFor="city"
+                        className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
+                      >
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        required
+                        autoComplete="address-level2"
+                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                        placeholder="City"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="state"
+                        className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
+                      >
+                        State
+                      </label>
+                      <input
+                        type="text"
+                        id="state"
+                        name="state"
+                        required
+                        autoComplete="address-level1"
+                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                        placeholder="State"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="zip"
+                        className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
+                      >
+                        ZIP code
+                      </label>
+                      <input
+                        type="text"
+                        id="zip"
+                        name="zip"
+                        required
+                        inputMode="numeric"
+                        autoComplete="postal-code"
+                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                        placeholder="12345"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Scent selection — pill/chip buttons */}
