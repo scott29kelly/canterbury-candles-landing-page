@@ -61,32 +61,66 @@ export default function OrderForm() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [activeScentPicker, setActiveScentPicker] = useState<string | null>(null);
 
-  const toggleScent = (scent: string) => {
+  const addToCart = (scent: string, size: CandleSize) => {
     setLineItems((prev) => {
-      const existing = prev.find((item) => item.scent === scent);
-      if (existing) return prev.filter((item) => item.scent !== scent);
-      return [...prev, { scent, size: "16oz" as CandleSize, quantity: 1 }];
+      const existing = prev.find(
+        (item) => item.scent === scent && item.size === size
+      );
+      if (existing) {
+        return prev.map((item) =>
+          item.scent === scent && item.size === size
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prev, { scent, size, quantity: 1 }];
     });
+    setActiveScentPicker(null);
   };
 
-  const changeSize = (scent: string, size: CandleSize) => {
+  const removeFromCart = (scent: string, size: CandleSize) => {
     setLineItems((prev) =>
-      prev.map((item) =>
-        item.scent === scent ? { ...item, size } : item
-      )
+      prev.filter((item) => !(item.scent === scent && item.size === size))
     );
   };
 
-  const changeQuantity = (scent: string, delta: number) => {
+  const changeSize = (scent: string, fromSize: CandleSize, toSize: CandleSize) => {
+    if (fromSize === toSize) return;
     setLineItems((prev) => {
-      const updated = prev.map((item) =>
-        item.scent === scent
-          ? { ...item, quantity: item.quantity + delta }
+      const target = prev.find(
+        (item) => item.scent === scent && item.size === toSize
+      );
+      if (target) {
+        const source = prev.find(
+          (item) => item.scent === scent && item.size === fromSize
+        );
+        return prev
+          .map((item) => {
+            if (item.scent === scent && item.size === toSize) {
+              return { ...item, quantity: item.quantity + (source?.quantity ?? 0) };
+            }
+            return item;
+          })
+          .filter((item) => !(item.scent === scent && item.size === fromSize));
+      }
+      return prev.map((item) =>
+        item.scent === scent && item.size === fromSize
+          ? { ...item, size: toSize }
           : item
       );
-      return updated.filter((item) => item.quantity > 0);
     });
+  };
+
+  const changeQuantity = (scent: string, size: CandleSize, delta: number) => {
+    setLineItems((prev) =>
+      prev.map((item) =>
+        item.scent === scent && item.size === size
+          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+          : item
+      )
+    );
   };
 
   const totalItems = lineItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -170,6 +204,7 @@ export default function OrderForm() {
                   setSubmitted(false);
                   setLineItems([]);
                   setSubmitError(null);
+                  setActiveScentPicker(null);
                 }}
               />
             ) : (
@@ -248,35 +283,69 @@ export default function OrderForm() {
                   )}
                   <div className="flex flex-wrap gap-2.5">
                     {SCENT_NAMES.map((scent) => {
-                      const isSelected = lineItems.some(
-                        (item) => item.scent === scent
-                      );
+                      const scentQty = lineItems
+                        .filter((item) => item.scent === scent)
+                        .reduce((sum, item) => sum + item.quantity, 0);
+                      const inCart = scentQty > 0;
+                      const pickerOpen = activeScentPicker === scent;
                       return (
-                        <button
-                          key={scent}
-                          type="button"
-                          onClick={() => toggleScent(scent)}
-                          className={`px-4 py-2.5 rounded-full text-sm transition-all duration-300 ${
-                            isSelected
-                              ? "bg-burgundy text-blush border border-burgundy shadow-md shadow-burgundy/20"
-                              : "bg-transparent text-charcoal border border-charcoal/15 hover:border-gold hover:text-gold"
-                          }`}
-                        >
-                          <span className="flex items-center gap-2">
-                            {isSelected && (
-                              <svg
-                                className="w-3.5 h-3.5 text-gold"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                                viewBox="0 0 24 24"
-                              >
-                                <path d="M5 13l4 4L19 7" />
-                              </svg>
-                            )}
-                            {scent}
-                          </span>
-                        </button>
+                        <div key={scent} className="relative">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setActiveScentPicker(pickerOpen ? null : scent)
+                            }
+                            className={`px-4 py-2.5 rounded-full text-sm transition-all duration-300 ${
+                              inCart
+                                ? "bg-burgundy text-blush border border-burgundy shadow-md shadow-burgundy/20"
+                                : "bg-transparent text-charcoal border border-charcoal/15 hover:border-gold hover:text-gold"
+                            }`}
+                          >
+                            <span className="flex items-center gap-2">
+                              {inCart ? (
+                                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gold text-burgundy text-[11px] font-bold leading-none">
+                                  {scentQty}
+                                </span>
+                              ) : (
+                                <svg
+                                  className="w-3.5 h-3.5 opacity-40"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path d="M12 5v14M5 12h14" />
+                                </svg>
+                              )}
+                              {scent}
+                            </span>
+                          </button>
+                          {/* Size picker dropdown */}
+                          {pickerOpen && (
+                            <>
+                              <div
+                                className="fixed inset-0 z-10"
+                                onClick={() => setActiveScentPicker(null)}
+                              />
+                              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-20 bg-white rounded-lg shadow-lg shadow-charcoal/10 border border-gold/20 p-1.5 flex gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => addToCart(scent, "8oz")}
+                                  className="px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap text-charcoal hover:bg-gold/10 hover:text-gold transition-colors duration-200"
+                                >
+                                  8oz &middot; ${PRICES["8oz"]}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => addToCart(scent, "16oz")}
+                                  className="px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap text-charcoal hover:bg-gold/10 hover:text-gold transition-colors duration-200"
+                                >
+                                  16oz &middot; ${PRICES["16oz"]}
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
@@ -291,7 +360,7 @@ export default function OrderForm() {
                     <div className="divide-y divide-charcoal/5">
                       {lineItems.map((item) => (
                         <div
-                          key={item.scent}
+                          key={`${item.scent}::${item.size}`}
                           className="flex flex-col sm:flex-row sm:items-center gap-3 py-3 first:pt-0 last:pb-0"
                         >
                           {/* Scent name */}
@@ -304,7 +373,7 @@ export default function OrderForm() {
                             <div className="flex rounded-full border border-gold/30 overflow-hidden text-[11px] font-medium leading-none">
                               <button
                                 type="button"
-                                onClick={() => changeSize(item.scent, "8oz")}
+                                onClick={() => changeSize(item.scent, item.size, "8oz")}
                                 className={`px-2.5 py-1.5 transition-colors duration-200 ${
                                   item.size === "8oz"
                                     ? "bg-gold text-burgundy"
@@ -315,7 +384,7 @@ export default function OrderForm() {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => changeSize(item.scent, "16oz")}
+                                onClick={() => changeSize(item.scent, item.size, "16oz")}
                                 className={`px-2.5 py-1.5 transition-colors duration-200 ${
                                   item.size === "16oz"
                                     ? "bg-gold text-burgundy"
@@ -330,8 +399,9 @@ export default function OrderForm() {
                             <div className="flex items-center gap-1.5">
                               <button
                                 type="button"
-                                onClick={() => changeQuantity(item.scent, -1)}
-                                className="w-7 h-7 rounded-full border border-charcoal/15 text-charcoal/60 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-sm"
+                                onClick={() => changeQuantity(item.scent, item.size, -1)}
+                                disabled={item.quantity <= 1}
+                                className="w-7 h-7 rounded-full border border-charcoal/15 text-charcoal/60 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-sm disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-charcoal/15 disabled:hover:text-charcoal/60"
                               >
                                 &minus;
                               </button>
@@ -340,7 +410,7 @@ export default function OrderForm() {
                               </span>
                               <button
                                 type="button"
-                                onClick={() => changeQuantity(item.scent, 1)}
+                                onClick={() => changeQuantity(item.scent, item.size, 1)}
                                 className="w-7 h-7 rounded-full border border-charcoal/15 text-charcoal/60 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-sm"
                               >
                                 +
@@ -351,6 +421,24 @@ export default function OrderForm() {
                             <span className="text-gold font-semibold text-sm w-14 text-right tabular-nums">
                               ${PRICES[item.size] * item.quantity}
                             </span>
+
+                            {/* Remove button */}
+                            <button
+                              type="button"
+                              onClick={() => removeFromCart(item.scent, item.size)}
+                              className="w-7 h-7 rounded-full text-charcoal/30 hover:text-red-500 hover:bg-red-50 transition-colors duration-200 flex items-center justify-center"
+                              aria-label={`Remove ${item.scent} ${item.size}`}
+                            >
+                              <svg
+                                className="w-3.5 h-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
                           </div>
                         </div>
                       ))}
