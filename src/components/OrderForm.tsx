@@ -145,6 +145,7 @@ export default function OrderForm() {
           name: formData.get("name"),
           email: formData.get("email"),
           phone: formData.get("phone") || undefined,
+          address: formData.get("address") || undefined,
           message: formData.get("message") || undefined,
           items: lineItems,
           total: totalPrice,
@@ -268,6 +269,25 @@ export default function OrderForm() {
                     name="phone"
                     className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
                     placeholder="(555) 123-4567"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="address"
+                    className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium"
+                  >
+                    Mailing Address{" "}
+                    <span className="text-rose-gray normal-case tracking-normal font-normal">
+                      (optional)
+                    </span>
+                  </label>
+                  <textarea
+                    id="address"
+                    name="address"
+                    rows={3}
+                    className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none resize-none"
+                    placeholder="Street, city, state, ZIP"
                   />
                 </div>
 

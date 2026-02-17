@@ -12,6 +12,7 @@ interface OrderPayload {
   name: string;
   email: string;
   phone?: string;
+  address?: string;
   message?: string;
   items: OrderLineItem[];
   total: number;
@@ -56,6 +57,7 @@ function validatePayload(body: unknown): { data: OrderPayload; error?: never } |
       name: (b.name as string).trim(),
       email: (b.email as string).trim(),
       phone: typeof b.phone === "string" && b.phone.trim() ? b.phone.trim() : undefined,
+      address: typeof b.address === "string" && b.address.trim() ? b.address.trim() : undefined,
       message: typeof b.message === "string" && b.message.trim() ? b.message.trim() : undefined,
       items: b.items as OrderLineItem[],
       total: 0, // recalculated below
@@ -82,6 +84,7 @@ function buildEmailHtml(order: OrderPayload): string {
       <p><strong>Name:</strong> ${order.name}</p>
       <p><strong>Email:</strong> ${order.email}</p>
       ${order.phone ? `<p><strong>Phone:</strong> ${order.phone}</p>` : ""}
+      ${order.address ? `<p><strong>Mailing Address:</strong><br/>${order.address.replace(/\n/g, "<br/>")}</p>` : ""}
       ${order.message ? `<p><strong>Special Instructions:</strong> ${order.message}</p>` : ""}
       <table style="width:100%;border-collapse:collapse;margin:20px 0">
         <thead>
