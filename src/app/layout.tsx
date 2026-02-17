@@ -51,7 +51,7 @@ const sans = localFont({
 export const metadata: Metadata = {
   title: "Canterbury Candles — Hand-Poured, Small Batch",
   description:
-    "Artisan coconut, soy & beeswax blend candles, hand-poured in small batches. 14 signature scents in mason jars with bronze lids.",
+    "Artisan coconut, soy & beeswax blend candles, hand-poured in small batches. Signature scents in mason jars with bronze lids.",
   keywords: [
     "candles",
     "hand-poured candles",
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Canterbury Candles — Hand-Poured, Small Batch",
     description:
-      "Artisan coconut, soy & beeswax blend candles, hand-poured in small batches. 14 signature scents.",
+      "Artisan coconut, soy & beeswax blend candles, hand-poured in small batches. Signature scents.",
     type: "website",
   },
 };

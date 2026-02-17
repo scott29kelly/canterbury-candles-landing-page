@@ -3,23 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import AnimateIn from "./AnimateIn";
-
-const allScents = [
-  "Aspen Woods",
-  "Blueberry Muffins",
-  "Blueberry Pancakes",
-  "Cherry Cheesecake",
-  "Espresso",
-  "Fruit Loops",
-  "Glazed Donuts",
-  "Gingerbread",
-  "Lemon Pound Cake",
-  "Pumpkin Pecan Waffles",
-  "Snickerdoodle",
-  "Spring Flowers",
-  "Strawberry Pound Cake",
-  "Watermelon Lemonade",
-];
+import { SCENT_NAMES, PRICES, type CandleSize } from "@/data/products";
 
 function SuccessState({ onReset }: { onReset: () => void }) {
   return (
@@ -66,40 +50,86 @@ function SuccessState({ onReset }: { onReset: () => void }) {
   );
 }
 
-interface ScentSelection {
+export interface LineItem {
   scent: string;
-  size: "8oz" | "16oz";
+  size: CandleSize;
+  quantity: number;
 }
 
-const PRICES: Record<"8oz" | "16oz", number> = { "8oz": 15, "16oz": 25 };
-
 export default function OrderForm() {
-  const [selectedScents, setSelectedScents] = useState<ScentSelection[]>([]);
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const toggleScent = (scent: string) => {
-    setSelectedScents((prev) => {
-      const existing = prev.find((s) => s.scent === scent);
-      if (existing) return prev.filter((s) => s.scent !== scent);
-      return [...prev, { scent, size: "16oz" }];
+    setLineItems((prev) => {
+      const existing = prev.find((item) => item.scent === scent);
+      if (existing) return prev.filter((item) => item.scent !== scent);
+      return [...prev, { scent, size: "16oz" as CandleSize, quantity: 1 }];
     });
   };
 
-  const toggleSize = (scent: string) => {
-    setSelectedScents((prev) =>
-      prev.map((s) =>
-        s.scent === scent
-          ? { ...s, size: s.size === "8oz" ? "16oz" : "8oz" }
-          : s
+  const changeSize = (scent: string, size: CandleSize) => {
+    setLineItems((prev) =>
+      prev.map((item) =>
+        item.scent === scent ? { ...item, size } : item
       )
     );
   };
 
-  const total = selectedScents.reduce((sum, s) => sum + PRICES[s.size], 0);
+  const changeQuantity = (scent: string, delta: number) => {
+    setLineItems((prev) => {
+      const updated = prev.map((item) =>
+        item.scent === scent
+          ? { ...item, quantity: item.quantity + delta }
+          : item
+      );
+      return updated.filter((item) => item.quantity > 0);
+    });
+  };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const totalItems = lineItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = lineItems.reduce(
+    (sum, item) => sum + PRICES[item.size] * item.quantity,
+    0
+  );
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      const res = await fetch("/api/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          email: formData.get("email"),
+          phone: formData.get("phone") || undefined,
+          message: formData.get("message") || undefined,
+          items: lineItems,
+          total: totalPrice,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Something went wrong. Please try again.");
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -126,8 +156,8 @@ export default function OrderForm() {
           <p className="text-rose-gray max-w-xl mx-auto text-lg leading-relaxed">
             Select your favorite scents below and we&apos;ll get back to you to
             confirm your order.{" "}
-            <span className="text-gold font-medium">$15 for 8oz</span> /{" "}
-            <span className="text-gold font-medium">$25 for 16oz</span>.
+            <span className="text-gold font-medium">${PRICES["8oz"]} for 8oz</span> /{" "}
+            <span className="text-gold font-medium">${PRICES["16oz"]} for 16oz</span>.
           </p>
         </AnimateIn>
 
@@ -138,7 +168,8 @@ export default function OrderForm() {
                 key="success"
                 onReset={() => {
                   setSubmitted(false);
-                  setSelectedScents([]);
+                  setLineItems([]);
+                  setSubmitError(null);
                 }}
               />
             ) : (
@@ -210,74 +241,122 @@ export default function OrderForm() {
                   <label className="block text-burgundy text-xs tracking-widest uppercase mb-2 font-medium">
                     Select Your Scents
                   </label>
-                  {selectedScents.length > 0 && (
+                  {lineItems.length > 0 && (
                     <p className="text-gold text-sm mb-4">
-                      {selectedScents.length} selected &middot; ${total} total
+                      {totalItems} item{totalItems !== 1 ? "s" : ""} &middot; ${totalPrice} total
                     </p>
                   )}
                   <div className="flex flex-wrap gap-2.5">
-                    {allScents.map((scent) => {
-                      const selection = selectedScents.find(
-                        (s) => s.scent === scent
+                    {SCENT_NAMES.map((scent) => {
+                      const isSelected = lineItems.some(
+                        (item) => item.scent === scent
                       );
-                      const isSelected = !!selection;
                       return (
-                        <div key={scent} className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => toggleScent(scent)}
-                            className={`px-4 py-2.5 rounded-full text-sm transition-all duration-300 ${
-                              isSelected
-                                ? "bg-burgundy text-blush border border-burgundy shadow-md shadow-burgundy/20"
-                                : "bg-transparent text-charcoal border border-charcoal/15 hover:border-gold hover:text-gold"
-                            }`}
-                          >
-                            <span className="flex items-center gap-2">
-                              {isSelected && (
-                                <svg
-                                  className="w-3.5 h-3.5 text-gold"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2.5"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path d="M5 13l4 4L19 7" />
-                                </svg>
-                              )}
-                              {scent}
-                            </span>
-                          </button>
-                          {isSelected && (
-                            <button
-                              type="button"
-                              onClick={() => toggleSize(scent)}
-                              className="flex rounded-full border border-gold/30 overflow-hidden text-[11px] font-medium leading-none"
-                            >
-                              <span
-                                className={`px-2 py-1.5 transition-colors duration-200 ${
-                                  selection.size === "8oz"
+                        <button
+                          key={scent}
+                          type="button"
+                          onClick={() => toggleScent(scent)}
+                          className={`px-4 py-2.5 rounded-full text-sm transition-all duration-300 ${
+                            isSelected
+                              ? "bg-burgundy text-blush border border-burgundy shadow-md shadow-burgundy/20"
+                              : "bg-transparent text-charcoal border border-charcoal/15 hover:border-gold hover:text-gold"
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            {isSelected && (
+                              <svg
+                                className="w-3.5 h-3.5 text-gold"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                            {scent}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Cart summary */}
+                {lineItems.length > 0 && (
+                  <div className="border border-gold/15 rounded-lg p-5 md:p-6 space-y-4">
+                    <h3 className="text-burgundy text-xs tracking-widest uppercase font-medium">
+                      Your Cart
+                    </h3>
+                    <div className="divide-y divide-charcoal/5">
+                      {lineItems.map((item) => (
+                        <div
+                          key={item.scent}
+                          className="flex flex-col sm:flex-row sm:items-center gap-3 py-3 first:pt-0 last:pb-0"
+                        >
+                          {/* Scent name */}
+                          <span className="text-charcoal text-sm font-medium flex-1 min-w-0">
+                            {item.scent}
+                          </span>
+
+                          <div className="flex items-center gap-3 flex-wrap">
+                            {/* Size toggle */}
+                            <div className="flex rounded-full border border-gold/30 overflow-hidden text-[11px] font-medium leading-none">
+                              <button
+                                type="button"
+                                onClick={() => changeSize(item.scent, "8oz")}
+                                className={`px-2.5 py-1.5 transition-colors duration-200 ${
+                                  item.size === "8oz"
                                     ? "bg-gold text-burgundy"
                                     : "text-rose-gray hover:text-gold"
                                 }`}
                               >
                                 8oz
-                              </span>
-                              <span
-                                className={`px-2 py-1.5 transition-colors duration-200 ${
-                                  selection.size === "16oz"
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => changeSize(item.scent, "16oz")}
+                                className={`px-2.5 py-1.5 transition-colors duration-200 ${
+                                  item.size === "16oz"
                                     ? "bg-gold text-burgundy"
                                     : "text-rose-gray hover:text-gold"
                                 }`}
                               >
                                 16oz
+                              </button>
+                            </div>
+
+                            {/* Quantity controls */}
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => changeQuantity(item.scent, -1)}
+                                className="w-7 h-7 rounded-full border border-charcoal/15 text-charcoal/60 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-sm"
+                              >
+                                &minus;
+                              </button>
+                              <span className="w-6 text-center text-sm text-charcoal font-medium tabular-nums">
+                                {item.quantity}
                               </span>
-                            </button>
-                          )}
+                              <button
+                                type="button"
+                                onClick={() => changeQuantity(item.scent, 1)}
+                                className="w-7 h-7 rounded-full border border-charcoal/15 text-charcoal/60 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-sm"
+                              >
+                                +
+                              </button>
+                            </div>
+
+                            {/* Line total */}
+                            <span className="text-gold font-semibold text-sm w-14 text-right tabular-nums">
+                              ${PRICES[item.size] * item.quantity}
+                            </span>
+                          </div>
                         </div>
-                      );
-                    })}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Special instructions */}
                 <div>
@@ -299,17 +378,22 @@ export default function OrderForm() {
                   />
                 </div>
 
+                {/* Error message */}
+                {submitError && (
+                  <p className="text-red-600 text-sm text-center">{submitError}</p>
+                )}
+
                 {/* Submit */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-4">
                   <div className="text-rose-gray text-sm text-center sm:text-left">
-                    {selectedScents.length > 0 ? (
+                    {lineItems.length > 0 ? (
                       <span>
                         <span className="text-burgundy font-medium">
-                          {selectedScents.length}
+                          {totalItems}
                         </span>{" "}
-                        candle{selectedScents.length !== 1 ? "s" : ""} &middot;{" "}
+                        candle{totalItems !== 1 ? "s" : ""} &middot;{" "}
                         <span className="text-gold font-semibold">
-                          ${total}
+                          ${totalPrice}
                         </span>{" "}
                         total
                       </span>
@@ -321,20 +405,22 @@ export default function OrderForm() {
                   </div>
                   <button
                     type="submit"
-                    disabled={selectedScents.length === 0}
+                    disabled={lineItems.length === 0 || isSubmitting}
                     className="group btn-shimmer text-burgundy px-10 py-4 text-sm tracking-widest uppercase font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-gold/25 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:bg-charcoal/10 disabled:text-charcoal/30 disabled:bg-none"
                   >
                     <span className="flex items-center gap-3">
-                      Submit Order
-                      <svg
-                        className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                      </svg>
+                      {isSubmitting ? "Submitting..." : "Submit Order"}
+                      {!isSubmitting && (
+                        <svg
+                          className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                      )}
                     </span>
                   </button>
                 </div>

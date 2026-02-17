@@ -72,6 +72,15 @@ export default function Footer() {
               </svg>
               <span className="text-sm">@canterburycandles2025</span>
             </a>
+            <div className="mt-6">
+              <Image
+                src="/images/qr-instagram.png"
+                alt="Scan to follow Canterbury Candles on Instagram"
+                width={112}
+                height={112}
+                className="mx-auto opacity-60 hover:opacity-90 transition-opacity duration-300"
+              />
+            </div>
           </div>
         </div>
 
