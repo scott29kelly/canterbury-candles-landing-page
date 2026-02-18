@@ -177,7 +177,7 @@ function ScentCard({
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ duration: 0.4, ease: EASE }}
-              className="absolute inset-0 bg-burgundy/85 backdrop-blur-md flex flex-col items-center justify-center p-4 z-10"
+              className="absolute inset-0 bg-burgundy/85 backdrop-blur-md flex flex-col items-center justify-center p-5 z-10"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close button */}
@@ -201,7 +201,7 @@ function ScentCard({
                 {scent.name}
               </h4>
 
-              <div className="w-full max-w-[180px] space-y-3">
+              <div className="w-full max-w-[220px] space-y-3">
                 <SizeRow
                   scent={scent.name}
                   size="8oz"
@@ -303,7 +303,7 @@ export default function Scents() {
               <AnimateIn
                 key={scent.name}
                 variant="fadeUp"
-                className="w-[calc(50%-0.625rem)] sm:w-[calc(33.333%-0.834rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)] xl:w-[calc(20%-1.2rem)] 2xl:w-[calc(14.285%-1.286rem)]"
+                className="w-[calc(50%-0.625rem)] sm:w-[calc(50%-0.625rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.125rem)] xl:w-[calc(25%-1.2rem)] 2xl:w-[calc(20%-1.286rem)]"
               >
                 <ScentCard
                   scent={scent}
