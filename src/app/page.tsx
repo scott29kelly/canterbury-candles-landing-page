@@ -1,3 +1,6 @@
+"use client";
+
+import { CartProvider } from "@/context/CartContext";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import Story from "@/components/Story";
@@ -7,7 +10,7 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <>
+    <CartProvider>
       <Navigation />
       <main>
         <Hero />
@@ -16,6 +19,6 @@ export default function Home() {
         <OrderForm />
       </main>
       <Footer />
-    </>
+    </CartProvider>
   );
 }

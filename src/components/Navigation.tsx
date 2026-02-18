@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
+import { useCart } from "@/context/CartContext";
 
 const navLinks = [
   { label: "Our Process", href: "#story" },
@@ -10,9 +11,53 @@ const navLinks = [
   { label: "Order", href: "#order" },
 ];
 
+function CartBadge({
+  count,
+  scrolled,
+}: {
+  count: number;
+  scrolled: boolean;
+}) {
+  return (
+    <a
+      href="#cart"
+      className={`relative p-2 transition-colors duration-300 ${
+        scrolled
+          ? "text-charcoal/70 hover:text-burgundy"
+          : "text-blush/80 hover:text-gold"
+      }`}
+      aria-label={`Cart: ${count} item${count !== 1 ? "s" : ""}`}
+    >
+      <svg
+        className="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        viewBox="0 0 24 24"
+      >
+        <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+      </svg>
+      <AnimatePresence>
+        {count > 0 && (
+          <motion.span
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0 }}
+            transition={{ type: "spring", stiffness: 500, damping: 25 }}
+            className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-gold text-burgundy text-[10px] font-bold flex items-center justify-center leading-none shadow-sm"
+          >
+            {count}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </a>
+  );
+}
+
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { totalItems } = useCart();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -84,39 +129,43 @@ export default function Navigation() {
                 }`} />
               </a>
             ))}
+            <CartBadge count={totalItems} scrolled={scrolled} />
           </div>
 
-          {/* Mobile hamburger */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className={`md:hidden p-2.5 transition-colors z-60 relative ${
-              mobileOpen
-                ? "text-blush hover:text-gold"
-                : scrolled
-                  ? "text-burgundy hover:text-burgundy-light"
-                  : "text-blush hover:text-gold"
-            }`}
-            aria-label="Toggle menu"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
+          {/* Mobile: cart icon + hamburger */}
+          <div className="flex md:hidden items-center gap-1">
+            <CartBadge count={totalItems} scrolled={scrolled} />
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className={`p-2.5 transition-colors z-60 relative ${
+                mobileOpen
+                  ? "text-blush hover:text-gold"
+                  : scrolled
+                    ? "text-burgundy hover:text-burgundy-light"
+                    : "text-blush hover:text-gold"
+              }`}
+              aria-label="Toggle menu"
             >
-              {mobileOpen ? (
-                <path d="M6 6l12 12M6 18L18 6" />
-              ) : (
-                <>
-                  <path d="M4 7h16" />
-                  <path d="M4 12h12" />
-                  <path d="M4 17h8" />
-                </>
-              )}
-            </svg>
-          </button>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                {mobileOpen ? (
+                  <path d="M6 6l12 12M6 18L18 6" />
+                ) : (
+                  <>
+                    <path d="M4 7h16" />
+                    <path d="M4 12h12" />
+                    <path d="M4 17h8" />
+                  </>
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -163,6 +212,23 @@ export default function Navigation() {
                   {link.label}
                 </motion.a>
               ))}
+              {totalItems > 0 && (
+                <motion.a
+                  href="#cart"
+                  onClick={() => setMobileOpen(false)}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: 0.1 + navLinks.length * 0.1,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  className="font-display text-gold text-4xl tracking-wide hover:text-gold-light transition-colors duration-300"
+                >
+                  Cart ({totalItems})
+                </motion.a>
+              )}
             </nav>
 
             {/* Bottom accent */}

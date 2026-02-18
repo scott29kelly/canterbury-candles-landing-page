@@ -1,14 +1,121 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import Image from "next/image";
+import { motion, AnimatePresence } from "motion/react";
 import AnimateIn from "./AnimateIn";
 import { SCENTS, PRICES, PRODUCT_DETAILS, type Scent } from "@/data/products";
+import { useCart, type CandleSize } from "@/context/CartContext";
 
-function ScentCard({ scent }: { scent: Scent }) {
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+function QuantityStepper({
+  quantity,
+  onIncrement,
+  onDecrement,
+}: {
+  quantity: number;
+  onIncrement: () => void;
+  onDecrement: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      <button
+        type="button"
+        onClick={onDecrement}
+        className="w-7 h-7 rounded-full border border-blush/30 text-blush/80 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-sm"
+      >
+        &minus;
+      </button>
+      <span className="w-6 text-center text-sm text-blush font-medium tabular-nums">
+        {quantity}
+      </span>
+      <button
+        type="button"
+        onClick={onIncrement}
+        className="w-7 h-7 rounded-full border border-blush/30 text-blush/80 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-sm"
+      >
+        +
+      </button>
+    </div>
+  );
+}
+
+function SizeRow({
+  scent,
+  size,
+  price,
+  quantity,
+}: {
+  scent: string;
+  size: CandleSize;
+  price: number;
+  quantity: number;
+}) {
+  const { dispatch } = useCart();
+  const inCart = quantity > 0;
+
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-blush/80 text-sm whitespace-nowrap">
+        {size} &middot; ${price}
+      </span>
+      {inCart ? (
+        <QuantityStepper
+          quantity={quantity}
+          onIncrement={() =>
+            dispatch({ type: "CHANGE_QUANTITY", scent, size, delta: 1 })
+          }
+          onDecrement={() => {
+            if (quantity <= 1) {
+              dispatch({ type: "REMOVE_ITEM", scent, size });
+            } else {
+              dispatch({ type: "CHANGE_QUANTITY", scent, size, delta: -1 });
+            }
+          }}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => dispatch({ type: "ADD_ITEM", scent, size })}
+          className="px-4 py-1.5 rounded-full border border-gold/50 text-gold text-xs tracking-wider uppercase hover:bg-gold/20 transition-colors duration-200"
+        >
+          Add
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ScentCard({
+  scent,
+  isActive,
+  onActivate,
+  onDeactivate,
+}: {
+  scent: Scent;
+  isActive: boolean;
+  onActivate: () => void;
+  onDeactivate: () => void;
+}) {
+  const { getItemsForScent, getScentQuantity } = useCart();
+  const scentItems = getItemsForScent(scent.name);
+  const totalQty = getScentQuantity(scent.name);
+  const inCart = totalQty > 0;
+
+  const qty8 = scentItems.find((i) => i.size === "8oz")?.quantity ?? 0;
+  const qty16 = scentItems.find((i) => i.size === "16oz")?.quantity ?? 0;
+
   return (
     <div className="group relative">
       {/* Image */}
-      <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-parchment">
+      <div
+        className="relative aspect-[3/4] overflow-hidden rounded-lg bg-parchment cursor-pointer"
+        onClick={() => {
+          if (isActive) onDeactivate();
+          else onActivate();
+        }}
+      >
         <Image
           src={scent.image}
           alt={`${scent.name} scented candle in mason jar`}
@@ -16,16 +123,101 @@ function ScentCard({ scent }: { scent: Scent }) {
           className="object-cover transition-transform duration-700 group-hover:scale-105"
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 14vw"
         />
-        {/* Glass-morphism overlay on hover (desktop only) */}
-        <div className="hidden md:block absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
-          <div className="bg-burgundy/80 backdrop-blur-md p-4">
-            <p className="text-blush/80 text-sm leading-relaxed">
-              {scent.notes}
-            </p>
+
+        {/* Glass-morphism hover overlay — hidden when card is active */}
+        {!isActive && (
+          <div className="hidden md:block absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+            <div className="bg-burgundy/80 backdrop-blur-md p-4">
+              <p className="text-blush/80 text-sm leading-relaxed">
+                {scent.notes}
+              </p>
+            </div>
           </div>
-        </div>
-        {/* Permanent gradient at bottom for text readability (desktop only) */}
-        <div className="hidden md:block absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent group-hover:opacity-0 transition-opacity duration-500" />
+        )}
+
+        {/* Permanent gradient at bottom for text readability (desktop only, hidden when active) */}
+        {!isActive && (
+          <div className="hidden md:block absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent group-hover:opacity-0 transition-opacity duration-500" />
+        )}
+
+        {/* Cart indicator badge — shown when NOT active and scent is in cart */}
+        <AnimatePresence>
+          {!isActive && inCart && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
+              transition={{ type: "spring", stiffness: 500, damping: 25 }}
+              className="absolute top-2 right-2 w-6 h-6 rounded-full bg-gold flex items-center justify-center z-10 shadow-md"
+            >
+              {totalQty === 1 ? (
+                <svg
+                  className="w-3.5 h-3.5 text-burgundy"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <span className="text-burgundy text-[11px] font-bold leading-none">
+                  {totalQty}
+                </span>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Selection overlay */}
+        <AnimatePresence>
+          {isActive && (
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ duration: 0.4, ease: EASE }}
+              className="absolute inset-0 bg-burgundy/85 backdrop-blur-md flex flex-col items-center justify-center p-4 z-10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                type="button"
+                onClick={onDeactivate}
+                className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full text-blush/60 hover:text-gold transition-colors duration-200 flex items-center justify-center"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <h4 className="font-display text-blush text-base md:text-lg mb-5 text-center leading-tight">
+                {scent.name}
+              </h4>
+
+              <div className="w-full max-w-[180px] space-y-3">
+                <SizeRow
+                  scent={scent.name}
+                  size="8oz"
+                  price={PRICES["8oz"]}
+                  quantity={qty8}
+                />
+                <SizeRow
+                  scent={scent.name}
+                  size="16oz"
+                  price={PRICES["16oz"]}
+                  quantity={qty16}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Name and notes below image */}
@@ -46,9 +238,18 @@ function ScentCard({ scent }: { scent: Scent }) {
 }
 
 export default function Scents() {
+  const [activeCardName, setActiveCardName] = useState<string | null>(null);
+
+  const handleBackgroundClick = useCallback(() => {
+    setActiveCardName(null);
+  }, []);
+
   return (
     <section id="scents" className="relative overflow-hidden">
-      <div className="py-16 md:py-24 lg:py-36 bg-blush relative">
+      <div
+        className="py-16 md:py-24 lg:py-36 bg-blush relative"
+        onClick={handleBackgroundClick}
+      >
         <div className="absolute inset-0 grain" />
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 relative z-10">
           {/* Section header */}
@@ -94,10 +295,22 @@ export default function Scents() {
           </AnimateIn>
 
           {/* Unified product grid */}
-          <div className="flex flex-wrap justify-center gap-5 md:gap-6">
+          <div
+            className="flex flex-wrap justify-center gap-5 md:gap-6"
+            onClick={(e) => e.stopPropagation()}
+          >
             {SCENTS.map((scent) => (
-              <AnimateIn key={scent.name} variant="fadeUp" className="w-[calc(50%-0.625rem)] sm:w-[calc(33.333%-0.834rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)] xl:w-[calc(20%-1.2rem)] 2xl:w-[calc(14.285%-1.286rem)]">
-                <ScentCard scent={scent} />
+              <AnimateIn
+                key={scent.name}
+                variant="fadeUp"
+                className="w-[calc(50%-0.625rem)] sm:w-[calc(33.333%-0.834rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)] xl:w-[calc(20%-1.2rem)] 2xl:w-[calc(14.285%-1.286rem)]"
+              >
+                <ScentCard
+                  scent={scent}
+                  isActive={activeCardName === scent.name}
+                  onActivate={() => setActiveCardName(scent.name)}
+                  onDeactivate={() => setActiveCardName(null)}
+                />
               </AnimateIn>
             ))}
           </div>
