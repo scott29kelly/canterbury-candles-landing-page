@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useReducer, type ReactNode } from "react";
+import { createContext, useContext, useReducer, useMemo, useCallback, type ReactNode } from "react";
 import { PRICES, SCENTS, type CandleSize } from "@/data/products";
 
 export type CartItem = {
@@ -93,33 +93,53 @@ export function CartProvider({ children }: { children: ReactNode }) {
     0
   );
 
-  const isInCart = (scent: string) =>
-    items.some((i) => i.scent === scent);
+  const isInCart = useCallback(
+    (scent: string) => items.some((i) => i.scent === scent),
+    [items]
+  );
 
-  const getItemsForScent = (scent: string) =>
-    items.filter((i) => i.scent === scent);
+  const getItemsForScent = useCallback(
+    (scent: string) => items.filter((i) => i.scent === scent),
+    [items]
+  );
 
-  const getScentQuantity = (scent: string) =>
-    items
-      .filter((i) => i.scent === scent)
-      .reduce((sum, i) => sum + i.quantity, 0);
+  const getScentQuantity = useCallback(
+    (scent: string) =>
+      items
+        .filter((i) => i.scent === scent)
+        .reduce((sum, i) => sum + i.quantity, 0),
+    [items]
+  );
 
-  const getScentImage = (scent: string) =>
-    SCENTS.find((s) => s.name === scent)?.image;
+  const getScentImage = useCallback(
+    (scent: string) => SCENTS.find((s) => s.name === scent)?.image,
+    []
+  );
+
+  const value = useMemo(
+    () => ({
+      items,
+      dispatch,
+      totalItems,
+      totalPrice,
+      isInCart,
+      getItemsForScent,
+      getScentQuantity,
+      getScentImage,
+    }),
+    [
+      items,
+      totalItems,
+      totalPrice,
+      isInCart,
+      getItemsForScent,
+      getScentQuantity,
+      getScentImage,
+    ]
+  );
 
   return (
-    <CartContext.Provider
-      value={{
-        items,
-        dispatch,
-        totalItems,
-        totalPrice,
-        isInCart,
-        getItemsForScent,
-        getScentQuantity,
-        getScentImage,
-      }}
-    >
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );

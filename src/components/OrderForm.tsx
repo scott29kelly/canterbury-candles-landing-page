@@ -62,7 +62,7 @@ function CartItemRow({
 
   return (
     <motion.div
-      layout
+      layout="position"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
@@ -349,7 +349,7 @@ export default function OrderForm() {
                       placeholder="your@email.com"
                     />
                   </div>
-                  <div>
+                  <div className="min-w-[14rem]">
                     <label htmlFor="phone" className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium">
                       Phone <span className="text-rose-gray normal-case tracking-normal font-normal">(optional)</span>
                     </label>
