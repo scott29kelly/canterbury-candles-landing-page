@@ -204,11 +204,7 @@ function CartItemRow({
   );
 }
 
-export default function OrderForm() {
-  const { items, dispatch, totalItems, totalPrice } = useCart();
-  const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+function PhoneInput() {
   const [phone, setPhone] = useState("");
 
   const formatPhone = (value: string) => {
@@ -218,6 +214,25 @@ export default function OrderForm() {
     if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
   };
+
+  return (
+    <input
+      type="tel"
+      id="phone"
+      name="phone"
+      value={phone}
+      onChange={(e) => setPhone(formatPhone(e.target.value))}
+      className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+      placeholder="(555) 123-4567"
+    />
+  );
+}
+
+export default function OrderForm() {
+  const { items, dispatch, totalItems, totalPrice } = useCart();
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -338,15 +353,7 @@ export default function OrderForm() {
                     <label htmlFor="phone" className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium">
                       Phone <span className="text-rose-gray normal-case tracking-normal font-normal">(optional)</span>
                     </label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      value={phone}
-                      onChange={(e) => setPhone(formatPhone(e.target.value))}
-                      className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
-                      placeholder="(555) 123-4567"
-                    />
+                    <PhoneInput />
                   </div>
                 </div>
 
