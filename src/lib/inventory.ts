@@ -1,6 +1,6 @@
 /**
  * Google Sheets inventory integration.
- * Reads a sheet named "Inventory" with columns: A = scent name, B = available (TRUE/FALSE or checkbox).
+ * Reads a sheet named "Inventory" with columns: A = scent name, B = quantity (number, 0 = sold out).
  * Supports:
  * - Service account (private sheet): set GOOGLE_APPLICATION_CREDENTIALS to JSON path, or
  *   GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL + GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY in env.
@@ -20,11 +20,14 @@ let cache: CacheEntry | null = null;
 const CACHE_TTL_MS = 10_000; // 10 seconds — low-traffic site, Sheets API allows 300 req/min
 const SHEETS_READONLY_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
 
-/** Sheets API returns checkbox as boolean; text cells as string. Normalize to boolean. */
-function parseAvailable(value: unknown): boolean {
-  if (typeof value === "boolean") return value;
-  if (typeof value === "string") return value.trim().toUpperCase() === "TRUE";
-  return false;
+/** Sheets API returns quantity as number or string. Normalize to number (default 0). */
+function parseQuantity(value: unknown): number {
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    const n = Number(value.trim());
+    return Number.isFinite(n) ? n : 0;
+  }
+  return 0;
 }
 
 function getSheetId(): string | undefined {
@@ -87,7 +90,7 @@ async function fetchWithServiceAccount(sheetId: string): Promise<Record<string, 
   for (const row of rows) {
     const name = typeof row[0] === "string" ? row[0].trim() : String(row[0] ?? "").trim();
     if (name) {
-      inventory[name] = parseAvailable(row[1]);
+      inventory[name] = parseQuantity(row[1]) > 0;
     }
   }
   return inventory;
@@ -114,7 +117,7 @@ async function fetchWithApiKey(sheetId: string): Promise<Record<string, boolean>
   for (const row of rows) {
     const name = typeof row[0] === "string" ? row[0].trim() : String(row[0] ?? "").trim();
     if (name) {
-      inventory[name] = parseAvailable(row[1]);
+      inventory[name] = parseQuantity(row[1]) > 0;
     }
   }
   return inventory;
