@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { useCart } from "@/context/CartContext";
+import * as gtag from "@/lib/gtag";
 
 const navLinks = [
   { label: "Our Process", href: "#story" },
@@ -21,6 +22,7 @@ function CartBadge({
   return (
     <a
       href="#cart"
+      onClick={() => gtag.navClick("cart_badge")}
       className={`relative p-2 transition-colors duration-300 ${
         scrolled
           ? "text-charcoal/70 hover:text-burgundy"
@@ -117,6 +119,7 @@ export default function Navigation() {
               <a
                 key={link.href}
                 href={link.href}
+                onClick={() => gtag.navClick(link.label)}
                 className={`relative text-sm tracking-widest uppercase transition-colors duration-300 group ${
                   scrolled
                     ? "text-charcoal/70 hover:text-burgundy"
@@ -136,7 +139,11 @@ export default function Navigation() {
           <div className="flex md:hidden items-center gap-1">
             <CartBadge count={totalItems} scrolled={scrolled} />
             <button
-              onClick={() => setMobileOpen(!mobileOpen)}
+              onClick={() => {
+                const next = !mobileOpen;
+                gtag.mobileMenu(next ? "open" : "close");
+                setMobileOpen(next);
+              }}
               className={`p-2.5 transition-colors z-60 relative ${
                 mobileOpen
                   ? "text-blush hover:text-gold"
@@ -198,7 +205,10 @@ export default function Navigation() {
                 <motion.a
                   key={link.href}
                   href={link.href}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={() => {
+                    gtag.navClick(link.label);
+                    setMobileOpen(false);
+                  }}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}

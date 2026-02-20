@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import AnimateIn from "./AnimateIn";
 import { useCart, PRICES, type CandleSize } from "@/context/CartContext";
+import * as gtag from "@/lib/gtag";
 
 function SuccessState({ onReset }: { onReset: () => void }) {
   return (
@@ -41,7 +42,10 @@ function SuccessState({ onReset }: { onReset: () => void }) {
         to confirm your selections and arrange delivery.
       </p>
       <button
-        onClick={onReset}
+        onClick={() => {
+          gtag.reorderClick();
+          onReset();
+        }}
         className="text-gold text-sm tracking-widest uppercase hover:text-gold-light transition-colors duration-300 group inline-flex items-center gap-2"
       >
         <span className="w-4 h-px bg-gold group-hover:w-6 transition-all duration-300" />
@@ -92,14 +96,12 @@ function CartItemRow({
         <div className="flex rounded-full border border-gold/30 overflow-hidden text-[11px] font-medium leading-none">
           <button
             type="button"
-            onClick={() =>
-              dispatch({
-                type: "CHANGE_SIZE",
-                scent: item.scent,
-                fromSize: item.size,
-                toSize: "8oz",
-              })
-            }
+            onClick={() => {
+              if (item.size !== "8oz") {
+                gtag.changeItemSize(item.scent, item.size, "8oz");
+                dispatch({ type: "CHANGE_SIZE", scent: item.scent, fromSize: item.size, toSize: "8oz" });
+              }
+            }}
             className={`px-2.5 py-1.5 transition-colors duration-200 ${
               item.size === "8oz"
                 ? "bg-gold text-burgundy"
@@ -110,14 +112,12 @@ function CartItemRow({
           </button>
           <button
             type="button"
-            onClick={() =>
-              dispatch({
-                type: "CHANGE_SIZE",
-                scent: item.scent,
-                fromSize: item.size,
-                toSize: "16oz",
-              })
-            }
+            onClick={() => {
+              if (item.size !== "16oz") {
+                gtag.changeItemSize(item.scent, item.size, "16oz");
+                dispatch({ type: "CHANGE_SIZE", scent: item.scent, fromSize: item.size, toSize: "16oz" });
+              }
+            }}
             className={`px-2.5 py-1.5 transition-colors duration-200 ${
               item.size === "16oz"
                 ? "bg-gold text-burgundy"
@@ -179,13 +179,10 @@ function CartItemRow({
         {/* Remove button */}
         <button
           type="button"
-          onClick={() =>
-            dispatch({
-              type: "REMOVE_ITEM",
-              scent: item.scent,
-              size: item.size,
-            })
-          }
+          onClick={() => {
+            gtag.removeFromCart(item.scent, item.size);
+            dispatch({ type: "REMOVE_ITEM", scent: item.scent, size: item.size });
+          }}
           className="w-7 h-7 rounded-full text-charcoal/30 hover:text-red-500 hover:bg-red-50 transition-colors duration-200 flex items-center justify-center"
           aria-label={`Remove ${item.scent} ${item.size}`}
         >
@@ -242,6 +239,8 @@ export default function OrderForm() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
+    gtag.beginCheckout(totalPrice, totalItems);
+
     try {
       const res = await fetch("/api/order", {
         method: "POST",
@@ -266,11 +265,13 @@ export default function OrderForm() {
         throw new Error(data?.error || "Something went wrong. Please try again.");
       }
 
+      const cartSummary = items.map((i) => `${i.scent} ${i.size} x${i.quantity}`).join(", ");
+      gtag.purchase(totalPrice, cartSummary);
       setSubmitted(true);
     } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : "Something went wrong. Please try again."
-      );
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      gtag.orderError(message);
+      setSubmitError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -450,6 +451,7 @@ export default function OrderForm() {
                       </p>
                       <a
                         href="#scents"
+                        onClick={() => gtag.ctaClick("browse_scents")}
                         className="text-gold text-sm tracking-wider uppercase hover:text-gold-light transition-colors duration-200"
                       >
                         Browse scents &rarr;

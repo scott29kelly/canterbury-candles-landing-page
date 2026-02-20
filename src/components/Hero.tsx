@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef, useEffect, useState, useMemo } from "react";
+import * as gtag from "@/lib/gtag";
 
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(false);
@@ -167,6 +168,7 @@ export default function Hero() {
             >
               <a
                 href="#scents"
+                onClick={() => gtag.ctaClick("explore_scents")}
                 className="group inline-flex items-center gap-3 btn-shimmer text-burgundy px-8 py-4 text-sm tracking-widest uppercase font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-gold/25"
               >
                 Explore Scents
@@ -182,6 +184,7 @@ export default function Hero() {
               </a>
               <a
                 href="#order"
+                onClick={() => gtag.ctaClick("place_order")}
                 className="inline-flex items-center gap-3 border border-blush/20 text-blush px-8 py-4 text-sm tracking-widest uppercase font-medium hover:border-gold hover:text-gold transition-all duration-300"
               >
                 Place an Order

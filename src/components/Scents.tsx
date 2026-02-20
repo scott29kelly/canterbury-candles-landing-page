@@ -7,6 +7,7 @@ import AnimateIn from "./AnimateIn";
 import { SCENTS, PRICES, PRODUCT_DETAILS, type Scent } from "@/data/products";
 import { useCart, type CandleSize } from "@/context/CartContext";
 import { useInventory } from "@/hooks/useInventory";
+import * as gtag from "@/lib/gtag";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -70,6 +71,7 @@ function SizeRow({
           onDecrement={() => {
             if (quantity <= 1) {
               dispatch({ type: "REMOVE_ITEM", scent, size });
+              gtag.removeFromCart(scent, size);
             } else {
               dispatch({ type: "CHANGE_QUANTITY", scent, size, delta: -1 });
             }
@@ -78,7 +80,10 @@ function SizeRow({
       ) : (
         <button
           type="button"
-          onClick={() => dispatch({ type: "ADD_ITEM", scent, size })}
+          onClick={() => {
+            dispatch({ type: "ADD_ITEM", scent, size });
+            gtag.addToCart(scent, size, price);
+          }}
           className="px-4 py-1.5 rounded-full border border-gold/50 text-gold text-xs tracking-wider uppercase hover:bg-gold/20 transition-colors duration-200"
         >
           Add
@@ -115,9 +120,15 @@ function ScentCard({
       <div
         className={`relative aspect-[3/4] overflow-hidden rounded-lg bg-parchment${available ? " cursor-pointer" : " cursor-default"}`}
         onClick={() => {
-          if (!available) return;
+          if (!available) {
+            gtag.soldOutClick(scent.name);
+            return;
+          }
           if (isActive) onDeactivate();
-          else onActivate();
+          else {
+            onActivate();
+            gtag.selectItem(scent.name);
+          }
         }}
       >
         <Image
