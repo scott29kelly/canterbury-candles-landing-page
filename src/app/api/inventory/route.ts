@@ -16,7 +16,7 @@ export async function GET() {
     { availability },
     {
       headers: {
-        "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
+        "Cache-Control": "no-store",
       },
     }
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-const POLL_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+const POLL_INTERVAL_MS = 30_000; // 30 seconds
 
 export function useInventory(): Record<string, boolean> {
   const [availability, setAvailability] = useState<Record<string, boolean>>({});

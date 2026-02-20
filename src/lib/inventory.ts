@@ -17,7 +17,7 @@ interface CacheEntry {
 }
 
 let cache: CacheEntry | null = null;
-const CACHE_TTL_MS = 30_000; // 30 seconds — balance freshness vs API quota
+const CACHE_TTL_MS = 10_000; // 10 seconds — low-traffic site, Sheets API allows 300 req/min
 const SHEETS_READONLY_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
 
 /** Sheets API returns checkbox as boolean; text cells as string. Normalize to boolean. */
