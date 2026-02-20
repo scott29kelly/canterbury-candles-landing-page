@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import AnimateIn from "./AnimateIn";
 import { SCENTS, PRICES, PRODUCT_DETAILS, type Scent } from "@/data/products";
 import { useCart, type CandleSize } from "@/context/CartContext";
+import { useInventory } from "@/hooks/useInventory";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -92,11 +93,13 @@ function ScentCard({
   isActive,
   onActivate,
   onDeactivate,
+  available,
 }: {
   scent: Scent;
   isActive: boolean;
   onActivate: () => void;
   onDeactivate: () => void;
+  available: boolean;
 }) {
   const { getItemsForScent, getScentQuantity } = useCart();
   const scentItems = getItemsForScent(scent.name);
@@ -107,11 +110,12 @@ function ScentCard({
   const qty16 = scentItems.find((i) => i.size === "16oz")?.quantity ?? 0;
 
   return (
-    <div className="group relative">
+    <div className={`group relative${!available ? " opacity-50" : ""}`}>
       {/* Image */}
       <div
-        className="relative aspect-[3/4] overflow-hidden rounded-lg bg-parchment cursor-pointer"
+        className={`relative aspect-[3/4] overflow-hidden rounded-lg bg-parchment${available ? " cursor-pointer" : " cursor-default"}`}
         onClick={() => {
+          if (!available) return;
           if (isActive) onDeactivate();
           else onActivate();
         }}
@@ -120,12 +124,21 @@ function ScentCard({
           src={scent.image}
           alt={`${scent.name} scented candle in mason jar`}
           fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
+          className={`object-cover transition-transform duration-700${available ? " group-hover:scale-105" : " grayscale"}`}
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 14vw"
         />
 
-        {/* Glass-morphism hover overlay — hidden when card is active */}
-        {!isActive && (
+        {/* Sold Out badge */}
+        {!available && (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <span className="bg-burgundy/90 text-blush text-xs tracking-[0.15em] uppercase px-4 py-1.5 rounded-full font-medium shadow-md">
+              Sold Out
+            </span>
+          </div>
+        )}
+
+        {/* Glass-morphism hover overlay — hidden when card is active or sold out */}
+        {!isActive && available && (
           <div className="hidden md:block absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
             <div className="bg-burgundy/80 backdrop-blur-md p-4">
               <p className="text-blush/80 text-sm leading-relaxed">
@@ -135,14 +148,14 @@ function ScentCard({
           </div>
         )}
 
-        {/* Permanent gradient at bottom for text readability (desktop only, hidden when active) */}
-        {!isActive && (
+        {/* Permanent gradient at bottom for text readability (desktop only, hidden when active or sold out) */}
+        {!isActive && available && (
           <div className="hidden md:block absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent group-hover:opacity-0 transition-opacity duration-500" />
         )}
 
         {/* Cart indicator badge — shown when NOT active and scent is in cart */}
         <AnimatePresence>
-          {!isActive && inCart && (
+          {!isActive && inCart && available && (
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -171,7 +184,7 @@ function ScentCard({
 
         {/* Selection overlay */}
         <AnimatePresence>
-          {isActive && (
+          {isActive && available && (
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -225,7 +238,7 @@ function ScentCard({
         <p className="text-gold/60 text-[10px] tracking-[0.2em] uppercase mb-1">
           {scent.tag}
         </p>
-        <h3 className="font-display text-burgundy text-base md:text-lg group-hover:text-gold transition-colors duration-300 leading-tight">
+        <h3 className={`font-display text-base md:text-lg leading-tight transition-colors duration-300${available ? " text-burgundy group-hover:text-gold" : " text-burgundy/50"}`}>
           {scent.name}
         </h3>
         {/* Scent notes visible on mobile, hidden on desktop (shown via hover overlay) */}
@@ -239,6 +252,7 @@ function ScentCard({
 
 export default function Scents() {
   const [activeCardName, setActiveCardName] = useState<string | null>(null);
+  const inventory = useInventory();
 
   const handleBackgroundClick = useCallback(() => {
     setActiveCardName(null);
@@ -310,6 +324,7 @@ export default function Scents() {
                   isActive={activeCardName === scent.name}
                   onActivate={() => setActiveCardName(scent.name)}
                   onDeactivate={() => setActiveCardName(null)}
+                  available={inventory[scent.name] !== false}
                 />
               </AnimateIn>
             ))}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { PRICES, SCENT_NAMES, type CandleSize } from "@/data/products";
+import { getInventory, isScentAvailable } from "@/lib/inventory";
 
 interface OrderLineItem {
   scent: string;
@@ -150,6 +151,19 @@ export async function POST(request: Request) {
     }
 
     const order = result.data;
+
+    // Check inventory — reject if any ordered scent is sold out
+    const inventory = await getInventory();
+    const unavailable = order.items
+      .map((item) => item.scent)
+      .filter((scent) => !isScentAvailable(inventory, scent));
+    if (unavailable.length > 0) {
+      const names = unavailable.join(", ");
+      return NextResponse.json(
+        { error: `Sorry, the following scent${unavailable.length > 1 ? "s are" : " is"} currently sold out: ${names}` },
+        { status: 409 }
+      );
+    }
 
     // Recalculate total server-side — never trust the client
     order.total = order.items.reduce(
