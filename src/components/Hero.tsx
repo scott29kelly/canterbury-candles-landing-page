@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { useRef, useEffect, useState, useMemo } from "react";
 import WarmDivider from "./WarmDivider";
-import CandleFlame from "./CandleFlame";
+import HeatDistortion from "./HeatDistortion";
 import * as gtag from "@/lib/gtag";
 
 function useIsMobile(breakpoint = 768) {
@@ -59,9 +59,91 @@ function GoldParticles() {
   );
 }
 
+function AmbientWarmth({
+  scrollYProgress,
+  isMobile,
+  prefersReduced,
+}: {
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
+  isMobile: boolean;
+  prefersReduced: boolean | null;
+}) {
+  const opacity1 = useTransform(scrollYProgress, [0, 0.15], [0.22, 0.05]);
+  const opacity2 = useTransform(scrollYProgress, [0, 0.15], [0.16, 0.04]);
+  const y1 = useTransform(scrollYProgress, [0, 0.3], [0, -30]);
+  const y2 = useTransform(scrollYProgress, [0, 0.3], [0, -20]);
+
+  if (isMobile) return null;
+
+  if (prefersReduced) {
+    return (
+      <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden">
+        <div
+          className="absolute"
+          style={{
+            width: "50vw",
+            height: "50vw",
+            left: "15%",
+            top: "10%",
+            background:
+              "radial-gradient(circle, rgba(212,168,67,0.12) 0%, transparent 70%)",
+            filter: "blur(50px)",
+          }}
+        />
+        <div
+          className="absolute"
+          style={{
+            width: "40vw",
+            height: "40vw",
+            right: "10%",
+            top: "30%",
+            background:
+              "radial-gradient(circle, rgba(184,134,11,0.1) 0%, transparent 70%)",
+            filter: "blur(60px)",
+          }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden">
+      <motion.div
+        className="absolute"
+        style={{
+          width: "50vw",
+          height: "50vw",
+          left: "15%",
+          top: "10%",
+          background:
+            "radial-gradient(circle, rgba(212,168,67,0.15) 0%, transparent 70%)",
+          filter: "blur(50px)",
+          opacity: opacity1,
+          y: y1,
+        }}
+      />
+      <motion.div
+        className="absolute"
+        style={{
+          width: "40vw",
+          height: "40vw",
+          right: "10%",
+          top: "30%",
+          background:
+            "radial-gradient(circle, rgba(184,134,11,0.12) 0%, transparent 70%)",
+          filter: "blur(60px)",
+          opacity: opacity2,
+          y: y2,
+        }}
+      />
+    </div>
+  );
+}
+
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
+  const prefersReduced = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
@@ -100,6 +182,13 @@ export default function Hero() {
       <div className="absolute inset-0 bg-gradient-to-br from-burgundy via-burgundy/90 to-burgundy-light/40" />
       <div className="absolute inset-0 bg-gradient-to-t from-burgundy via-transparent to-transparent opacity-60" />
 
+      {/* Ambient warmth bloom */}
+      <AmbientWarmth
+        scrollYProgress={scrollYProgress}
+        isMobile={isMobile}
+        prefersReduced={prefersReduced}
+      />
+
       {/* Paper texture */}
       <div className="absolute inset-0 grain" />
 
@@ -123,10 +212,41 @@ export default function Hero() {
               <p className="text-gold text-xs md:text-sm tracking-[0.35em] uppercase mb-5 font-medium">
                 Hand-Poured &middot; Small Batch &middot; Artisan
               </p>
-              <h1 className="font-display text-blush text-4xl md:text-5xl lg:text-7xl xl:text-[5.5rem] leading-[1.05] tracking-tight mb-6">
+              <motion.h1
+                className="font-display text-blush text-4xl md:text-5xl lg:text-7xl xl:text-[5.5rem] leading-[1.05] tracking-tight mb-6"
+                animate={
+                  prefersReduced
+                    ? { textShadow: "0 0 15px rgba(184,134,11,0.2)" }
+                    : {
+                        textShadow: isMobile
+                          ? [
+                              "0 0 10px rgba(184,134,11,0.25)",
+                              "0 0 15px rgba(212,168,67,0.35)",
+                              "0 0 12px rgba(184,134,11,0.3)",
+                              "0 0 18px rgba(201,169,110,0.25)",
+                            ]
+                          : [
+                              "0 0 20px rgba(184,134,11,0.25)",
+                              "0 0 25px rgba(212,168,67,0.4)",
+                              "0 0 18px rgba(184,134,11,0.3)",
+                              "0 0 22px rgba(201,169,110,0.35)",
+                            ],
+                      }
+                }
+                transition={
+                  prefersReduced
+                    ? undefined
+                    : {
+                        duration: 4,
+                        repeat: Infinity,
+                        repeatType: "mirror",
+                        ease: "easeInOut",
+                      }
+                }
+              >
                 Canterbury
                 <span className="block text-gold italic">Candles</span>
-              </h1>
+              </motion.h1>
             </motion.div>
 
             {/* Divider */}
@@ -208,7 +328,7 @@ export default function Hero() {
 
               {/* Main product image */}
               <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
-                <CandleFlame />
+                <HeatDistortion />
                 <Image
                   src="/images/logo-header-hero-shot.jpeg"
                   alt="Canterbury Candles branded mason jar candle with rustic ingredients"

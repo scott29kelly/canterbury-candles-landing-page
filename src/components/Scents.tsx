@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import AnimateIn from "./AnimateIn";
 import WarmDivider from "./WarmDivider";
+import WaxDrip from "./WaxDrip";
 import { SCENTS, PRICES, PRODUCT_DETAILS, type Scent } from "@/data/products";
 import { useCart, type CandleSize } from "@/context/CartContext";
 import { useInventory } from "@/hooks/useInventory";
@@ -111,6 +112,7 @@ function ScentCard({
   const scentItems = getItemsForScent(scent.name);
   const totalQty = getScentQuantity(scent.name);
   const inCart = totalQty > 0;
+  const [isHovered, setIsHovered] = useState(false);
 
   const qty8 = scentItems.find((i) => i.size === "8oz")?.quantity ?? 0;
   const qty16 = scentItems.find((i) => i.size === "16oz")?.quantity ?? 0;
@@ -124,6 +126,8 @@ function ScentCard({
       {/* Image */}
       <div
         className={`relative aspect-[3/4] overflow-hidden rounded-lg bg-parchment${available ? " cursor-pointer" : " cursor-default"}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         onClick={() => {
           if (!available) {
             gtag.soldOutClick(scent.name);
@@ -143,6 +147,9 @@ function ScentCard({
           className={`object-cover transition-all duration-700${available ? " group-hover:scale-105 group-hover:brightness-[1.03] group-hover:saturate-[1.05]" : " grayscale"}`}
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 14vw"
         />
+
+        {/* Wax drip accent on hover */}
+        {available && <WaxDrip active={isHovered && !isActive} />}
 
         {/* Sold Out badge */}
         {!available && (

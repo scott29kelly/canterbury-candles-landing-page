@@ -1,11 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence, LayoutGroup } from "motion/react";
+import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from "motion/react";
 import AnimateIn from "./AnimateIn";
+import WarmDivider from "./WarmDivider";
 import { useCart, PRICES, type CandleSize } from "@/context/CartContext";
 import * as gtag from "@/lib/gtag";
+
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [breakpoint]);
+  return isMobile;
+}
+
+function CandlelightPulse() {
+  const prefersReduced = useReducedMotion();
+  const isMobile = useIsMobile();
+
+  if (isMobile) return null;
+
+  const layers = [
+    { size: 400, blur: 60, opacity: 0.06, duration: 5, delay: 0 },
+    { size: 320, blur: 80, opacity: 0.05, duration: 7, delay: 1.2 },
+    { size: 260, blur: 100, opacity: 0.04, duration: 9, delay: 2.4 },
+  ];
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {layers.map((layer, i) => (
+        <motion.div
+          key={i}
+          className="absolute"
+          style={{
+            width: layer.size,
+            height: layer.size,
+            left: "50%",
+            top: "33%",
+            marginLeft: -layer.size / 2,
+            marginTop: -layer.size / 2,
+            background: `radial-gradient(circle, rgba(212,168,67,${layer.opacity}) 0%, rgba(184,134,11,${layer.opacity * 0.5}) 40%, transparent 70%)`,
+            filter: `blur(${layer.blur}px)`,
+            borderRadius: "50%",
+          }}
+          animate={
+            prefersReduced
+              ? { opacity: 0.5 }
+              : {
+                  opacity: [0.3, 0.6, 0.3],
+                  scale: [0.95, 1.05, 0.95],
+                }
+          }
+          transition={
+            prefersReduced
+              ? undefined
+              : {
+                  duration: layer.duration,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: layer.delay,
+                }
+          }
+        />
+      ))}
+    </div>
+  );
+}
 
 function SuccessState({ onReset }: { onReset: () => void }) {
   return (
@@ -279,6 +345,9 @@ export default function OrderForm() {
 
   return (
     <section id="order" className="py-16 md:py-24 lg:py-36 bg-parchment relative overflow-hidden">
+      {/* Candlelight pulse glow */}
+      <CandlelightPulse />
+
       {/* Texture */}
       <div className="absolute inset-0 grain" />
 
@@ -297,7 +366,7 @@ export default function OrderForm() {
           <h2 className="font-display text-burgundy text-4xl md:text-5xl lg:text-6xl mb-6">
             Place an Order
           </h2>
-          <div className="w-12 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-8" />
+          <WarmDivider variant="narrow" className="mb-8" />
           <p className="text-rose-gray max-w-xl mx-auto text-lg leading-relaxed">
             Select your favorite scents above and we&apos;ll get back to you to
             confirm your order.{" "}
