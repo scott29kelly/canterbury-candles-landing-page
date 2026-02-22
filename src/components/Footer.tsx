@@ -1,11 +1,12 @@
 import Image from "next/image";
+import WarmDivider from "./WarmDivider";
 
 export default function Footer() {
   return (
     <footer className="bg-burgundy grain relative overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 relative z-10">
         {/* Gold separator */}
-        <div className="h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
+        <WarmDivider variant="wide" />
 
         <div className="py-16 md:py-24">
           {/* Centered logo and brand */}
@@ -29,7 +30,7 @@ export default function Footer() {
           </div>
 
           {/* Gold separator */}
-          <div className="w-16 h-px bg-gradient-to-r from-transparent via-gold/25 to-transparent mx-auto mb-12" />
+          <WarmDivider variant="narrow" className="w-16 mb-12" />
 
           {/* Links row */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-12">

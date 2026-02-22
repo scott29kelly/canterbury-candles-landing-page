@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef, useEffect, useState } from "react";
 import AnimateIn from "./AnimateIn";
+import WarmDivider from "./WarmDivider";
 
 const processSteps = [
   {
@@ -82,7 +83,7 @@ export default function Story() {
             The Craft Behind
             <span className="italic"> Every Flame</span>
           </h2>
-          <div className="w-12 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-8" />
+          <WarmDivider variant="narrow" className="mb-8" />
           <p className="text-rose-gray max-w-2xl mx-auto text-lg leading-relaxed">
             Every Canterbury candle is a labor of love — hand-poured in small
             batches using a coconut, soy &amp; beeswax blend that burns cleaner and
@@ -132,7 +133,7 @@ export default function Story() {
                 <h3 className="font-display text-burgundy text-3xl md:text-4xl -mt-3 mb-4">
                   {step.title}
                 </h3>
-                <div className="w-10 h-px bg-gradient-to-r from-gold to-transparent mb-6" />
+                <WarmDivider variant="narrow" className="w-10 mb-6" />
                 <p className="text-rose-gray leading-relaxed text-lg">
                   {step.description}
                 </p>
@@ -162,7 +163,7 @@ export default function Story() {
                 hands, poured with the same care we&apos;d put into one made
                 for our own home.
               </p>
-              <div className="w-10 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mt-8 mb-4" />
+              <WarmDivider variant="narrow" className="w-10 mt-8 mb-4" />
               <cite className="text-rose-gray text-sm tracking-widest uppercase not-italic">
                 Canterbury Candles
               </cite>

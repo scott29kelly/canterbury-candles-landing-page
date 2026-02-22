@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import AnimateIn from "./AnimateIn";
+import WarmDivider from "./WarmDivider";
 import { SCENTS, PRICES, PRODUCT_DETAILS, type Scent } from "@/data/products";
 import { useCart, type CandleSize } from "@/context/CartContext";
 import { useInventory } from "@/hooks/useInventory";
@@ -116,6 +117,10 @@ function ScentCard({
 
   return (
     <div className={`group relative${!available ? " opacity-50" : ""}`}>
+      {/* Candlelight hover glow — warm bloom behind card */}
+      {available && (
+        <div className="hidden md:block absolute -inset-3 z-0 rounded-xl bg-[radial-gradient(ellipse_at_center,_rgba(212,168,67,0.35)_0%,_rgba(184,134,11,0.15)_40%,_transparent_70%)] opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 ease-out pointer-events-none" style={{ filter: "blur(20px)" }} />
+      )}
       {/* Image */}
       <div
         className={`relative aspect-[3/4] overflow-hidden rounded-lg bg-parchment${available ? " cursor-pointer" : " cursor-default"}`}
@@ -135,7 +140,7 @@ function ScentCard({
           src={scent.image}
           alt={`${scent.name} scented candle in mason jar`}
           fill
-          className={`object-cover transition-transform duration-700${available ? " group-hover:scale-105" : " grayscale"}`}
+          className={`object-cover transition-all duration-700${available ? " group-hover:scale-105 group-hover:brightness-[1.03] group-hover:saturate-[1.05]" : " grayscale"}`}
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 14vw"
         />
 
@@ -285,7 +290,7 @@ export default function Scents() {
             <h2 className="font-display text-burgundy text-4xl md:text-5xl lg:text-6xl mb-6">
               Our Signature Scents
             </h2>
-            <div className="w-12 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-8" />
+            <WarmDivider variant="narrow" className="mb-8" />
             <p className="text-rose-gray max-w-2xl mx-auto text-lg leading-relaxed">
               From warm bakery comforts to bright fruity escapes — each
               fragrance is carefully selected and blended to fill your space

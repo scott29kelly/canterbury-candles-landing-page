@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef, useEffect, useState, useMemo } from "react";
+import WarmDivider from "./WarmDivider";
+import CandleFlame from "./CandleFlame";
 import * as gtag from "@/lib/gtag";
 
 function useIsMobile(breakpoint = 768) {
@@ -134,7 +136,7 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="origin-left mx-auto lg:mx-0"
             >
-              <div className="w-20 h-px bg-gradient-to-r from-gold via-gold-light to-transparent mb-8" />
+              <WarmDivider variant="narrow" className="w-20 mb-8" />
             </motion.div>
 
             {/* Subtext */}
@@ -206,6 +208,7 @@ export default function Hero() {
 
               {/* Main product image */}
               <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
+                <CandleFlame />
                 <Image
                   src="/images/logo-header-hero-shot.jpeg"
                   alt="Canterbury Candles branded mason jar candle with rustic ingredients"
