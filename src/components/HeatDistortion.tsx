@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(false);
@@ -15,18 +15,18 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-export default function HeatDistortion() {
+export default function HeatDistortion({ children }: { children: ReactNode }) {
   const prefersReduced = useReducedMotion();
   const isMobile = useIsMobile();
   const filterId = useId().replace(/:/g, "_");
 
-  if (prefersReduced) return null;
+  if (prefersReduced) return <>{children}</>;
 
   const numOctaves = isMobile ? 2 : 3;
-  const displacementScale = isMobile ? 4 : 6;
+  const displacementScale = isMobile ? 6 : 10;
 
   return (
-    <>
+    <div className="relative">
       {/* Hidden SVG filter definition */}
       <svg
         width="0"
@@ -38,7 +38,7 @@ export default function HeatDistortion() {
           <filter id={filterId}>
             <feTurbulence
               type="turbulence"
-              baseFrequency="0.018 0.025"
+              baseFrequency="0.015 0.02"
               numOctaves={numOctaves}
               result="turbulence"
             >
@@ -61,19 +61,10 @@ export default function HeatDistortion() {
         </defs>
       </svg>
 
-      {/* Heat distortion overlay — upper portion of image */}
-      <div
-        className="absolute inset-x-0 top-0 z-10 pointer-events-none"
-        style={{
-          height: "45%",
-          backdropFilter: `url(#${filterId})`,
-          WebkitBackdropFilter: `url(#${filterId})`,
-          maskImage:
-            "linear-gradient(to bottom, black 30%, transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, black 30%, transparent 100%)",
-        }}
-      />
+      {/* Apply turbulence filter to the image content */}
+      <div style={{ filter: `url(#${filterId})` }}>
+        {children}
+      </div>
 
       {/* Warm glow point at flame source */}
       <motion.div
@@ -97,6 +88,6 @@ export default function HeatDistortion() {
           ease: "easeInOut",
         }}
       />
-    </>
+    </div>
   );
 }

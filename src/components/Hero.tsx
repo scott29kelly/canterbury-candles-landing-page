@@ -4,7 +4,6 @@ import Image from "next/image";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { useRef, useEffect, useState, useMemo } from "react";
 import WarmDivider from "./WarmDivider";
-import HeatDistortion from "./HeatDistortion";
 import * as gtag from "@/lib/gtag";
 
 function useIsMobile(breakpoint = 768) {
@@ -68,8 +67,8 @@ function AmbientWarmth({
   isMobile: boolean;
   prefersReduced: boolean | null;
 }) {
-  const opacity1 = useTransform(scrollYProgress, [0, 0.15], [0.22, 0.05]);
-  const opacity2 = useTransform(scrollYProgress, [0, 0.15], [0.16, 0.04]);
+  const opacity1 = useTransform(scrollYProgress, [0, 0.15], [0.4, 0.12]);
+  const opacity2 = useTransform(scrollYProgress, [0, 0.15], [0.3, 0.1]);
   const y1 = useTransform(scrollYProgress, [0, 0.3], [0, -30]);
   const y2 = useTransform(scrollYProgress, [0, 0.3], [0, -20]);
 
@@ -86,7 +85,7 @@ function AmbientWarmth({
             left: "15%",
             top: "10%",
             background:
-              "radial-gradient(circle, rgba(212,168,67,0.12) 0%, transparent 70%)",
+              "radial-gradient(circle, rgba(212,168,67,0.25) 0%, transparent 70%)",
             filter: "blur(50px)",
           }}
         />
@@ -98,7 +97,7 @@ function AmbientWarmth({
             right: "10%",
             top: "30%",
             background:
-              "radial-gradient(circle, rgba(184,134,11,0.1) 0%, transparent 70%)",
+              "radial-gradient(circle, rgba(184,134,11,0.2) 0%, transparent 70%)",
             filter: "blur(60px)",
           }}
         />
@@ -116,7 +115,7 @@ function AmbientWarmth({
           left: "15%",
           top: "10%",
           background:
-            "radial-gradient(circle, rgba(212,168,67,0.15) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(212,168,67,0.3) 0%, transparent 70%)",
           filter: "blur(50px)",
           opacity: opacity1,
           y: y1,
@@ -130,7 +129,7 @@ function AmbientWarmth({
           right: "10%",
           top: "30%",
           background:
-            "radial-gradient(circle, rgba(184,134,11,0.12) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(184,134,11,0.25) 0%, transparent 70%)",
           filter: "blur(60px)",
           opacity: opacity2,
           y: y2,
@@ -328,7 +327,6 @@ export default function Hero() {
 
               {/* Main product image */}
               <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
-                <HeatDistortion />
                 <Image
                   src="/images/logo-header-hero-shot.jpeg"
                   alt="Canterbury Candles branded mason jar candle with rustic ingredients"
