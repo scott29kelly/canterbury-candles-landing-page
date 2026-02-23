@@ -162,6 +162,39 @@ select:focus {
   50% { opacity: 1; transform: scale(1) rotate(180deg); }
 }
 
+/* Candlelight flicker — irregular steps so two instances never sync */
+@keyframes candleFlicker {
+  0%   { opacity: 0.6; }
+  12%  { opacity: 0.85; }
+  20%  { opacity: 0.7; }
+  35%  { opacity: 0.9; }
+  48%  { opacity: 0.65; }
+  60%  { opacity: 0.8; }
+  75%  { opacity: 0.55; }
+  88%  { opacity: 0.75; }
+  100% { opacity: 0.6; }
+}
+
+@keyframes candleFlickerAlt {
+  0%   { opacity: 0.5; }
+  15%  { opacity: 0.75; }
+  30%  { opacity: 0.6; }
+  45%  { opacity: 0.85; }
+  55%  { opacity: 0.7; }
+  70%  { opacity: 0.55; }
+  85%  { opacity: 0.8; }
+  100% { opacity: 0.5; }
+}
+
+/* Aroma wisps — warm scent trails rising from candles */
+@keyframes aromaRise {
+  0%   { transform: translateY(0) scaleX(1) scaleY(1); opacity: 0; }
+  10%  { opacity: 0.5; }
+  50%  { transform: translateY(-35vh) scaleX(3) scaleY(1.5); opacity: 0.3; }
+  90%  { opacity: 0; }
+  100% { transform: translateY(-55vh) scaleX(5) scaleY(2); opacity: 0; }
+}
+
 /* Disable heavy animations for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .ken-burns {
@@ -184,4 +217,5 @@ select:focus {
   .ken-burns {
     animation: none;
   }
+
 }

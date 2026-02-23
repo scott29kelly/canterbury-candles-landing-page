@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import AnimateIn from "./AnimateIn";
 import WarmDivider from "./WarmDivider";
 import { SCENTS, PRICES, PRODUCT_DETAILS, type Scent } from "@/data/products";
@@ -12,6 +12,106 @@ import * as gtag from "@/lib/gtag";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
+/* ─── useColumnCount ─── */
+function useColumnCount() {
+  const [cols, setCols] = useState(2);
+
+  useEffect(() => {
+    function update() {
+      const w = window.innerWidth;
+      if (w >= 1536) setCols(5);      // 2xl
+      else if (w >= 1280) setCols(4); // xl
+      else if (w >= 768) setCols(3);  // md
+      else setCols(2);                // base/sm
+    }
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return cols;
+}
+
+/* ─── getCardDelay ─── */
+function getCardDelay(index: number, columnCount: number) {
+  const row = Math.floor(index / columnCount);
+  const col = index % columnCount;
+  return row * 0.12 + col * 0.06;
+}
+
+/* ─── ScentsFlickerGlow ─── */
+function ScentsFlickerGlow() {
+  const prefersReduced = useReducedMotion();
+
+  return (
+    <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
+      {/* Upper-left glow */}
+      <div
+        className="absolute -top-[10%] -left-[10%] w-[45vw] h-[60%] rounded-full"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, rgba(212,168,67,0.14) 0%, transparent 70%)",
+          filter: "blur(60px)",
+          animation: prefersReduced
+            ? "none"
+            : "candleFlicker 4s ease-in-out infinite",
+          opacity: prefersReduced ? 0.6 : undefined,
+        }}
+      />
+      {/* Lower-right glow — hidden on mobile, static on reduced motion */}
+      <div
+        className="hidden md:block absolute -bottom-[10%] -right-[5%] w-[35vw] h-[50%] rounded-full"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, rgba(184,134,11,0.10) 0%, transparent 65%)",
+          filter: "blur(70px)",
+          animation: prefersReduced
+            ? "none"
+            : "candleFlickerAlt 5.5s ease-in-out infinite",
+          opacity: prefersReduced ? 0.5 : undefined,
+        }}
+      />
+    </div>
+  );
+}
+
+/* ─── AromaWisps ─── */
+const WISP_DATA = [
+  { left: "10%", bottom: "5%", color: "rgba(201,169,110,0.35)", delay: 0 },
+  { left: "25%", bottom: "12%", color: "rgba(212,168,67,0.3)", delay: 1.5 },
+  { left: "40%", bottom: "8%", color: "rgba(201,169,110,0.35)", delay: 3.0 },
+  { left: "55%", bottom: "15%", color: "rgba(212,168,67,0.3)", delay: 4.5 },
+  { left: "70%", bottom: "6%", color: "rgba(201,169,110,0.35)", delay: 6.0 },
+  { left: "85%", bottom: "10%", color: "rgba(212,168,67,0.3)", delay: 7.5 },
+  { left: "18%", bottom: "18%", color: "rgba(212,168,67,0.3)", delay: 2.0 },
+  { left: "62%", bottom: "20%", color: "rgba(201,169,110,0.35)", delay: 5.0 },
+];
+
+function AromaWisps() {
+  const prefersReduced = useReducedMotion();
+
+  if (prefersReduced) return null;
+
+  return (
+    <div className="absolute inset-0 z-[2] pointer-events-none overflow-hidden">
+      {WISP_DATA.map((wisp, i) => (
+        <span
+          key={i}
+          className={`absolute w-3 h-3 rounded-full ${i >= 3 ? "hidden md:block" : ""}`}
+          style={{
+            left: wisp.left,
+            bottom: wisp.bottom,
+            backgroundColor: wisp.color,
+            filter: "blur(12px)",
+            animation: `aromaRise 8s ease-in-out ${wisp.delay}s infinite`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ─── QuantityStepper ─── */
 function QuantityStepper({
   quantity,
   onIncrement,
@@ -44,6 +144,7 @@ function QuantityStepper({
   );
 }
 
+/* ─── SizeRow ─── */
 function SizeRow({
   scent,
   size,
@@ -94,6 +195,12 @@ function SizeRow({
   );
 }
 
+/* ─── Hover transition configs — gentle, no bounce ─── */
+const HOVER_TWEEN = { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const };
+const GLOW_TWEEN = { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] as const };
+const OVERLAY_TWEEN = { duration: 0.55, ease: [0.25, 0.1, 0.25, 1] as const };
+
+/* ─── ScentCard ─── */
 function ScentCard({
   scent,
   isActive,
@@ -115,13 +222,41 @@ function ScentCard({
   const qty8 = scentItems.find((i) => i.size === "8oz")?.quantity ?? 0;
   const qty16 = scentItems.find((i) => i.size === "16oz")?.quantity ?? 0;
 
+  const [isHovered, setIsHovered] = useState(false);
+  const desktopHover = isHovered && available;
+
   return (
-    <div className={`group relative${!available ? " opacity-50" : ""}`}>
-      {/* Candlelight hover glow — warm bloom behind card */}
+    <motion.div
+      className={`relative${!available ? " opacity-50" : ""}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      animate={{
+        y: desktopHover ? -2 : 0,
+        boxShadow: desktopHover
+          ? "0 6px 20px -6px rgba(184,134,11,0.10)"
+          : "0 0px 0px 0px rgba(184,134,11,0)",
+      }}
+      transition={HOVER_TWEEN}
+      style={{ borderRadius: 12 }}
+    >
+      {/* Candlelight hover glow — soft warm bloom behind card */}
       {available && (
-        <div className="hidden md:block absolute -inset-3 z-0 rounded-xl bg-[radial-gradient(ellipse_at_center,_rgba(212,168,67,0.35)_0%,_rgba(184,134,11,0.15)_40%,_transparent_70%)] opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 ease-out pointer-events-none" style={{ filter: "blur(20px)" }} />
+        <motion.div
+          className="hidden md:block absolute -inset-3 z-0 rounded-xl pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, rgba(212,168,67,0.20) 0%, rgba(184,134,11,0.08) 40%, transparent 70%)",
+            filter: "blur(24px)",
+          }}
+          animate={{
+            opacity: desktopHover ? 0.7 : 0,
+            scale: desktopHover ? 1.05 : 0.95,
+          }}
+          transition={GLOW_TWEEN}
+        />
       )}
-      {/* Image */}
+
+      {/* Image container */}
       <div
         className={`relative aspect-[3/4] overflow-hidden rounded-lg bg-parchment${available ? " cursor-pointer" : " cursor-default"}`}
         onClick={() => {
@@ -140,7 +275,7 @@ function ScentCard({
           src={scent.image}
           alt={`${scent.name} scented candle in mason jar`}
           fill
-          className={`object-cover transition-all duration-700${available ? " group-hover:scale-105 group-hover:brightness-[1.03] group-hover:saturate-[1.05]" : " grayscale"}`}
+          className={`object-cover transition-all duration-1000 ease-out${available ? (desktopHover ? " scale-105 brightness-[1.03] saturate-[1.05]" : " scale-100") : " grayscale"}`}
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 14vw"
         />
 
@@ -153,23 +288,30 @@ function ScentCard({
           </div>
         )}
 
-        {/* Glass-morphism hover overlay — hidden when card is active or sold out */}
+        {/* Glass-morphism hover overlay — smooth slide */}
         {!isActive && available && (
-          <div className="hidden md:block absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+          <motion.div
+            className="hidden md:block absolute inset-x-0 bottom-0 z-[5]"
+            initial={{ y: "100%" }}
+            animate={{ y: desktopHover ? "0%" : "100%" }}
+            transition={OVERLAY_TWEEN}
+          >
             <div className="bg-burgundy/80 backdrop-blur-md p-4">
               <p className="text-blush/80 text-sm leading-relaxed">
                 {scent.notes}
               </p>
             </div>
-          </div>
+          </motion.div>
         )}
 
-        {/* Permanent gradient at bottom for text readability (desktop only, hidden when active or sold out) */}
+        {/* Permanent gradient at bottom for text readability (desktop only) */}
         {!isActive && available && (
-          <div className="hidden md:block absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent group-hover:opacity-0 transition-opacity duration-500" />
+          <div
+            className={`hidden md:block absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent transition-opacity duration-700 ease-out${desktopHover ? " opacity-0" : " opacity-100"}`}
+          />
         )}
 
-        {/* Cart indicator badge — shown when NOT active and scent is in cart */}
+        {/* Cart indicator badge */}
         <AnimatePresence>
           {!isActive && inCart && available && (
             <motion.div
@@ -254,7 +396,15 @@ function ScentCard({
         <p className="text-gold/60 text-[10px] tracking-[0.2em] uppercase mb-1">
           {scent.tag}
         </p>
-        <h3 className={`font-display text-base md:text-lg leading-tight transition-colors duration-300${available ? " text-burgundy group-hover:text-gold" : " text-burgundy/50"}`}>
+        <h3
+          className={`font-display text-base md:text-lg leading-tight transition-colors duration-500 ease-out${
+            available
+              ? isHovered
+                ? " text-gold"
+                : " text-burgundy"
+              : " text-burgundy/50"
+          }`}
+        >
           {scent.name}
         </h3>
         {/* Scent notes visible on mobile, hidden on desktop (shown via hover overlay) */}
@@ -262,25 +412,50 @@ function ScentCard({
           {scent.notes}
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
+/* ─── Main Scents Section ─── */
 export default function Scents() {
   const [activeCardName, setActiveCardName] = useState<string | null>(null);
   const inventory = useInventory();
+  const columnCount = useColumnCount();
+  const prefersReduced = useReducedMotion();
 
   const handleBackgroundClick = useCallback(() => {
     setActiveCardName(null);
   }, []);
 
+  /* Card entrance variants — gentle fade and drift */
+  const cardVariants = useMemo(
+    () => ({
+      hidden: { opacity: 0, y: prefersReduced ? 0 : 14 },
+      visible: { opacity: 1, y: 0 },
+    }),
+    [prefersReduced],
+  );
+
   return (
     <section id="scents" className="relative overflow-hidden">
       <div
-        className="py-16 md:py-24 lg:py-36 bg-blush relative"
+        className="py-16 md:py-24 lg:py-36 relative"
+        style={{
+          background:
+            "linear-gradient(to bottom, #F5E1DC 0%, #F3DDD4 35%, #F5E1DC 65%, #F2D9CE 100%)",
+        }}
         onClick={handleBackgroundClick}
       >
+        {/* Layer 2: Flickering candlelight glow */}
+        <ScentsFlickerGlow />
+
+        {/* Layer 3: Rising aroma wisps */}
+        <AromaWisps />
+
+        {/* Layer 4: Grain texture (existing) */}
         <div className="absolute inset-0 grain" />
+
+        {/* Layer 5: Content */}
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 relative z-10">
           {/* Section header */}
           <AnimateIn className="text-center mb-10 md:mb-16 lg:mb-24">
@@ -324,16 +499,24 @@ export default function Scents() {
             </p>
           </AnimateIn>
 
-          {/* Unified product grid */}
+          {/* Unified product grid — staggered entrance */}
           <div
             className="flex flex-wrap justify-center gap-5 md:gap-6"
             onClick={(e) => e.stopPropagation()}
           >
-            {SCENTS.map((scent) => (
-              <AnimateIn
+            {SCENTS.map((scent, index) => (
+              <motion.div
                 key={scent.name}
-                variant="fadeUp"
                 className="w-[calc(50%-0.625rem)] sm:w-[calc(50%-0.625rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.125rem)] xl:w-[calc(25%-1.2rem)] 2xl:w-[calc(20%-1.286rem)]"
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{
+                  duration: prefersReduced ? 0 : 1.4,
+                  ease: [0.25, 0.1, 0.25, 1],
+                  delay: prefersReduced ? 0 : getCardDelay(index, columnCount),
+                }}
               >
                 <ScentCard
                   scent={scent}
@@ -342,7 +525,7 @@ export default function Scents() {
                   onDeactivate={() => setActiveCardName(null)}
                   available={inventory[scent.name] !== false}
                 />
-              </AnimateIn>
+              </motion.div>
             ))}
           </div>
         </div>
