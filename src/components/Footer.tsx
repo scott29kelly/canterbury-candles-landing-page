@@ -1,9 +1,274 @@
+"use client";
+
 import Image from "next/image";
+import { useRef, useEffect, useState, useCallback } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import WarmDivider from "./WarmDivider";
 
-export default function Footer() {
+/* ── Local hooks ─────────────────────────────────────────── */
+
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [breakpoint]);
+  return isMobile;
+}
+
+function useMousePosition(
+  containerRef: React.RefObject<HTMLElement | null>,
+  enabled: boolean
+) {
+  const [position, setPosition] = useState({ x: 0, y: 0, active: false });
+  const rafRef = useRef(0);
+
+  useEffect(() => {
+    if (!enabled) return;
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleMove = (clientX: number, clientY: number) => {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        const rect = el.getBoundingClientRect();
+        setPosition({
+          x: clientX - rect.left,
+          y: clientY - rect.top,
+          active: true,
+        });
+      });
+    };
+
+    const onMouse = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
+    const onTouch = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        handleMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    };
+    const onLeave = () => setPosition((p) => ({ ...p, active: false }));
+
+    el.addEventListener("mousemove", onMouse, { passive: true });
+    el.addEventListener("touchmove", onTouch, { passive: true });
+    el.addEventListener("mouseleave", onLeave);
+    el.addEventListener("touchend", onLeave);
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      el.removeEventListener("mousemove", onMouse);
+      el.removeEventListener("touchmove", onTouch);
+      el.removeEventListener("mouseleave", onLeave);
+      el.removeEventListener("touchend", onLeave);
+    };
+  }, [containerRef, enabled]);
+
+  return position;
+}
+
+/* ── Layer 1: Candlelight Glow ───────────────────────────── */
+
+function CandlelightGlow({
+  mouseX,
+  mouseY,
+  active,
+}: {
+  mouseX: number;
+  mouseY: number;
+  active: boolean;
+}) {
   return (
-    <footer className="bg-burgundy grain relative overflow-hidden">
+    <motion.div
+      className="absolute inset-0 z-[2] pointer-events-none overflow-hidden"
+      animate={{ opacity: active ? 1 : 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      {/* Primary warm glow — tight gold "flame" */}
+      <div
+        className="absolute w-[400px] h-[400px] -translate-x-1/2 -translate-y-1/2"
+        style={{
+          left: mouseX,
+          top: mouseY,
+          background:
+            "radial-gradient(circle, rgba(212,168,67,0.15) 0%, rgba(184,134,11,0.08) 35%, rgba(184,134,11,0.03) 55%, transparent 70%)",
+          filter: "blur(30px)",
+          willChange: "left, top",
+        }}
+      />
+      {/* Secondary diffuse bloom — wider ambient light */}
+      <div
+        className="absolute w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2"
+        style={{
+          left: mouseX,
+          top: mouseY,
+          background:
+            "radial-gradient(circle, rgba(245,225,220,0.06) 0%, rgba(212,168,67,0.03) 40%, transparent 65%)",
+          filter: "blur(50px)",
+          mixBlendMode: "screen",
+          willChange: "left, top",
+        }}
+      />
+    </motion.div>
+  );
+}
+
+/* ── Layer 2: Footer Embers ──────────────────────────────── */
+
+const MAX_EMBERS = 12;
+
+interface Ember {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  alt: boolean;
+}
+
+function FooterEmbers({
+  mouseX,
+  mouseY,
+  active,
+}: {
+  mouseX: number;
+  mouseY: number;
+  active: boolean;
+}) {
+  const [embers, setEmbers] = useState<Ember[]>([]);
+  const nextId = useRef(0);
+  const lastSpawn = useRef(0);
+
+  useEffect(() => {
+    if (!active) return;
+
+    const now = Date.now();
+    if (now - lastSpawn.current < 120) return;
+    lastSpawn.current = now;
+
+    const newEmber: Ember = {
+      id: nextId.current++,
+      x: mouseX + (Math.random() - 0.5) * 30,
+      y: mouseY,
+      size: 2.5 + Math.random() * 2.5,
+      alt: Math.random() > 0.5,
+    };
+
+    setEmbers((prev) => [...prev.slice(-(MAX_EMBERS - 1)), newEmber]);
+  }, [mouseX, mouseY, active]);
+
+  // Clean up embers after their animation completes
+  useEffect(() => {
+    if (embers.length === 0) return;
+    const timer = setTimeout(() => {
+      setEmbers((prev) => prev.slice(1));
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [embers.length]);
+
+  return (
+    <div className="absolute inset-0 z-[3] pointer-events-none overflow-hidden">
+      {embers.map((ember) => (
+        <span
+          key={ember.id}
+          className="absolute rounded-full"
+          style={{
+            left: ember.x,
+            top: ember.y,
+            width: ember.size,
+            height: ember.size,
+            background: `radial-gradient(circle, ${
+              ember.alt
+                ? "rgba(212,168,67,0.85)"
+                : "rgba(201,169,110,0.75)"
+            } 0%, transparent 70%)`,
+            animation: `${
+              ember.alt ? "card-ember-alt" : "card-ember"
+            } 5.5s ease-in-out forwards`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ── Layer 3: Magnetic Link ──────────────────────────────── */
+
+function MagneticLink({
+  href,
+  children,
+  className,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className: string;
+}) {
+  const ref = useRef<HTMLAnchorElement>(null);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const prefersReduced = useReducedMotion();
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (prefersReduced) return;
+      const el = ref.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const dx = (e.clientX - centerX) * 0.25;
+      const dy = (e.clientY - centerY) * 0.25;
+      setOffset({
+        x: Math.max(-8, Math.min(8, dx)),
+        y: Math.max(-4, Math.min(4, dy)),
+      });
+    },
+    [prefersReduced]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setOffset({ x: 0, y: 0 });
+  }, []);
+
+  return (
+    <motion.a
+      ref={ref}
+      href={href}
+      className={className}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      animate={{ x: offset.x, y: offset.y }}
+      transition={{ type: "spring", stiffness: 250, damping: 20, mass: 0.5 }}
+    >
+      {children}
+    </motion.a>
+  );
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+
+export default function Footer() {
+  const footerRef = useRef<HTMLElement>(null);
+  const isMobile = useIsMobile();
+  const prefersReduced = useReducedMotion();
+  const enableEffects = !prefersReduced && !isMobile;
+  const { x, y, active } = useMousePosition(footerRef, enableEffects);
+
+  const linkClass =
+    "text-blush/40 text-sm tracking-widest uppercase hover:text-gold transition-colors duration-300";
+
+  return (
+    <footer
+      ref={footerRef}
+      className="bg-burgundy grain relative overflow-hidden"
+    >
+      {/* Interactive layers (desktop only, respects reduced motion) */}
+      {enableEffects && (
+        <CandlelightGlow mouseX={x} mouseY={y} active={active} />
+      )}
+      {enableEffects && (
+        <FooterEmbers mouseX={x} mouseY={y} active={active} />
+      )}
+
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 relative z-10">
         {/* Gold separator */}
         <WarmDivider variant="wide" />
@@ -24,8 +289,8 @@ export default function Footer() {
               Canterbury Candles
             </h3>
             <p className="text-blush/35 leading-relaxed text-sm max-w-sm mx-auto">
-              Hand-poured coconut, soy &amp; beeswax blend candles, crafted in small
-              batches with intention and care.
+              Hand-poured coconut, soy &amp; beeswax blend candles, crafted in
+              small batches with intention and care.
             </p>
           </div>
 
@@ -34,26 +299,17 @@ export default function Footer() {
 
           {/* Links row */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-12">
-            <a
-              href="#story"
-              className="text-blush/40 text-sm tracking-widest uppercase hover:text-gold transition-colors duration-300"
-            >
+            <MagneticLink href="#story" className={linkClass}>
               Our Process
-            </a>
+            </MagneticLink>
             <span className="hidden sm:inline text-gold/20">&middot;</span>
-            <a
-              href="#scents"
-              className="text-blush/40 text-sm tracking-widest uppercase hover:text-gold transition-colors duration-300"
-            >
+            <MagneticLink href="#scents" className={linkClass}>
               Scents
-            </a>
+            </MagneticLink>
             <span className="hidden sm:inline text-gold/20">&middot;</span>
-            <a
-              href="#order"
-              className="text-blush/40 text-sm tracking-widest uppercase hover:text-gold transition-colors duration-300"
-            >
+            <MagneticLink href="#order" className={linkClass}>
               Order
-            </a>
+            </MagneticLink>
           </div>
 
           {/* Social */}
