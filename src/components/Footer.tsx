@@ -7,18 +7,6 @@ import WarmDivider from "./WarmDivider";
 
 /* ── Local hooks ─────────────────────────────────────────── */
 
-function useIsMobile(breakpoint = 768) {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-    setIsMobile(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, [breakpoint]);
-  return isMobile;
-}
-
 function useMousePosition(
   containerRef: React.RefObject<HTMLElement | null>,
   enabled: boolean
@@ -293,9 +281,8 @@ function MagneticLink({
 
 export default function Footer() {
   const footerRef = useRef<HTMLElement>(null);
-  const isMobile = useIsMobile();
   const prefersReduced = useReducedMotion();
-  const enableEffects = !prefersReduced && !isMobile;
+  const enableEffects = !prefersReduced;
   const { x, y, active } = useMousePosition(footerRef, enableEffects);
 
   const linkClass =
@@ -306,7 +293,7 @@ export default function Footer() {
       ref={footerRef}
       className="bg-burgundy grain relative overflow-hidden"
     >
-      {/* Interactive layers (desktop only, respects reduced motion) */}
+      {/* Interactive layers (respects reduced motion) */}
       {enableEffects && (
         <CandlelightGlow mouseX={x} mouseY={y} active={active} />
       )}
