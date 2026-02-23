@@ -115,6 +115,31 @@ select:focus {
   }
 }
 
+/* Card ember particles — contained within ~300px card overlay */
+@keyframes card-ember {
+  0%, 100% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.4; }
+  50% {
+    transform: translateY(-120px) translateX(12px) scale(0.5);
+  }
+}
+
+@keyframes card-ember-alt {
+  0%, 100% {
+    transform: translateY(0) translateX(0) scale(0.8);
+    opacity: 0;
+  }
+  15% { opacity: 0.7; }
+  85% { opacity: 0.3; }
+  50% {
+    transform: translateY(-100px) translateX(-10px) scale(0.3);
+  }
+}
+
 /* Ken Burns slow zoom for gallery */
 @keyframes ken-burns {
   0% { transform: scale(1); }
@@ -154,6 +179,25 @@ select:focus {
     transparent 100%
   );
   animation: warm-glow-travel 7s ease-in-out infinite;
+}
+
+/* Card accent line — slow, subtle ember travel */
+@keyframes card-accent-travel {
+  0% { background-position: -100% center; }
+  100% { background-position: 200% center; }
+}
+
+.card-accent-line {
+  background-size: 300% 100%;
+  background-image: linear-gradient(
+    90deg,
+    rgba(245,225,220,0.3) 0%,
+    rgba(245,225,220,0.6) 40%,
+    rgba(245,225,220,0.85) 50%,
+    rgba(245,225,220,0.6) 60%,
+    rgba(245,225,220,0.3) 100%
+  );
+  animation: card-accent-travel 12s ease-in-out infinite;
 }
 
 /* Gold sparkle success animation */

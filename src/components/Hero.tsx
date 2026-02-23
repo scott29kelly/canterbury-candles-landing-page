@@ -147,7 +147,6 @@ export default function Hero() {
     target: sectionRef,
     offset: ["start start", "end start"],
   });
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", isMobile ? "0%" : "25%"]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, isMobile ? 1 : 0]);
   const contentY = useTransform(scrollYProgress, [0, 0.5], ["0%", isMobile ? "0%" : "12%"]);
 
@@ -158,24 +157,6 @@ export default function Hero() {
     >
       {/* Background — burgundy gradient base */}
       <div className="absolute inset-0 bg-burgundy" />
-
-      {/* Background logo — artistic placement */}
-      <motion.div
-        className="absolute inset-0"
-        style={{ y: bgY }}
-      >
-        <div className="absolute -right-[10%] -top-[5%] w-[75%] h-[110%] opacity-[0.07]">
-          <Image
-            src="/images/logo-burgundy-pink.png"
-            alt=""
-            fill
-            className="object-contain"
-            priority
-            sizes="75vw"
-            aria-hidden="true"
-          />
-        </div>
-      </motion.div>
 
       {/* Gradient overlays for depth */}
       <div className="absolute inset-0 bg-gradient-to-br from-burgundy via-burgundy/90 to-burgundy-light/40" />

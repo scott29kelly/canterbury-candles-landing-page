@@ -111,6 +111,41 @@ function AromaWisps() {
   );
 }
 
+/* ─── CardEmbers ─── */
+const EMBER_DATA = [
+  { left: "20%", bottom: "10%", size: 4, delay: 0, duration: 5, alt: false },
+  { left: "55%", bottom: "18%", size: 3, delay: 1.2, duration: 6, alt: true },
+  { left: "75%", bottom: "8%", size: 3.5, delay: 2.5, duration: 5.5, alt: false },
+  { left: "40%", bottom: "14%", size: 3, delay: 3.8, duration: 6.5, alt: true },
+];
+
+function CardEmbers() {
+  const prefersReduced = useReducedMotion();
+
+  if (prefersReduced) return null;
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1]">
+      {EMBER_DATA.map((e, i) => (
+        <span
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            left: e.left,
+            bottom: e.bottom,
+            width: e.size,
+            height: e.size,
+            background: `radial-gradient(circle, ${
+              e.alt ? "rgba(212,168,67,0.85)" : "rgba(201,169,110,0.75)"
+            } 0%, transparent 70%)`,
+            animation: `${e.alt ? "card-ember-alt" : "card-ember"} ${e.duration}s ${e.delay}s ease-in-out infinite`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 /* ─── QuantityStepper ─── */
 function QuantityStepper({
   quantity,
@@ -296,7 +331,11 @@ function ScentCard({
             animate={{ y: desktopHover ? "0%" : "100%" }}
             transition={OVERLAY_TWEEN}
           >
-            <div className="bg-burgundy/80 backdrop-blur-md p-4">
+            <div className="relative bg-burgundy/85 backdrop-blur-sm p-4">
+              <div className="absolute inset-x-0 top-0 h-px">
+                <div className="absolute inset-0 card-accent-line opacity-40" style={{ filter: "blur(2px)" }} />
+                <div className="h-full card-accent-line" />
+              </div>
               <p className="text-blush/80 text-sm leading-relaxed">
                 {scent.notes}
               </p>
@@ -351,6 +390,8 @@ function ScentCard({
               className="absolute inset-0 bg-burgundy/85 backdrop-blur-md flex flex-col items-center justify-center p-5 z-10"
               onClick={(e) => e.stopPropagation()}
             >
+              <CardEmbers />
+
               {/* Close button */}
               <button
                 type="button"
