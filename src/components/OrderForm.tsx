@@ -301,9 +301,12 @@ export default function OrderForm() {
           <WarmDivider variant="narrow" className="mb-8" />
           <p className="text-rose-gray max-w-xl mx-auto text-lg leading-relaxed">
             Select your favorite scents above and we&apos;ll get back to you to
-            confirm your order.{" "}
-            <span className="text-gold font-medium">${PRICES["8oz"]} for 8oz</span> /{" "}
-            <span className="text-gold font-medium">${PRICES["16oz"]} for 16oz</span>.
+            confirm your order.
+            <span className="block mt-1">
+              <span className="text-gold font-medium">${PRICES["8oz"]} for 8oz</span>
+              {" / "}
+              <span className="text-gold font-medium">${PRICES["16oz"]} for 16oz</span>.
+            </span>
           </p>
         </AnimateIn>
 

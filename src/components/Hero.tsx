@@ -287,7 +287,7 @@ export default function Hero() {
               <a
                 href="#order"
                 onClick={() => gtag.ctaClick("place_order")}
-                className="inline-flex items-center gap-3 border border-blush/20 text-blush px-8 py-4 text-sm tracking-widest uppercase font-medium hover:border-gold hover:text-gold transition-all duration-300"
+                className="btn-shimmer-ghost inline-flex items-center gap-3 border border-blush/20 text-blush px-8 py-4 text-sm tracking-widest uppercase font-medium hover:border-gold hover:text-gold transition-all duration-300"
               >
                 Place an Order
               </a>

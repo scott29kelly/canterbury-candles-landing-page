@@ -258,7 +258,12 @@ function ScentCard({
   const qty16 = scentItems.find((i) => i.size === "16oz")?.quantity ?? 0;
 
   const [isHovered, setIsHovered] = useState(false);
+  const [shineActive, setShineActive] = useState(false);
   const desktopHover = isHovered && available;
+
+  useEffect(() => {
+    if (!desktopHover) setShineActive(false);
+  }, [desktopHover]);
 
   return (
     <motion.div
@@ -330,11 +335,14 @@ function ScentCard({
             initial={{ y: "100%" }}
             animate={{ y: desktopHover ? "0%" : "100%" }}
             transition={OVERLAY_TWEEN}
+            onAnimationComplete={() => {
+              if (desktopHover) setShineActive(true);
+            }}
           >
             <div className="relative bg-burgundy/85 backdrop-blur-sm p-4">
               <div className="absolute inset-x-0 top-0 h-px">
-                <div className="absolute inset-0 card-accent-line opacity-40" style={{ filter: "blur(2px)" }} />
-                <div className="h-full card-accent-line" />
+                <div className={`absolute inset-0 card-accent-line${shineActive ? " card-accent-shine-active" : ""} opacity-40`} style={{ filter: "blur(2px)" }} />
+                <div className={`h-full card-accent-line${shineActive ? " card-accent-shine-active" : ""}`} />
               </div>
               <p className="text-blush/80 text-sm leading-relaxed">
                 {scent.notes}

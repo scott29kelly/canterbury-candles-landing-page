@@ -85,29 +85,38 @@ function CandlelightGlow({
       animate={{ opacity: active ? 1 : 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      {/* Primary warm glow — tight gold "flame" */}
-      <div
-        className="absolute w-[400px] h-[400px] -translate-x-1/2 -translate-y-1/2"
+      {/* Lead glow — smallest, tracks closest to cursor */}
+      <motion.div
+        className="absolute w-[250px] h-[250px] -translate-x-1/2 -translate-y-1/2"
+        animate={{ left: mouseX, top: mouseY }}
+        transition={{ type: "spring", stiffness: 80, damping: 20, mass: 0.8 }}
         style={{
-          left: mouseX,
-          top: mouseY,
           background:
-            "radial-gradient(circle, rgba(212,168,67,0.15) 0%, rgba(184,134,11,0.08) 35%, rgba(184,134,11,0.03) 55%, transparent 70%)",
-          filter: "blur(30px)",
-          willChange: "left, top",
+            "radial-gradient(circle, rgba(212,168,67,0.18) 0%, rgba(184,134,11,0.10) 35%, rgba(184,134,11,0.04) 55%, transparent 70%)",
+          filter: "blur(25px)",
         }}
       />
-      {/* Secondary diffuse bloom — wider ambient light */}
-      <div
-        className="absolute w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2"
+      {/* Mid trail — lags behind cursor */}
+      <motion.div
+        className="absolute w-[350px] h-[350px] -translate-x-1/2 -translate-y-1/2"
+        animate={{ left: mouseX, top: mouseY }}
+        transition={{ type: "spring", stiffness: 30, damping: 18, mass: 1.2 }}
         style={{
-          left: mouseX,
-          top: mouseY,
+          background:
+            "radial-gradient(circle, rgba(212,168,67,0.10) 0%, rgba(184,134,11,0.05) 40%, transparent 65%)",
+          filter: "blur(35px)",
+        }}
+      />
+      {/* Tail bloom — slowest, widest, creates the trailing tail */}
+      <motion.div
+        className="absolute w-[500px] h-[500px] -translate-x-1/2 -translate-y-1/2"
+        animate={{ left: mouseX, top: mouseY }}
+        transition={{ type: "spring", stiffness: 12, damping: 14, mass: 1.5 }}
+        style={{
           background:
             "radial-gradient(circle, rgba(245,225,220,0.06) 0%, rgba(212,168,67,0.03) 40%, transparent 65%)",
-          filter: "blur(50px)",
+          filter: "blur(45px)",
           mixBlendMode: "screen",
-          willChange: "left, top",
         }}
       />
     </motion.div>
@@ -116,7 +125,7 @@ function CandlelightGlow({
 
 /* ── Layer 2: Footer Embers ──────────────────────────────── */
 
-const MAX_EMBERS = 12;
+const MAX_EMBERS = 18;
 
 interface Ember {
   id: number;
@@ -143,14 +152,14 @@ function FooterEmbers({
     if (!active) return;
 
     const now = Date.now();
-    if (now - lastSpawn.current < 120) return;
+    if (now - lastSpawn.current < 80) return;
     lastSpawn.current = now;
 
     const newEmber: Ember = {
       id: nextId.current++,
       x: mouseX + (Math.random() - 0.5) * 30,
       y: mouseY,
-      size: 2.5 + Math.random() * 2.5,
+      size: 3 + Math.random() * 4,
       alt: Math.random() > 0.5,
     };
 
@@ -179,9 +188,10 @@ function FooterEmbers({
             height: ember.size,
             background: `radial-gradient(circle, ${
               ember.alt
-                ? "rgba(212,168,67,0.85)"
-                : "rgba(201,169,110,0.75)"
+                ? "rgba(212,168,67,1)"
+                : "rgba(201,169,110,0.95)"
             } 0%, transparent 70%)`,
+            boxShadow: `0 0 4px rgba(212,168,67,0.6)`,
             animation: `${
               ember.alt ? "card-ember-alt" : "card-ember"
             } 5.5s ease-in-out forwards`,
