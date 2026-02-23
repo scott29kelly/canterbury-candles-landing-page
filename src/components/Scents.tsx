@@ -262,7 +262,12 @@ function ScentCard({
   const desktopHover = isHovered && available;
 
   useEffect(() => {
-    if (!desktopHover) setShineActive(false);
+    if (!desktopHover) {
+      setShineActive(false);
+      return;
+    }
+    const timer = setTimeout(() => setShineActive(true), 100);
+    return () => clearTimeout(timer);
   }, [desktopHover]);
 
   return (
@@ -335,15 +340,11 @@ function ScentCard({
             initial={{ y: "100%" }}
             animate={{ y: desktopHover ? "0%" : "100%" }}
             transition={OVERLAY_TWEEN}
-            onAnimationComplete={() => {
-              if (desktopHover) setShineActive(true);
-            }}
           >
-            <div className="relative bg-burgundy/85 backdrop-blur-sm p-4">
-              <div className="absolute inset-x-0 top-0 h-px">
-                <div className={`absolute inset-0 card-accent-line${shineActive ? " card-accent-shine-active" : ""} opacity-40`} style={{ filter: "blur(2px)" }} />
-                <div className={`h-full card-accent-line${shineActive ? " card-accent-shine-active" : ""}`} />
-              </div>
+            <div className="relative bg-burgundy/85 backdrop-blur-sm p-4 overflow-hidden">
+              {shineActive && (
+                <div className="absolute inset-0 z-[1] pointer-events-none card-sheen" />
+              )}
               <p className="text-blush/80 text-sm leading-relaxed">
                 {scent.notes}
               </p>

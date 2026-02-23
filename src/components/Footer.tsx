@@ -125,7 +125,7 @@ function CandlelightGlow({
 
 /* ── Layer 2: Footer Embers ──────────────────────────────── */
 
-const MAX_EMBERS = 18;
+const MAX_EMBERS = 24;
 
 interface Ember {
   id: number;
@@ -152,13 +152,13 @@ function FooterEmbers({
     if (!active) return;
 
     const now = Date.now();
-    if (now - lastSpawn.current < 80) return;
+    if (now - lastSpawn.current < 50) return;
     lastSpawn.current = now;
 
     const newEmber: Ember = {
       id: nextId.current++,
-      x: mouseX + (Math.random() - 0.5) * 30,
-      y: mouseY,
+      x: mouseX + (Math.random() - 0.5) * 24,
+      y: mouseY - 10 - Math.random() * 20,
       size: 3 + Math.random() * 4,
       alt: Math.random() > 0.5,
     };
@@ -202,7 +202,42 @@ function FooterEmbers({
   );
 }
 
-/* ── Layer 3: Magnetic Link ──────────────────────────────── */
+/* ── Layer 3: Cursor Flame ───────────────────────────────── */
+
+function CursorFlame({
+  mouseX,
+  mouseY,
+  active,
+}: {
+  mouseX: number;
+  mouseY: number;
+  active: boolean;
+}) {
+  return (
+    <motion.div
+      className="absolute inset-0 z-[4] pointer-events-none overflow-hidden"
+      animate={{ opacity: active ? 1 : 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
+      <motion.div
+        className="absolute -translate-x-1/2 cursor-flame-container"
+        animate={{ left: mouseX, top: mouseY }}
+        transition={{ type: "spring", stiffness: 800, damping: 40, mass: 0.3 }}
+        style={{ width: 35, height: 65 }}
+      >
+        {/* Translate upward so flame sits above cursor */}
+        <div className="relative w-full h-full" style={{ transform: "translateY(-100%)" }}>
+          <div className="absolute inset-0 cursor-flame-outer rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]" />
+          <div className="absolute inset-[15%] cursor-flame-body rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]" />
+          <div className="absolute inset-[30%] cursor-flame-core rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]" />
+          <div className="absolute left-[25%] right-[25%] top-0 h-[40%] cursor-flame-tip rounded-[50%_50%_50%_50%_/_70%_70%_30%_30%]" />
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ── Layer 4: Magnetic Link ──────────────────────────────── */
 
 function MagneticLink({
   href,
@@ -277,6 +312,9 @@ export default function Footer() {
       )}
       {enableEffects && (
         <FooterEmbers mouseX={x} mouseY={y} active={active} />
+      )}
+      {enableEffects && (
+        <CursorFlame mouseX={x} mouseY={y} active={active} />
       )}
 
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 relative z-10">

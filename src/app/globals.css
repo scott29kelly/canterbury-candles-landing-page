@@ -201,27 +201,25 @@ select:focus {
   animation: warm-glow-travel 7s ease-in-out infinite;
 }
 
-/* Card accent line — single-pass sheen sweep */
-@keyframes card-accent-travel {
-  0% { background-position: -100% center; }
-  100% { background-position: 200% center; }
+/* Card hover sheen — subtle diagonal light sweep */
+@keyframes card-sheen-sweep {
+  0%   { transform: translateX(-100%); opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
 }
 
-.card-accent-line {
-  background-size: 300% 100%;
-  background-position: -100% center;
-  background-image: linear-gradient(
-    90deg,
-    rgba(245,225,220,0.3) 0%,
-    rgba(245,225,220,0.6) 40%,
-    rgba(245,225,220,0.85) 50%,
-    rgba(245,225,220,0.6) 60%,
-    rgba(245,225,220,0.3) 100%
+.card-sheen {
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.07) 45%,
+    rgba(255, 255, 255, 0.13) 50%,
+    rgba(255, 255, 255, 0.07) 55%,
+    transparent 60%,
+    transparent 100%
   );
-}
-
-.card-accent-shine-active {
-  animation: card-accent-travel 0.7s ease-out forwards;
+  animation: card-sheen-sweep 0.6s ease-in-out forwards;
 }
 
 /* Gold sparkle success animation */
@@ -261,6 +259,77 @@ select:focus {
   50%  { transform: translateY(-35vh) scaleX(3) scaleY(1.5); opacity: 0.3; }
   90%  { opacity: 0; }
   100% { transform: translateY(-55vh) scaleX(5) scaleY(2); opacity: 0; }
+}
+
+/* Cursor flame — layered CSS fire effect */
+.cursor-flame-container {
+  mix-blend-mode: screen;
+}
+
+.cursor-flame-core {
+  background: radial-gradient(ellipse at 50% 60%,
+    rgba(255,235,180,0.95) 0%,
+    rgba(255,220,130,0.7) 40%,
+    transparent 70%);
+  filter: blur(3px);
+  animation: flame-flicker 1.5s ease-in-out infinite;
+}
+
+.cursor-flame-body {
+  background: radial-gradient(ellipse at 50% 55%,
+    rgba(212,168,67,0.85) 0%,
+    rgba(184,134,11,0.5) 50%,
+    transparent 70%);
+  filter: blur(2px);
+  animation: flame-dance 2s ease-in-out infinite;
+}
+
+.cursor-flame-outer {
+  background: radial-gradient(ellipse at 50% 50%,
+    rgba(184,134,11,0.6) 0%,
+    rgba(92,36,52,0.3) 50%,
+    transparent 70%);
+  filter: blur(1px);
+  animation: flame-dance 2.3s ease-in-out infinite reverse;
+}
+
+.cursor-flame-tip {
+  background: radial-gradient(ellipse at 50% 80%,
+    rgba(255,235,180,0.8) 0%,
+    transparent 70%);
+  filter: blur(2px);
+  animation: flame-tip-wave 0.8s ease-in-out infinite;
+}
+
+.cursor-flame-tip::after {
+  content: "";
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  top: -40%;
+  height: 50%;
+  background: radial-gradient(ellipse, rgba(200,200,200,0.08) 0%, transparent 70%);
+  filter: blur(3px);
+  animation: flame-tip-wave 1.2s ease-in-out infinite reverse;
+}
+
+@keyframes flame-flicker {
+  0%, 100% { transform: scaleX(1) scaleY(1); opacity: 0.9; }
+  25% { transform: scaleX(0.92) scaleY(1.04); opacity: 1; }
+  50% { transform: scaleX(1.05) scaleY(0.96); opacity: 0.85; }
+  75% { transform: scaleX(0.97) scaleY(1.02); opacity: 0.95; }
+}
+
+@keyframes flame-dance {
+  0%, 100% { transform: scaleX(1) scaleY(1) rotate(0deg); }
+  33% { transform: scaleX(0.95) scaleY(1.06) rotate(-1deg); }
+  66% { transform: scaleX(1.04) scaleY(0.97) rotate(1deg); }
+}
+
+@keyframes flame-tip-wave {
+  0%, 100% { transform: translateX(0) scaleY(1); opacity: 0.7; }
+  30% { transform: translateX(-2px) scaleY(1.1); opacity: 0.9; }
+  70% { transform: translateX(2px) scaleY(0.9); opacity: 0.6; }
 }
 
 /* Disable heavy animations for users who prefer reduced motion */
