@@ -308,14 +308,27 @@ export default function Hero() {
 
               {/* Main product image */}
               <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
-                <Image
-                  src="/images/logo-header-hero-shot.jpeg"
-                  alt="Canterbury Candles branded mason jar candle with rustic ingredients"
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(max-width: 768px) 80vw, (max-width: 1024px) 50vw, 40vw"
-                />
+                {prefersReduced ? (
+                  <Image
+                    src="/images/logo-header-hero-shot.jpeg"
+                    alt="Canterbury Candles branded mason jar candle with rustic ingredients"
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="(max-width: 768px) 80vw, (max-width: 1024px) 50vw, 40vw"
+                  />
+                ) : (
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    poster="/images/logo-header-hero-shot.jpeg"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  >
+                    <source src="/videos/hero.mp4" type="video/mp4" />
+                  </video>
+                )}
                 {/* Gradient vignette */}
                 <div className="absolute inset-0 bg-gradient-to-t from-burgundy/30 via-transparent to-transparent" />
               </div>
