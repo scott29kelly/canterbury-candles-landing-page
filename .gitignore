@@ -39,3 +39,7 @@ yarn-error.log*
 next-env.d.ts
 
 google-service-account.json
+
+# claude code
+.claude/
+nul
