@@ -374,7 +374,6 @@ export default function OrderForm() {
                         type="text"
                         id="addressLine1"
                         name="addressLine1"
-                        required
                         autoComplete="street-address"
                         className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
                         placeholder="Street address"
@@ -399,7 +398,6 @@ export default function OrderForm() {
                         type="text"
                         id="city"
                         name="city"
-                        required
                         autoComplete="address-level2"
                         className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
                         placeholder="City"
@@ -411,7 +409,6 @@ export default function OrderForm() {
                         type="text"
                         id="state"
                         name="state"
-                        required
                         autoComplete="address-level1"
                         className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
                         placeholder="State"
@@ -423,7 +420,6 @@ export default function OrderForm() {
                         type="text"
                         id="zip"
                         name="zip"
-                        required
                         inputMode="numeric"
                         autoComplete="postal-code"
                         className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"

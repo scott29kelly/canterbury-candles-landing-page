@@ -13,11 +13,11 @@ interface OrderPayload {
   name: string;
   email: string;
   phone?: string;
-  addressLine1: string;
+  addressLine1?: string;
   addressLine2?: string;
-  city: string;
-  state: string;
-  zip: string;
+  city?: string;
+  state?: string;
+  zip?: string;
   message?: string;
   items: OrderLineItem[];
   total: number;
@@ -48,19 +48,6 @@ function validatePayload(body: unknown): { data: OrderPayload; error?: never } |
     return { error: "A valid email address is required." };
   }
 
-  if (!b.addressLine1 || typeof b.addressLine1 !== "string" || b.addressLine1.trim().length === 0) {
-    return { error: "Street address is required for shipping." };
-  }
-  if (!b.city || typeof b.city !== "string" || b.city.trim().length === 0) {
-    return { error: "City is required for shipping." };
-  }
-  if (!b.state || typeof b.state !== "string" || b.state.trim().length === 0) {
-    return { error: "State is required for shipping." };
-  }
-  if (!b.zip || typeof b.zip !== "string" || b.zip.trim().length === 0) {
-    return { error: "ZIP code is required for shipping." };
-  }
-
   if (!Array.isArray(b.items) || b.items.length === 0) {
     return { error: "At least one item is required." };
   }
@@ -83,11 +70,11 @@ function validatePayload(body: unknown): { data: OrderPayload; error?: never } |
       name: (b.name as string).trim(),
       email: (b.email as string).trim(),
       phone: typeof b.phone === "string" && b.phone.trim() ? b.phone.trim() : undefined,
-      addressLine1: (b.addressLine1 as string).trim(),
+      addressLine1: typeof b.addressLine1 === "string" && b.addressLine1.trim() ? b.addressLine1.trim() : undefined,
       addressLine2: typeof b.addressLine2 === "string" && b.addressLine2.trim() ? b.addressLine2.trim() : undefined,
-      city: (b.city as string).trim(),
-      state: (b.state as string).trim(),
-      zip: (b.zip as string).trim(),
+      city: typeof b.city === "string" && b.city.trim() ? b.city.trim() : undefined,
+      state: typeof b.state === "string" && b.state.trim() ? b.state.trim() : undefined,
+      zip: typeof b.zip === "string" && b.zip.trim() ? b.zip.trim() : undefined,
       message: typeof b.message === "string" && b.message.trim() ? b.message.trim() : undefined,
       items: b.items as OrderLineItem[],
       total: 0, // recalculated below
@@ -114,10 +101,13 @@ function buildEmailHtml(order: OrderPayload): string {
       <p><strong>Name:</strong> ${escapeHtml(order.name)}</p>
       <p><strong>Email:</strong> ${escapeHtml(order.email)}</p>
       ${order.phone ? `<p><strong>Phone:</strong> ${escapeHtml(order.phone)}</p>` : ""}
-      <p><strong>Shipping Address:</strong><br/>
-        ${escapeHtml(order.addressLine1)}${order.addressLine2 ? `<br/>${escapeHtml(order.addressLine2)}` : ""}<br/>
-        ${escapeHtml(order.city)}, ${escapeHtml(order.state)} ${escapeHtml(order.zip)}
-      </p>
+      ${order.addressLine1
+        ? `<p><strong>Shipping Address:</strong><br/>
+            ${escapeHtml(order.addressLine1)}${order.addressLine2 ? `<br/>${escapeHtml(order.addressLine2)}` : ""}<br/>
+            ${escapeHtml(order.city || "")}, ${escapeHtml(order.state || "")} ${escapeHtml(order.zip || "")}
+          </p>`
+        : `<p><strong>Shipping Address:</strong> <em>Not provided — follow up with customer</em></p>`
+      }
       ${order.message ? `<p><strong>Special Instructions:</strong> ${escapeHtml(order.message)}</p>` : ""}
       <table style="width:100%;border-collapse:collapse;margin:20px 0">
         <thead>
