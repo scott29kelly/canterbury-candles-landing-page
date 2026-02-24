@@ -153,7 +153,7 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-screen flex items-center overflow-hidden"
+      className="relative min-h-dvh lg:h-dvh flex items-center overflow-hidden"
     >
       {/* Background — burgundy gradient base */}
       <div className="absolute inset-0 bg-burgundy" />
@@ -180,7 +180,7 @@ export default function Hero() {
         className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16"
         style={{ opacity: contentOpacity, y: contentY }}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center min-h-screen py-24 lg:pt-28 lg:pb-0">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center min-h-dvh lg:min-h-0 py-24 lg:pt-24 lg:pb-6">
           {/* Left — Brand messaging */}
           <div className="order-2 lg:order-1 text-center lg:text-left">
             {/* Headline */}
@@ -307,7 +307,7 @@ export default function Hero() {
               <div className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 w-[180%] h-[120%] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(212,168,67,0.16)_0%,_rgba(212,168,67,0.07)_40%,_transparent_70%)] blur-3xl pointer-events-none" />
 
               {/* Main product image */}
-              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
+              <div className="relative aspect-[3/4] lg:max-h-[calc(100dvh-10rem)] rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
                 {prefersReduced ? (
                   <Image
                     src="/images/logo-header-hero-shot.jpeg"
