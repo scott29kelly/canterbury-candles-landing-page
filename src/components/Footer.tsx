@@ -7,81 +7,90 @@ import WarmDivider from "./WarmDivider";
 
 /* ── Local hooks ─────────────────────────────────────────── */
 
-function useMousePosition(
+function useHasHover() {
+  const [hasHover, setHasHover] = useState(true);
+  useEffect(() => {
+    const mql = window.matchMedia("(hover: hover)");
+    setHasHover(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setHasHover(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+  return hasHover;
+}
+
+function useFlamePosition(
   containerRef: React.RefObject<HTMLElement | null>,
   enabled: boolean
 ) {
   const [position, setPosition] = useState({ x: 0, y: 0, active: false });
-  const rafRef = useRef(0);
-  const touchStartY = useRef<number | null>(null);
-  const isScrolling = useRef(false);
+  const hasHover = useHasHover();
 
+  /* ── Desktop: mouse tracking ──────────────────────────── */
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !hasHover) return;
     const el = containerRef.current;
     if (!el) return;
 
-    const handleMove = (clientX: number, clientY: number) => {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
+    let rafId = 0;
+
+    const onMouse = (e: MouseEvent) => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
         const rect = el.getBoundingClientRect();
         setPosition({
-          x: clientX - rect.left,
-          y: clientY - rect.top,
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
           active: true,
         });
       });
     };
 
-    const onMouse = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
-
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        touchStartY.current = e.touches[0].clientY;
-        isScrolling.current = false;
-        handleMove(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 0 || isScrolling.current) return;
-
-      // If vertical movement exceeds threshold, treat as scroll
-      if (touchStartY.current !== null) {
-        const deltaY = Math.abs(e.touches[0].clientY - touchStartY.current);
-        if (deltaY > 12) {
-          isScrolling.current = true;
-          setPosition((p) => ({ ...p, active: false }));
-          return;
-        }
-      }
-
-      handleMove(e.touches[0].clientX, e.touches[0].clientY);
-    };
-
-    const onLeave = () => {
-      touchStartY.current = null;
-      isScrolling.current = false;
-      setPosition((p) => ({ ...p, active: false }));
-    };
+    const onLeave = () => setPosition((p) => ({ ...p, active: false }));
 
     el.addEventListener("mousemove", onMouse, { passive: true });
-    el.addEventListener("touchstart", onTouchStart, { passive: true });
-    el.addEventListener("touchmove", onTouchMove, { passive: true });
     el.addEventListener("mouseleave", onLeave);
-    el.addEventListener("touchend", onLeave);
 
     return () => {
-      cancelAnimationFrame(rafRef.current);
+      cancelAnimationFrame(rafId);
       el.removeEventListener("mousemove", onMouse);
-      el.removeEventListener("touchstart", onTouchStart);
-      el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("mouseleave", onLeave);
-      el.removeEventListener("touchend", onLeave);
     };
-  }, [containerRef, enabled]);
+  }, [containerRef, enabled, hasHover]);
 
-  return position;
+  /* ── Mobile: tap-to-sparkle ─────────────────────────────── */
+  useEffect(() => {
+    if (!enabled || hasHover) return;
+    const el = containerRef.current;
+    if (!el) return;
+
+    let fadeTimer: ReturnType<typeof setTimeout>;
+
+    const onTap = (e: TouchEvent) => {
+      if (e.touches.length === 0) return;
+      const rect = el.getBoundingClientRect();
+      setPosition({
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top,
+        active: true,
+      });
+
+      clearTimeout(fadeTimer);
+      fadeTimer = setTimeout(() => {
+        setPosition((p) => ({ ...p, active: false }));
+      }, 2500);
+    };
+
+    el.addEventListener("touchstart", onTap, { passive: true });
+
+    return () => {
+      clearTimeout(fadeTimer);
+      el.removeEventListener("touchstart", onTap);
+      setPosition((p) => ({ ...p, active: false }));
+    };
+  }, [containerRef, enabled, hasHover]);
+
+  return { ...position, hasHover };
 }
 
 /* ── Layer 1: Candlelight Glow ───────────────────────────── */
@@ -311,7 +320,7 @@ export default function Footer() {
   const footerRef = useRef<HTMLElement>(null);
   const prefersReduced = useReducedMotion();
   const enableEffects = !prefersReduced;
-  const { x, y, active } = useMousePosition(footerRef, enableEffects);
+  const { x, y, active, hasHover } = useFlamePosition(footerRef, enableEffects);
 
   const linkClass =
     "text-blush/40 text-sm tracking-widest uppercase hover:text-gold transition-colors duration-300";
@@ -328,7 +337,7 @@ export default function Footer() {
       {enableEffects && (
         <FooterEmbers mouseX={x} mouseY={y} active={active} />
       )}
-      {enableEffects && (
+      {enableEffects && hasHover && (
         <CursorFlame mouseX={x} mouseY={y} active={active} />
       )}
 
