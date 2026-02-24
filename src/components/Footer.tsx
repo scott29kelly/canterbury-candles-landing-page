@@ -8,13 +8,18 @@ import WarmDivider from "./WarmDivider";
 /* ── Local hooks ─────────────────────────────────────────── */
 
 function useHasHover() {
-  const [hasHover, setHasHover] = useState(true);
+  const [hasHover, setHasHover] = useState(false);
   useEffect(() => {
-    const mql = window.matchMedia("(hover: hover)");
-    setHasHover(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setHasHover(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
+    const hoverMql = window.matchMedia("(hover: hover)");
+    const pointerMql = window.matchMedia("(pointer: fine)");
+    const check = () => setHasHover(hoverMql.matches && pointerMql.matches);
+    check();
+    hoverMql.addEventListener("change", check);
+    pointerMql.addEventListener("change", check);
+    return () => {
+      hoverMql.removeEventListener("change", check);
+      pointerMql.removeEventListener("change", check);
+    };
   }, []);
   return hasHover;
 }
