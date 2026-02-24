@@ -13,6 +13,8 @@ function useMousePosition(
 ) {
   const [position, setPosition] = useState({ x: 0, y: 0, active: false });
   const rafRef = useRef(0);
+  const touchStartY = useRef<number | null>(null);
+  const isScrolling = useRef(false);
 
   useEffect(() => {
     if (!enabled) return;
@@ -32,22 +34,48 @@ function useMousePosition(
     };
 
     const onMouse = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
-    const onTouch = (e: TouchEvent) => {
+
+    const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length > 0) {
+        touchStartY.current = e.touches[0].clientY;
+        isScrolling.current = false;
         handleMove(e.touches[0].clientX, e.touches[0].clientY);
       }
     };
-    const onLeave = () => setPosition((p) => ({ ...p, active: false }));
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 0 || isScrolling.current) return;
+
+      // If vertical movement exceeds threshold, treat as scroll
+      if (touchStartY.current !== null) {
+        const deltaY = Math.abs(e.touches[0].clientY - touchStartY.current);
+        if (deltaY > 12) {
+          isScrolling.current = true;
+          setPosition((p) => ({ ...p, active: false }));
+          return;
+        }
+      }
+
+      handleMove(e.touches[0].clientX, e.touches[0].clientY);
+    };
+
+    const onLeave = () => {
+      touchStartY.current = null;
+      isScrolling.current = false;
+      setPosition((p) => ({ ...p, active: false }));
+    };
 
     el.addEventListener("mousemove", onMouse, { passive: true });
-    el.addEventListener("touchmove", onTouch, { passive: true });
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: true });
     el.addEventListener("mouseleave", onLeave);
     el.addEventListener("touchend", onLeave);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
       el.removeEventListener("mousemove", onMouse);
-      el.removeEventListener("touchmove", onTouch);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("mouseleave", onLeave);
       el.removeEventListener("touchend", onLeave);
     };
