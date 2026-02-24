@@ -157,21 +157,21 @@ function QuantityStepper({
   onDecrement: () => void;
 }) {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-0.5 sm:gap-1">
       <button
         type="button"
         onClick={onDecrement}
-        className="w-7 h-7 rounded-full border border-blush/30 text-blush/80 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-sm"
+        className="w-5 h-5 sm:w-7 sm:h-7 rounded-full border border-blush/30 text-blush/80 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-xs sm:text-sm"
       >
         &minus;
       </button>
-      <span className="w-6 text-center text-sm text-blush font-medium tabular-nums">
+      <span className="w-4 sm:w-6 text-center text-xs sm:text-sm text-blush font-medium tabular-nums">
         {quantity}
       </span>
       <button
         type="button"
         onClick={onIncrement}
-        className="w-7 h-7 rounded-full border border-blush/30 text-blush/80 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-sm"
+        className="w-5 h-5 sm:w-7 sm:h-7 rounded-full border border-blush/30 text-blush/80 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-xs sm:text-sm"
       >
         +
       </button>
@@ -195,8 +195,8 @@ function SizeRow({
   const inCart = quantity > 0;
 
   return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-blush/80 text-sm whitespace-nowrap">
+    <div className="flex items-center justify-between gap-1.5 sm:gap-3">
+      <span className="text-blush/80 text-xs sm:text-sm whitespace-nowrap">
         {size} &middot; ${price}
       </span>
       {inCart ? (
@@ -396,7 +396,7 @@ function ScentCard({
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ duration: 0.4, ease: EASE }}
-              className="absolute inset-0 bg-burgundy/85 backdrop-blur-md flex flex-col items-center justify-center p-5 z-10"
+              className="absolute inset-0 bg-burgundy/85 backdrop-blur-md flex flex-col items-center justify-center p-3 sm:p-5 z-10"
               onClick={(e) => e.stopPropagation()}
             >
               <CardEmbers />
@@ -422,7 +422,7 @@ function ScentCard({
                 {scent.name}
               </h4>
 
-              <div className="w-full max-w-[220px] space-y-3">
+              <div className="w-full sm:max-w-[220px] space-y-3">
                 <SizeRow
                   scent={scent.name}
                   size="8oz"

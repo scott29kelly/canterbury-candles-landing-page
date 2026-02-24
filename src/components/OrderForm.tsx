@@ -72,7 +72,7 @@ function CartItemRow({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="flex items-center gap-3 md:gap-4 py-3 first:pt-0 last:pb-0"
+      className="flex items-center flex-wrap gap-x-3 gap-y-1.5 md:gap-4 py-3 first:pt-0 last:pb-0"
     >
       {/* Thumbnail */}
       {image && (
@@ -92,7 +92,7 @@ function CartItemRow({
         {item.scent}
       </span>
 
-      <div className="flex items-center gap-2.5 flex-shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
         {/* Size toggle pills */}
         <div className="flex rounded-full border border-gold/30 overflow-hidden text-[11px] font-medium leading-none">
           <button
@@ -184,7 +184,7 @@ function CartItemRow({
             gtag.removeFromCart(item.scent, item.size);
             dispatch({ type: "REMOVE_ITEM", scent: item.scent, size: item.size });
           }}
-          className="w-7 h-7 rounded-full text-charcoal/30 hover:text-red-500 hover:bg-red-50 transition-colors duration-200 flex items-center justify-center"
+          className="w-7 h-7 rounded-full text-charcoal/30 hover:text-red-500 hover:bg-red-50 transition-colors duration-200 hidden sm:flex items-center justify-center"
           aria-label={`Remove ${item.scent} ${item.size}`}
         >
           <svg
@@ -462,7 +462,7 @@ export default function OrderForm() {
                       </a>
                     </div>
                   ) : (
-                    <div className="border border-gold/15 rounded-lg p-5 md:p-6 space-y-1">
+                    <div className="border border-gold/15 rounded-lg p-3 sm:p-5 md:p-6 space-y-1">
                       <LayoutGroup>
                         <div className="divide-y divide-charcoal/5">
                           <AnimatePresence initial={false}>
