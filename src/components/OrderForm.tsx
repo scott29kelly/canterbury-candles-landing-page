@@ -8,41 +8,107 @@ import WarmDivider from "./WarmDivider";
 import { useCart, PRICES, type CandleSize } from "@/context/CartContext";
 import * as gtag from "@/lib/gtag";
 
+const EMBERS = [
+  { delay: 0, duration: 2.2, x: -6, alt: false },
+  { delay: 0.3, duration: 1.8, x: 4, alt: true },
+  { delay: 0.7, duration: 2.5, x: -2, alt: false },
+  { delay: 1.0, duration: 2.0, x: 8, alt: true },
+  { delay: 0.5, duration: 2.3, x: -8, alt: false },
+  { delay: 1.3, duration: 1.9, x: 2, alt: true },
+  { delay: 0.2, duration: 2.6, x: -4, alt: false },
+  { delay: 0.8, duration: 2.1, x: 6, alt: true },
+  { delay: 1.1, duration: 2.4, x: 0, alt: false },
+];
+
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
 function SuccessState({ onReset }: { onReset: () => void }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.6, ease: EASE }}
       className="text-center py-12"
     >
-      {/* Gold sparkle */}
-      <div className="relative w-20 h-20 mx-auto mb-8">
-        {[0, 1, 2, 3, 4, 5].map((i) => (
+      {/* Flame icon with glow and embers */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="relative w-20 h-24 mx-auto mb-8"
+      >
+        {/* Warm radial glow */}
+        <div className="absolute -inset-4 bg-gold/20 rounded-full blur-xl" />
+
+        {/* Ember particles */}
+        {EMBERS.map((e, i) => (
           <span
             key={i}
-            className="absolute w-2 h-2 bg-gold rounded-full"
+            className="absolute left-1/2 bottom-6 w-1.5 h-1.5 bg-gold rounded-full"
             style={{
-              top: "50%",
-              left: "50%",
-              animation: `sparkle 1.5s ${i * 0.25}s ease-in-out infinite`,
-              transform: `rotate(${i * 60}deg) translateY(-28px)`,
+              animation: `${e.alt ? "ember-rise-alt" : "ember-rise"} ${e.duration}s ${e.delay}s ease-out infinite`,
+              marginLeft: e.x,
             }}
           />
         ))}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-gold text-4xl font-display">&#10043;</span>
-        </div>
-      </div>
 
-      <h2 className="font-display text-burgundy text-4xl md:text-5xl mb-6">
+        {/* Flame SVG */}
+        <div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{ animation: "flame-sway 3s ease-in-out infinite" }}
+        >
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 48 48"
+            fill="none"
+            aria-hidden="true"
+            style={{ animation: "candleFlicker 2.5s steps(8) infinite" }}
+          >
+            <path
+              d="M24 4C24 4 14 20 14 30C14 35.5228 18.4772 40 24 40C29.5228 40 34 35.5228 34 30C34 20 24 4 24 4Z"
+              fill="url(#flame-outer)"
+            />
+            <path
+              d="M24 14C24 14 19 24 19 30C19 32.7614 21.2386 35 24 35C26.7614 35 29 32.7614 29 30C29 24 24 14 24 14Z"
+              fill="url(#flame-inner)"
+            />
+            <defs>
+              <radialGradient id="flame-outer" cx="0.5" cy="0.7" r="0.6">
+                <stop offset="0%" stopColor="#E8C96A" />
+                <stop offset="60%" stopColor="#B8860B" />
+                <stop offset="100%" stopColor="#5C2434" stopOpacity="0.6" />
+              </radialGradient>
+              <radialGradient id="flame-inner" cx="0.5" cy="0.6" r="0.5">
+                <stop offset="0%" stopColor="#FFEBBC" />
+                <stop offset="100%" stopColor="#E8C96A" stopOpacity="0.8" />
+              </radialGradient>
+            </defs>
+          </svg>
+        </div>
+      </motion.div>
+
+      <motion.h2
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
+        className="font-display text-burgundy text-4xl md:text-5xl mb-6"
+      >
         Thank You
-      </h2>
-      <p className="text-rose-gray text-lg leading-relaxed mb-8 max-w-md mx-auto">
+      </motion.h2>
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.5, ease: EASE }}
+        className="text-rose-gray text-lg leading-relaxed mb-8 max-w-md mx-auto"
+      >
         We&apos;ve received your order request. We&apos;ll be in touch shortly
         to confirm your selections and arrange delivery.
-      </p>
-      <button
+      </motion.p>
+      <motion.button
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.7, ease: EASE }}
         onClick={() => {
           gtag.reorderClick();
           onReset();
@@ -51,7 +117,7 @@ function SuccessState({ onReset }: { onReset: () => void }) {
       >
         <span className="w-4 h-px bg-gold group-hover:w-6 transition-all duration-300" />
         Place another order
-      </button>
+      </motion.button>
     </motion.div>
   );
 }
