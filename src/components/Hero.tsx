@@ -257,7 +257,7 @@ export default function Hero() {
               className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-10"
             >
               <p className="text-gold-muted text-xs tracking-[0.25em] uppercase">
-                Our Signature Scents &middot; Mason Jars
+                Our Signature Scents &middot; <span className="whitespace-nowrap">Mason Jars</span>
               </p>
             </motion.div>
 
