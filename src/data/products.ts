@@ -35,14 +35,14 @@ export const SCENTS: Scent[] = [
     tag: "Fruity",
     notes: "Sweet wild blueberries, fresh picked, juicy burst",
     accent: "bg-[#3a4a7a]",
-    image: "/images/product-blueberry.jpg",
+    image: "/images/product-blueberry.png",
   },
   {
     name: "Blueberry Cheesecake",
     tag: "Bakery",
     notes: "Blueberry compote, rich cheesecake, buttery crust",
     accent: "bg-[#4a4a8a]",
-    image: "/images/product-blueberry-cheesecake.jpg",
+    image: "/images/product-blueberry-cheesecake.png",
   },
   {
     name: "Blueberry Muffins",
@@ -64,6 +64,13 @@ export const SCENTS: Scent[] = [
     notes: "Ripe cherries, creamy cheesecake, graham crust",
     accent: "bg-[#8a3a4a]",
     image: "/images/product-cherry-cheesecake.jpg",
+  },
+  {
+    name: "Coastal Waters",
+    tag: "Fresh",
+    notes: "Ocean breeze, sea salt, sun-warmed driftwood",
+    accent: "bg-[#3a8a9a]",
+    image: "/images/product-coastal-waters.png",
   },
   {
     name: "Espresso",
@@ -94,6 +101,27 @@ export const SCENTS: Scent[] = [
     image: "/images/product-glazed-donuts.jpg",
   },
   {
+    name: "Honeydew & Coconut Cream",
+    tag: "Tropical",
+    notes: "Fresh honeydew melon, creamy coconut, tropical sweetness",
+    accent: "bg-[#7ab47a]",
+    image: "/images/product-honeydew-and-coconut-cream.png",
+  },
+  {
+    name: "Honeysuckle",
+    tag: "Floral",
+    notes: "Sweet honeysuckle nectar, warm summer air, golden blooms",
+    accent: "bg-[#c4a46a]",
+    image: "/images/product-honeysuckle.png",
+  },
+  {
+    name: "Lavender",
+    tag: "Floral",
+    notes: "Calming lavender fields, soft herbal notes, gentle floral",
+    accent: "bg-[#7a6a9a]",
+    image: "/images/product-lavander.png",
+  },
+  {
     name: "Lemon Pound Cake",
     tag: "Bakery",
     notes: "Bright lemon zest, buttery pound cake, sweet cream",
@@ -105,7 +133,7 @@ export const SCENTS: Scent[] = [
     tag: "Bakery",
     notes: "Spiced pumpkin, toasted pecans, maple drizzle",
     accent: "bg-[#b47a3a]",
-    image: "/images/product-pumkin-pecan-waffles.jpg",
+    image: "/images/product-pumpkin-pecan-waffles.png",
   },
   {
     name: "Snickerdoodle",
@@ -113,6 +141,13 @@ export const SCENTS: Scent[] = [
     notes: "Cinnamon sugar, warm vanilla, fresh-baked cookies",
     accent: "bg-[#c49a6a]",
     image: "/images/product-snickerdoodle.jpg",
+  },
+  {
+    name: "Spiced Vanilla & Cinnamon",
+    tag: "Classic",
+    notes: "Rich vanilla bean, warm cinnamon bark, star anise",
+    accent: "bg-[#9a6a4a]",
+    image: "/images/product-spiced-vanilla-and-cinnamon.png",
   },
   {
     name: "Spring Flowers",
@@ -141,6 +176,13 @@ export const SCENTS: Scent[] = [
     notes: "Sweet watermelon, tart lemon, summer breeze",
     accent: "bg-[#6a9a5a]",
     image: "/images/product-watermelon-lemonade.jpg",
+  },
+  {
+    name: "Wild Sage",
+    tag: "Herbal",
+    notes: "Fresh wild sage, earthy herbs, open meadow breeze",
+    accent: "bg-[#6a8a5a]",
+    image: "/images/product-wild-sage.png",
   },
 ];
 
