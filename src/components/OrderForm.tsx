@@ -6,7 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import AnimateIn from "./AnimateIn";
 import WarmDivider from "./WarmDivider";
-import CandleFlameCanvas from "./CandleFlameCanvas";
+import ThankYouCandleAnimation from "./ThankYouCandleAnimation";
 import { useCart, PRICES, type CandleSize } from "@/context/CartContext";
 import * as gtag from "@/lib/gtag";
 
@@ -25,34 +25,16 @@ const BURST_PARTICLES = Array.from({ length: 28 }, (_, i) => ({
   duration: 1 + seededRand(i + 200) * 0.8,
 }));
 
-// Persistent rising embers
-const EMBERS = [
-  { delay: 0, duration: 2.4, x: -5, size: 2.5 },
-  { delay: 0.35, duration: 2.0, x: 4, size: 2 },
-  { delay: 0.8, duration: 2.6, x: -8, size: 1.5 },
-  { delay: 1.2, duration: 2.2, x: 7, size: 2.5 },
-  { delay: 0.55, duration: 2.8, x: -2, size: 1.5 },
-  { delay: 1.5, duration: 2.1, x: 6, size: 2 },
-  { delay: 0.15, duration: 2.5, x: -6, size: 2 },
-  { delay: 1.0, duration: 1.9, x: 1, size: 1.5 },
-  { delay: 0.65, duration: 2.3, x: -4, size: 2 },
-  { delay: 1.35, duration: 2.7, x: 5, size: 1.5 },
-];
-
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 function SuccessState({ onReset }: { onReset: () => void }) {
   const [mounted, setMounted] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
-  const [flameIntensity, setFlameIntensity] = useState(0);
 
   useEffect(() => {
     setMounted(true);
     document.body.style.overflow = "hidden";
-    // Ignite flame after overlay appears
-    const igniteTimer = setTimeout(() => setFlameIntensity(1), 300);
     return () => {
-      clearTimeout(igniteTimer);
       document.body.style.overflow = "";
     };
   }, []);
@@ -82,66 +64,48 @@ function SuccessState({ onReset }: { onReset: () => void }) {
         transition={{ duration: 1.2, delay: isExiting ? 0 : 0.2, ease: EASE }}
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 50% 60% at 50% 45%, rgba(184,134,11,0.15) 0%, rgba(224,122,32,0.06) 40%, transparent 70%)",
+          background: "radial-gradient(ellipse 50% 60% at 50% 42%, rgba(184,134,11,0.18) 0%, rgba(224,122,32,0.07) 40%, transparent 70%)",
         }}
       />
 
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: isExiting ? 0 : 1, scale: isExiting ? 0.95 : 1 }}
-        transition={{ duration: 0.6, delay: isExiting ? 0 : 0.2, ease: EASE }}
+        transition={{ duration: 0.6, delay: isExiting ? 0 : 0.15, ease: EASE }}
         className="text-center px-6 relative"
       >
-        {/* Canvas flame with embers */}
+        {/* Premium candle animation (jar + lid reveal + flame + embers + heat) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: EASE }}
-          className="relative w-24 h-32 mx-auto mb-8"
+          transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
+          className="relative mx-auto mb-8 flex items-center justify-center"
         >
-          {/* Canvas particle fire */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <CandleFlameCanvas width={96} height={128} intensity={flameIntensity} />
-          </div>
+          <ThankYouCandleAnimation />
 
-          {/* Golden shockwave ring */}
+          {/* Golden shockwave ring — fires at ignition */}
           <motion.div
             initial={{ opacity: 0, scale: 0.2 }}
-            animate={{ opacity: [0, 0.8, 0], scale: [0.2, 1.8, 2.5] }}
-            transition={{ duration: 1.0, delay: 0.5, ease: "easeOut" }}
+            animate={{ opacity: [0, 0.7, 0], scale: [0.2, 1.8, 2.5] }}
+            transition={{ duration: 1.0, delay: 1.6, ease: "easeOut" }}
             className="absolute inset-0 pointer-events-none"
           >
-            <svg className="w-full h-full overflow-visible" viewBox="0 0 96 128" aria-hidden="true">
+            <svg className="w-full h-full overflow-visible" viewBox="0 0 180 300" aria-hidden="true">
               <circle
-                cx="48" cy="70" r="30"
+                cx="90" cy="132" r="35"
                 fill="none"
                 stroke="#D4A843"
                 strokeWidth="1.5"
-                strokeDasharray="188.5"
+                strokeDasharray="220"
                 strokeDashoffset="0"
                 opacity="0.7"
               />
             </svg>
           </motion.div>
-
-          {/* Ember particles */}
-          {EMBERS.map((e, i) => (
-            <span
-              key={i}
-              className="absolute left-1/2 bottom-1/3 rounded-full"
-              style={{
-                width: e.size,
-                height: e.size,
-                backgroundColor: i % 3 === 0 ? "#E8C96A" : "#FFEBBC",
-                animation: `${i % 3 === 0 ? "ember-rise-alt" : "ember-rise"} ${e.duration}s ${e.delay}s ease-out infinite`,
-                marginLeft: e.x,
-              }}
-            />
-          ))}
         </motion.div>
 
-        {/* Burst particles */}
-        <div className="absolute left-1/2 top-0 pointer-events-none" style={{ marginTop: "6rem" }}>
+        {/* Burst particles — radiate at ignition */}
+        <div className="absolute left-1/2 top-0 pointer-events-none" style={{ marginTop: "5rem" }}>
           {BURST_PARTICLES.map((p, i) => (
             <motion.span
               key={i}
@@ -154,7 +118,7 @@ function SuccessState({ onReset }: { onReset: () => void }) {
               }}
               transition={{
                 duration: p.duration,
-                delay: 0.7 + p.delay,
+                delay: 1.7 + p.delay,
                 ease: "easeOut",
               }}
               className="absolute rounded-full"
@@ -171,7 +135,7 @@ function SuccessState({ onReset }: { onReset: () => void }) {
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6, ease: EASE }}
+          transition={{ duration: 0.6, delay: 0.5, ease: EASE }}
           className="font-display text-gold text-4xl md:text-5xl mb-6"
         >
           Thank You
@@ -179,7 +143,7 @@ function SuccessState({ onReset }: { onReset: () => void }) {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8, ease: EASE }}
+          transition={{ duration: 0.6, delay: 0.7, ease: EASE }}
           className="text-parchment/80 text-lg leading-relaxed mb-8 max-w-md mx-auto"
         >
           We&apos;ve received your order request. We&apos;ll be in touch shortly
@@ -188,7 +152,7 @@ function SuccessState({ onReset }: { onReset: () => void }) {
         <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.0, ease: EASE }}
+          transition={{ duration: 0.6, delay: 0.9, ease: EASE }}
           onClick={() => {
             gtag.reorderClick();
             handleReset();
