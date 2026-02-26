@@ -6,19 +6,37 @@ import Image from "next/image";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import AnimateIn from "./AnimateIn";
 import WarmDivider from "./WarmDivider";
+import CandleFlameCanvas from "./CandleFlameCanvas";
 import { useCart, PRICES, type CandleSize } from "@/context/CartContext";
 import * as gtag from "@/lib/gtag";
 
+// SSR-safe deterministic pseudo-random for particle positions
+function seededRand(i: number): number {
+  const x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+// One-shot golden burst particles (celebration moment)
+const BURST_PARTICLES = Array.from({ length: 28 }, (_, i) => ({
+  angle: (i / 28) * Math.PI * 2 + (seededRand(i) - 0.5) * 0.4,
+  distance: 70 + seededRand(i + 50) * 90,
+  size: 2 + seededRand(i + 100) * 2.5,
+  delay: seededRand(i + 150) * 0.3,
+  duration: 1 + seededRand(i + 200) * 0.8,
+}));
+
+// Persistent rising embers
 const EMBERS = [
-  { delay: 0, duration: 2.2, x: -6, alt: false, size: 1.5 },
-  { delay: 0.3, duration: 1.8, x: 4, alt: true, size: 1 },
-  { delay: 0.7, duration: 2.5, x: -2, alt: false, size: 2 },
-  { delay: 1.0, duration: 2.0, x: 8, alt: true, size: 1.5 },
-  { delay: 0.5, duration: 2.3, x: -8, alt: false, size: 1 },
-  { delay: 1.3, duration: 1.9, x: 2, alt: true, size: 2 },
-  { delay: 0.2, duration: 2.6, x: -4, alt: false, size: 1 },
-  { delay: 0.8, duration: 2.1, x: 6, alt: true, size: 1.5 },
-  { delay: 1.1, duration: 2.4, x: 0, alt: false, size: 2 },
+  { delay: 0, duration: 2.4, x: -5, size: 2.5 },
+  { delay: 0.35, duration: 2.0, x: 4, size: 2 },
+  { delay: 0.8, duration: 2.6, x: -8, size: 1.5 },
+  { delay: 1.2, duration: 2.2, x: 7, size: 2.5 },
+  { delay: 0.55, duration: 2.8, x: -2, size: 1.5 },
+  { delay: 1.5, duration: 2.1, x: 6, size: 2 },
+  { delay: 0.15, duration: 2.5, x: -6, size: 2 },
+  { delay: 1.0, duration: 1.9, x: 1, size: 1.5 },
+  { delay: 0.65, duration: 2.3, x: -4, size: 2 },
+  { delay: 1.35, duration: 2.7, x: 5, size: 1.5 },
 ];
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -26,11 +44,15 @@ const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 function SuccessState({ onReset }: { onReset: () => void }) {
   const [mounted, setMounted] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const [flameIntensity, setFlameIntensity] = useState(0);
 
   useEffect(() => {
     setMounted(true);
     document.body.style.overflow = "hidden";
+    // Ignite flame after overlay appears
+    const igniteTimer = setTimeout(() => setFlameIntensity(1), 300);
     return () => {
+      clearTimeout(igniteTimer);
       document.body.style.overflow = "";
     };
   }, []);
@@ -50,21 +72,58 @@ function SuccessState({ onReset }: { onReset: () => void }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: isExiting ? 0 : 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/90 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
+      style={{ backgroundColor: "rgba(45,34,38,0.92)" }}
     >
+      {/* Warm ambient radial glow */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.3 }}
+        animate={{ opacity: isExiting ? 0 : 0.4, scale: isExiting ? 0.5 : 1 }}
+        transition={{ duration: 1.2, delay: isExiting ? 0 : 0.2, ease: EASE }}
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse 50% 60% at 50% 45%, rgba(184,134,11,0.15) 0%, rgba(224,122,32,0.06) 40%, transparent 70%)",
+        }}
+      />
+
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: isExiting ? 0 : 1, scale: isExiting ? 0.95 : 1 }}
         transition={{ duration: 0.6, delay: isExiting ? 0 : 0.2, ease: EASE }}
         className="text-center px-6 relative"
       >
-        {/* Flame with embers */}
+        {/* Canvas flame with embers */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: EASE }}
           className="relative w-24 h-32 mx-auto mb-8"
         >
+          {/* Canvas particle fire */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <CandleFlameCanvas width={96} height={128} intensity={flameIntensity} />
+          </div>
+
+          {/* Golden shockwave ring */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.2 }}
+            animate={{ opacity: [0, 0.8, 0], scale: [0.2, 1.8, 2.5] }}
+            transition={{ duration: 1.0, delay: 0.5, ease: "easeOut" }}
+            className="absolute inset-0 pointer-events-none"
+          >
+            <svg className="w-full h-full overflow-visible" viewBox="0 0 96 128" aria-hidden="true">
+              <circle
+                cx="48" cy="70" r="30"
+                fill="none"
+                stroke="#D4A843"
+                strokeWidth="1.5"
+                strokeDasharray="188.5"
+                strokeDashoffset="0"
+                opacity="0.7"
+              />
+            </svg>
+          </motion.div>
+
           {/* Ember particles */}
           {EMBERS.map((e, i) => (
             <span
@@ -73,117 +132,46 @@ function SuccessState({ onReset }: { onReset: () => void }) {
               style={{
                 width: e.size,
                 height: e.size,
-                backgroundColor: e.alt ? "#E8C96A" : "#FFEBBC",
-                animation: `${e.alt ? "ember-rise-alt" : "ember-rise"} ${e.duration}s ${e.delay}s ease-out infinite`,
+                backgroundColor: i % 3 === 0 ? "#E8C96A" : "#FFEBBC",
+                animation: `${i % 3 === 0 ? "ember-rise-alt" : "ember-rise"} ${e.duration}s ${e.delay}s ease-out infinite`,
                 marginLeft: e.x,
               }}
             />
           ))}
-
-          {/* Premium flame SVG with feTurbulence distortion */}
-          <svg
-            className="absolute inset-0 w-full h-full overflow-visible"
-            viewBox="0 0 48 64"
-            fill="none"
-            aria-hidden="true"
-          >
-            <defs>
-              {/* Turbulence filters — each layer gets different noise */}
-              <filter id="flame-distort-outer" x="-20%" y="-10%" width="140%" height="120%">
-                <feTurbulence type="turbulence" baseFrequency="0.04" numOctaves="3" result="noise" seed="1">
-                  <animate attributeName="baseFrequency" dur="4s" values="0.04;0.06;0.04" repeatCount="indefinite" />
-                </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G" />
-              </filter>
-              <filter id="flame-distort-middle" x="-15%" y="-10%" width="130%" height="120%">
-                <feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="3" result="noise" seed="2">
-                  <animate attributeName="baseFrequency" dur="3.3s" values="0.05;0.07;0.05" repeatCount="indefinite" />
-                </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G" />
-              </filter>
-              <filter id="flame-distort-inner" x="-10%" y="-10%" width="120%" height="120%">
-                <feTurbulence type="turbulence" baseFrequency="0.06" numOctaves="2" result="noise" seed="3">
-                  <animate attributeName="baseFrequency" dur="2.7s" values="0.06;0.08;0.06" repeatCount="indefinite" />
-                </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
-              </filter>
-              <filter id="flame-glow-blur">
-                <feGaussianBlur stdDeviation="6" />
-              </filter>
-
-              {/* Flame gradients */}
-              <linearGradient id="grad-outer" x1="0.5" y1="0" x2="0.5" y2="1">
-                <stop offset="0%" stopColor="#F0B840" />
-                <stop offset="50%" stopColor="#C0501A" />
-                <stop offset="100%" stopColor="#6B1E2E" />
-              </linearGradient>
-              <linearGradient id="grad-middle" x1="0.5" y1="0" x2="0.5" y2="1">
-                <stop offset="0%" stopColor="#FFD96A" />
-                <stop offset="100%" stopColor="#E07A20" />
-              </linearGradient>
-              <linearGradient id="grad-inner" x1="0.5" y1="0" x2="0.5" y2="1">
-                <stop offset="0%" stopColor="#FFF8E8" />
-                <stop offset="100%" stopColor="#FFD06A" />
-              </linearGradient>
-            </defs>
-
-            {/* Layer 1: Ambient glow */}
-            <ellipse
-              cx="24" cy="38" rx="16" ry="20"
-              fill="#F0B840" opacity="0.15"
-              filter="url(#flame-glow-blur)"
-              style={{ animation: "flame-glow-breathe 3s ease-in-out infinite" }}
-            />
-
-            {/* Layer 2: Outer flame */}
-            <path
-              d="M24 4C24 4 8 28 8 40C8 49 15 56 24 56C33 56 40 49 40 40C40 28 24 4 24 4Z"
-              fill="url(#grad-outer)"
-              filter="url(#flame-distort-outer)"
-              style={{
-                transformBox: "fill-box",
-                transformOrigin: "center bottom",
-                animation: "flame-outer-sway 3.7s ease-in-out infinite",
-              }}
-            />
-
-            {/* Layer 3: Middle flame */}
-            <path
-              d="M24 14C24 14 14 32 14 42C14 48 18 52 24 52C30 52 34 48 34 42C34 32 24 14 24 14Z"
-              fill="url(#grad-middle)"
-              filter="url(#flame-distort-middle)"
-              style={{
-                transformBox: "fill-box",
-                transformOrigin: "center bottom",
-                animation: "flame-middle-sway 2.9s ease-in-out infinite",
-              }}
-            />
-
-            {/* Layer 4: Inner flame */}
-            <path
-              d="M24 22C24 22 18 35 18 43C18 46 21 49 24 49C27 49 30 46 30 43C30 35 24 22 24 22Z"
-              fill="url(#grad-inner)"
-              filter="url(#flame-distort-inner)"
-              style={{
-                transformBox: "fill-box",
-                transformOrigin: "center bottom",
-                animation: "flame-inner-sway 2.3s ease-in-out infinite",
-              }}
-            />
-
-            {/* Layer 5: Bright core */}
-            <ellipse
-              cx="24" cy="44" rx="4" ry="6"
-              fill="#FFF8E8" opacity="0.9"
-              style={{ animation: "flame-core-pulse 1.8s ease-in-out infinite" }}
-            />
-          </svg>
         </motion.div>
+
+        {/* Burst particles */}
+        <div className="absolute left-1/2 top-0 pointer-events-none" style={{ marginTop: "6rem" }}>
+          {BURST_PARTICLES.map((p, i) => (
+            <motion.span
+              key={i}
+              initial={{ opacity: 0, x: 0, y: 0, scale: 1 }}
+              animate={{
+                opacity: [0, 1, 0],
+                x: Math.cos(p.angle) * p.distance,
+                y: Math.sin(p.angle) * p.distance,
+                scale: [1, 0.5, 0],
+              }}
+              transition={{
+                duration: p.duration,
+                delay: 0.7 + p.delay,
+                ease: "easeOut",
+              }}
+              className="absolute rounded-full"
+              style={{
+                width: p.size,
+                height: p.size,
+                backgroundColor: "#D4A843",
+                boxShadow: "0 0 4px rgba(212,168,67,0.6)",
+              }}
+            />
+          ))}
+        </div>
 
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4, ease: EASE }}
+          transition={{ duration: 0.6, delay: 0.6, ease: EASE }}
           className="font-display text-gold text-4xl md:text-5xl mb-6"
         >
           Thank You
@@ -191,7 +179,7 @@ function SuccessState({ onReset }: { onReset: () => void }) {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6, ease: EASE }}
+          transition={{ duration: 0.6, delay: 0.8, ease: EASE }}
           className="text-parchment/80 text-lg leading-relaxed mb-8 max-w-md mx-auto"
         >
           We&apos;ve received your order request. We&apos;ll be in touch shortly
@@ -200,7 +188,7 @@ function SuccessState({ onReset }: { onReset: () => void }) {
         <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8, ease: EASE }}
+          transition={{ duration: 0.6, delay: 1.0, ease: EASE }}
           onClick={() => {
             gtag.reorderClick();
             handleReset();
