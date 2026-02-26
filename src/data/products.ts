@@ -6,8 +6,6 @@ export interface Scent {
   notes: string;
   accent: string;
   image: string;
-  /** Optional CSS scale to adjust framing, e.g. "1.12" to zoom in */
-  imageScale?: number;
 }
 
 export interface ProductDetails {
@@ -38,7 +36,6 @@ export const SCENTS: Scent[] = [
     notes: "Sweet wild blueberries, fresh picked, juicy burst",
     accent: "bg-[#3a4a7a]",
     image: "/images/product-blueberry.png",
-    imageScale: 1.12,
   },
   {
     name: "Blueberry Cheesecake",

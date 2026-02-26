@@ -320,8 +320,7 @@ function ScentCard({
           src={scent.image}
           alt={`${scent.name} scented candle in mason jar`}
           fill
-          className={`object-cover transition-all duration-1000 ease-out${available ? (desktopHover ? " brightness-[1.03] saturate-[1.05]" : "") : " grayscale"}`}
-          style={{ scale: available ? (desktopHover ? (scent.imageScale ?? 1) * 1.05 : (scent.imageScale ?? 1)) : (scent.imageScale ?? 1) }}
+          className={`object-cover transition-all duration-1000 ease-out${available ? (desktopHover ? " scale-105 brightness-[1.03] saturate-[1.05]" : " scale-100") : " grayscale"}`}
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 14vw"
         />
 
