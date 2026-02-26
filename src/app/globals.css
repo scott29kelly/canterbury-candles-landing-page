@@ -398,11 +398,57 @@ select:focus {
 
 /* Thank-you candle background glow pulse */
 @keyframes glow-breathe {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
+  0%   { opacity: 0.5; transform: translate(-50%,-50%) scale(0.96); }
+  25%  { opacity: 0.85; transform: translate(-50%,-50%) scale(1.02); }
+  50%  { opacity: 1; transform: translate(-50%,-50%) scale(1.05); }
+  75%  { opacity: 0.7; transform: translate(-50%,-50%) scale(1.0); }
+  100% { opacity: 0.5; transform: translate(-50%,-50%) scale(0.96); }
 }
 .glow-breathe {
   animation: glow-breathe 2.5s ease-in-out infinite;
+}
+
+/* Irregular candlelight flicker overlay */
+@keyframes glow-flicker {
+  0%   { opacity: 1; }
+  15%  { opacity: 0.88; }
+  30%  { opacity: 0.95; }
+  45%  { opacity: 0.82; }
+  60%  { opacity: 0.92; }
+  75%  { opacity: 0.86; }
+  90%  { opacity: 0.97; }
+  100% { opacity: 1; }
+}
+.glow-flicker {
+  animation: glow-flicker 1.8s ease-in-out infinite;
+}
+
+/* Glass reflection flicker — two different periods for organic feel */
+@keyframes glass-flicker {
+  0%   { opacity: 0.035; }
+  14%  { opacity: 0.05; }
+  28%  { opacity: 0.03; }
+  42%  { opacity: 0.055; }
+  57%  { opacity: 0.032; }
+  71%  { opacity: 0.048; }
+  85%  { opacity: 0.038; }
+  100% { opacity: 0.035; }
+}
+.glass-flicker {
+  animation: glass-flicker 2.8s ease-in-out infinite;
+}
+
+@keyframes glass-flicker-alt {
+  0%   { opacity: 0.025; }
+  16%  { opacity: 0.04; }
+  33%  { opacity: 0.022; }
+  50%  { opacity: 0.038; }
+  66%  { opacity: 0.02; }
+  83%  { opacity: 0.035; }
+  100% { opacity: 0.025; }
+}
+.glass-flicker-alt {
+  animation: glass-flicker-alt 3.3s ease-in-out infinite;
 }
 
 /* Disable heavy animations for users who prefer reduced motion */

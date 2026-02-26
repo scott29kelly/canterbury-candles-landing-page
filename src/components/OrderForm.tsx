@@ -92,7 +92,7 @@ function SuccessState({ onReset }: { onReset: () => void }) {
           >
             <svg className="w-full h-full overflow-visible" viewBox="0 0 180 300" aria-hidden="true">
               <circle
-                cx="90" cy="132" r="35"
+                cx="90" cy="120" r="35"
                 fill="none"
                 stroke="#D4A843"
                 strokeWidth="1.5"
