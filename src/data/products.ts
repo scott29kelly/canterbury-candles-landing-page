@@ -129,6 +129,13 @@ export const SCENTS: Scent[] = [
     image: "/images/product-lemon-pound-cake.jpg",
   },
   {
+    name: "Mango & Coconut Milk",
+    tag: "Tropical",
+    notes: "Ripe mango, creamy coconut milk, warm island sunset",
+    accent: "bg-[#c49a3a]",
+    image: "/images/product-mango-and-coconut-milk.png",
+  },
+  {
     name: "Pumpkin Pecan Waffles",
     tag: "Bakery",
     notes: "Spiced pumpkin, toasted pecans, maple drizzle",
