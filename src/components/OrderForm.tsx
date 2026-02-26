@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import AnimateIn from "./AnimateIn";
@@ -9,116 +10,209 @@ import { useCart, PRICES, type CandleSize } from "@/context/CartContext";
 import * as gtag from "@/lib/gtag";
 
 const EMBERS = [
-  { delay: 0, duration: 2.2, x: -6, alt: false },
-  { delay: 0.3, duration: 1.8, x: 4, alt: true },
-  { delay: 0.7, duration: 2.5, x: -2, alt: false },
-  { delay: 1.0, duration: 2.0, x: 8, alt: true },
-  { delay: 0.5, duration: 2.3, x: -8, alt: false },
-  { delay: 1.3, duration: 1.9, x: 2, alt: true },
-  { delay: 0.2, duration: 2.6, x: -4, alt: false },
-  { delay: 0.8, duration: 2.1, x: 6, alt: true },
-  { delay: 1.1, duration: 2.4, x: 0, alt: false },
+  { delay: 0, duration: 2.2, x: -6, alt: false, size: 1.5 },
+  { delay: 0.3, duration: 1.8, x: 4, alt: true, size: 1 },
+  { delay: 0.7, duration: 2.5, x: -2, alt: false, size: 2 },
+  { delay: 1.0, duration: 2.0, x: 8, alt: true, size: 1.5 },
+  { delay: 0.5, duration: 2.3, x: -8, alt: false, size: 1 },
+  { delay: 1.3, duration: 1.9, x: 2, alt: true, size: 2 },
+  { delay: 0.2, duration: 2.6, x: -4, alt: false, size: 1 },
+  { delay: 0.8, duration: 2.1, x: 6, alt: true, size: 1.5 },
+  { delay: 1.1, duration: 2.4, x: 0, alt: false, size: 2 },
 ];
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 function SuccessState({ onReset }: { onReset: () => void }) {
-  return (
+  const [mounted, setMounted] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  const handleReset = () => {
+    setIsExiting(true);
+    setTimeout(() => {
+      document.body.style.overflow = "";
+      onReset();
+    }, 500);
+  };
+
+  if (!mounted) return null;
+
+  return createPortal(
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.6, ease: EASE }}
-      className="text-center py-12"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: isExiting ? 0 : 1 }}
+      transition={{ duration: 0.5 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/90 backdrop-blur-sm"
     >
-      {/* Flame icon with glow and embers */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: EASE }}
-        className="relative w-20 h-24 mx-auto mb-8"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: isExiting ? 0 : 1, scale: isExiting ? 0.95 : 1 }}
+        transition={{ duration: 0.6, delay: isExiting ? 0 : 0.2, ease: EASE }}
+        className="text-center px-6 relative"
       >
-        {/* Warm radial glow */}
-        <div className="absolute -inset-4 bg-gold/20 rounded-full blur-xl" />
-
-        {/* Ember particles */}
-        {EMBERS.map((e, i) => (
-          <span
-            key={i}
-            className="absolute left-1/2 bottom-6 w-1.5 h-1.5 bg-gold rounded-full"
-            style={{
-              animation: `${e.alt ? "ember-rise-alt" : "ember-rise"} ${e.duration}s ${e.delay}s ease-out infinite`,
-              marginLeft: e.x,
-            }}
-          />
-        ))}
-
-        {/* Flame SVG */}
-        <div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ animation: "flame-sway 3s ease-in-out infinite" }}
+        {/* Flame with embers */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
+          className="relative w-24 h-32 mx-auto mb-8"
         >
+          {/* Ember particles */}
+          {EMBERS.map((e, i) => (
+            <span
+              key={i}
+              className="absolute left-1/2 bottom-1/3 rounded-full"
+              style={{
+                width: e.size,
+                height: e.size,
+                backgroundColor: e.alt ? "#E8C96A" : "#FFEBBC",
+                animation: `${e.alt ? "ember-rise-alt" : "ember-rise"} ${e.duration}s ${e.delay}s ease-out infinite`,
+                marginLeft: e.x,
+              }}
+            />
+          ))}
+
+          {/* Premium flame SVG with feTurbulence distortion */}
           <svg
-            width="48"
-            height="48"
-            viewBox="0 0 48 48"
+            className="absolute inset-0 w-full h-full overflow-visible"
+            viewBox="0 0 48 64"
             fill="none"
             aria-hidden="true"
-            style={{ animation: "candleFlicker 2.5s steps(8) infinite" }}
           >
-            <path
-              d="M24 4C24 4 14 20 14 30C14 35.5228 18.4772 40 24 40C29.5228 40 34 35.5228 34 30C34 20 24 4 24 4Z"
-              fill="url(#flame-outer)"
-            />
-            <path
-              d="M24 14C24 14 19 24 19 30C19 32.7614 21.2386 35 24 35C26.7614 35 29 32.7614 29 30C29 24 24 14 24 14Z"
-              fill="url(#flame-inner)"
-            />
             <defs>
-              <radialGradient id="flame-outer" cx="0.5" cy="0.7" r="0.6">
-                <stop offset="0%" stopColor="#E8C96A" />
-                <stop offset="60%" stopColor="#B8860B" />
-                <stop offset="100%" stopColor="#5C2434" stopOpacity="0.6" />
-              </radialGradient>
-              <radialGradient id="flame-inner" cx="0.5" cy="0.6" r="0.5">
-                <stop offset="0%" stopColor="#FFEBBC" />
-                <stop offset="100%" stopColor="#E8C96A" stopOpacity="0.8" />
-              </radialGradient>
-            </defs>
-          </svg>
-        </div>
-      </motion.div>
+              {/* Turbulence filters — each layer gets different noise */}
+              <filter id="flame-distort-outer" x="-20%" y="-10%" width="140%" height="120%">
+                <feTurbulence type="turbulence" baseFrequency="0.04" numOctaves="3" result="noise" seed="1">
+                  <animate attributeName="baseFrequency" dur="4s" values="0.04;0.06;0.04" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
+              <filter id="flame-distort-middle" x="-15%" y="-10%" width="130%" height="120%">
+                <feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="3" result="noise" seed="2">
+                  <animate attributeName="baseFrequency" dur="3.3s" values="0.05;0.07;0.05" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
+              <filter id="flame-distort-inner" x="-10%" y="-10%" width="120%" height="120%">
+                <feTurbulence type="turbulence" baseFrequency="0.06" numOctaves="2" result="noise" seed="3">
+                  <animate attributeName="baseFrequency" dur="2.7s" values="0.06;0.08;0.06" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
+              <filter id="flame-glow-blur">
+                <feGaussianBlur stdDeviation="6" />
+              </filter>
 
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
-        className="font-display text-burgundy text-4xl md:text-5xl mb-6"
-      >
-        Thank You
-      </motion.h2>
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.5, ease: EASE }}
-        className="text-rose-gray text-lg leading-relaxed mb-8 max-w-md mx-auto"
-      >
-        We&apos;ve received your order request. We&apos;ll be in touch shortly
-        to confirm your selections and arrange delivery.
-      </motion.p>
-      <motion.button
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.7, ease: EASE }}
-        onClick={() => {
-          gtag.reorderClick();
-          onReset();
-        }}
-        className="text-gold text-sm tracking-widest uppercase hover:text-gold-light transition-colors duration-300 group inline-flex items-center gap-2"
-      >
-        <span className="w-4 h-px bg-gold group-hover:w-6 transition-all duration-300" />
-        Place another order
-      </motion.button>
-    </motion.div>
+              {/* Flame gradients */}
+              <linearGradient id="grad-outer" x1="0.5" y1="0" x2="0.5" y2="1">
+                <stop offset="0%" stopColor="#F0B840" />
+                <stop offset="50%" stopColor="#C0501A" />
+                <stop offset="100%" stopColor="#6B1E2E" />
+              </linearGradient>
+              <linearGradient id="grad-middle" x1="0.5" y1="0" x2="0.5" y2="1">
+                <stop offset="0%" stopColor="#FFD96A" />
+                <stop offset="100%" stopColor="#E07A20" />
+              </linearGradient>
+              <linearGradient id="grad-inner" x1="0.5" y1="0" x2="0.5" y2="1">
+                <stop offset="0%" stopColor="#FFF8E8" />
+                <stop offset="100%" stopColor="#FFD06A" />
+              </linearGradient>
+            </defs>
+
+            {/* Layer 1: Ambient glow */}
+            <ellipse
+              cx="24" cy="38" rx="16" ry="20"
+              fill="#F0B840" opacity="0.15"
+              filter="url(#flame-glow-blur)"
+              style={{ animation: "flame-glow-breathe 3s ease-in-out infinite" }}
+            />
+
+            {/* Layer 2: Outer flame */}
+            <path
+              d="M24 4C24 4 8 28 8 40C8 49 15 56 24 56C33 56 40 49 40 40C40 28 24 4 24 4Z"
+              fill="url(#grad-outer)"
+              filter="url(#flame-distort-outer)"
+              style={{
+                transformBox: "fill-box",
+                transformOrigin: "center bottom",
+                animation: "flame-outer-sway 3.7s ease-in-out infinite",
+              }}
+            />
+
+            {/* Layer 3: Middle flame */}
+            <path
+              d="M24 14C24 14 14 32 14 42C14 48 18 52 24 52C30 52 34 48 34 42C34 32 24 14 24 14Z"
+              fill="url(#grad-middle)"
+              filter="url(#flame-distort-middle)"
+              style={{
+                transformBox: "fill-box",
+                transformOrigin: "center bottom",
+                animation: "flame-middle-sway 2.9s ease-in-out infinite",
+              }}
+            />
+
+            {/* Layer 4: Inner flame */}
+            <path
+              d="M24 22C24 22 18 35 18 43C18 46 21 49 24 49C27 49 30 46 30 43C30 35 24 22 24 22Z"
+              fill="url(#grad-inner)"
+              filter="url(#flame-distort-inner)"
+              style={{
+                transformBox: "fill-box",
+                transformOrigin: "center bottom",
+                animation: "flame-inner-sway 2.3s ease-in-out infinite",
+              }}
+            />
+
+            {/* Layer 5: Bright core */}
+            <ellipse
+              cx="24" cy="44" rx="4" ry="6"
+              fill="#FFF8E8" opacity="0.9"
+              style={{ animation: "flame-core-pulse 1.8s ease-in-out infinite" }}
+            />
+          </svg>
+        </motion.div>
+
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4, ease: EASE }}
+          className="font-display text-gold text-4xl md:text-5xl mb-6"
+        >
+          Thank You
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6, ease: EASE }}
+          className="text-parchment/80 text-lg leading-relaxed mb-8 max-w-md mx-auto"
+        >
+          We&apos;ve received your order request. We&apos;ll be in touch shortly
+          to confirm your selections and arrange delivery.
+        </motion.p>
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8, ease: EASE }}
+          onClick={() => {
+            gtag.reorderClick();
+            handleReset();
+          }}
+          className="text-gold text-sm tracking-widest uppercase hover:text-gold-light transition-colors duration-300 group inline-flex items-center gap-2"
+        >
+          <span className="w-4 h-px bg-gold group-hover:w-6 transition-all duration-300" />
+          Place another order
+        </motion.button>
+      </motion.div>
+    </motion.div>,
+    document.body
   );
 }
 
@@ -376,26 +470,23 @@ export default function OrderForm() {
           </p>
         </AnimateIn>
 
+        {/* Success overlay — portaled to body */}
+        {submitted && (
+          <SuccessState
+            onReset={() => {
+              setSubmitted(false);
+              dispatch({ type: "CLEAR_CART" });
+              setSubmitError(null);
+              document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
+            }}
+          />
+        )}
+
         <AnimateIn>
-          <AnimatePresence mode="wait">
-            {submitted ? (
-              <SuccessState
-                key="success"
-                onReset={() => {
-                  setSubmitted(false);
-                  dispatch({ type: "CLEAR_CART" });
-                  setSubmitError(null);
-                }}
-              />
-            ) : (
-              <motion.form
-                key="form"
-                onSubmit={handleSubmit}
-                className="space-y-8 md:space-y-10"
-                initial={{ opacity: 1 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-8 md:space-y-10"
+          >
                 {/* Contact info */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                   <div>
@@ -608,9 +699,7 @@ export default function OrderForm() {
                     </span>
                   </button>
                 </div>
-              </motion.form>
-            )}
-          </AnimatePresence>
+          </form>
         </AnimateIn>
       </div>
     </section>
