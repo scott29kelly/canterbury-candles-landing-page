@@ -31,13 +31,13 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 function pColor(type: PType, t: number): string {
   switch (type) {
     case "blue":
-      return `rgba(80,140,255,${lerp(0.60, 0, t).toFixed(2)})`;
+      return `rgba(80,140,255,${lerp(0.45, 0, t).toFixed(2)})`;
     case "core":
-      return `rgba(255,${Math.round(lerp(252, 200, t))},${Math.round(lerp(235, 120, t))},${lerp(0.85, 0, t).toFixed(2)})`;
+      return `rgba(255,${Math.round(lerp(252, 200, t))},${Math.round(lerp(235, 120, t))},${lerp(0.65, 0, t).toFixed(2)})`;
     case "inner":
-      return `rgba(255,${Math.round(lerp(210, 150, t))},${Math.round(lerp(50, 0, t))},${lerp(0.65, 0, t).toFixed(2)})`;
+      return `rgba(255,${Math.round(lerp(210, 150, t))},${Math.round(lerp(50, 0, t))},${lerp(0.50, 0, t).toFixed(2)})`;
     case "outer":
-      return `rgba(255,${Math.round(lerp(160, 75, t))},${Math.round(lerp(45, 15, t))},${lerp(0.30, 0, t).toFixed(2)})`;
+      return `rgba(255,${Math.round(lerp(160, 75, t))},${Math.round(lerp(45, 15, t))},${lerp(0.20, 0, t).toFixed(2)})`;
     case "ember":
       return `rgba(255,${Math.round(lerp(210, 130, t))},${Math.round(lerp(75, 20, t))},${lerp(0.85, 0, t).toFixed(2)})`;
     case "smoke":
@@ -45,30 +45,106 @@ function pColor(type: PType, t: number): string {
   }
 }
 
-/* ─── Flame base glow (soft teardrop under particles) ─── */
+/* ─── Flame base glow (primary flame body — large teardrop) ─── */
 function drawFlameGlow(ctx: CanvasRenderingContext2D, time: number) {
   const flicker = 0.92 + 0.08 * Math.sin(time * 0.004) * Math.sin(time * 0.0067 + 0.7);
   const sway = Math.sin(time * 0.003) * 0.5;
   const cx = WICK.x + sway;
-  const cy = WICK.y - 8;
-  const rx = 7 * flicker;
-  const ry = 14 * flicker;
+
+  /* Main flame body — wider, taller teardrop */
+  const cyMain = WICK.y - 12;
+  const rxMain = 12 * flicker;
+  const ryMain = 26 * flicker;
 
   ctx.save();
   ctx.globalCompositeOperation = "lighter";
-  ctx.translate(cx, cy);
-  ctx.scale(rx / ry, 1);
+  ctx.translate(cx, cyMain);
+  ctx.scale(rxMain / ryMain, 1);
 
-  const g = ctx.createRadialGradient(0, 0, 0, 0, 0, ry);
-  g.addColorStop(0, `rgba(255,255,240,${(0.45 * flicker).toFixed(2)})`);
-  g.addColorStop(0.25, `rgba(255,220,120,${(0.35 * flicker).toFixed(2)})`);
-  g.addColorStop(0.55, `rgba(255,170,60,${(0.18 * flicker).toFixed(2)})`);
+  const g = ctx.createRadialGradient(0, 0, 0, 0, 0, ryMain);
+  g.addColorStop(0, `rgba(255,255,240,${(0.70 * flicker).toFixed(2)})`);
+  g.addColorStop(0.25, `rgba(255,220,120,${(0.55 * flicker).toFixed(2)})`);
+  g.addColorStop(0.55, `rgba(255,170,60,${(0.28 * flicker).toFixed(2)})`);
+  g.addColorStop(0.8, `rgba(255,140,40,${(0.08 * flicker).toFixed(2)})`);
   g.addColorStop(1, "transparent");
 
   ctx.fillStyle = g;
   ctx.beginPath();
-  ctx.arc(0, 0, ry, 0, Math.PI * 2);
+  ctx.arc(0, 0, ryMain, 0, Math.PI * 2);
   ctx.fill();
+  ctx.restore();
+
+  /* Flame tip — narrow bright point at top */
+  const cyTip = WICK.y - 18;
+  const rxTip = 5 * flicker;
+  const ryTip = 16 * flicker;
+
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  ctx.translate(cx, cyTip);
+  ctx.scale(rxTip / ryTip, 1);
+
+  const gTip = ctx.createRadialGradient(0, 0, 0, 0, 0, ryTip);
+  gTip.addColorStop(0, `rgba(255,255,250,${(0.60 * flicker).toFixed(2)})`);
+  gTip.addColorStop(0.3, `rgba(255,240,200,${(0.35 * flicker).toFixed(2)})`);
+  gTip.addColorStop(0.6, `rgba(255,200,100,${(0.12 * flicker).toFixed(2)})`);
+  gTip.addColorStop(1, "transparent");
+
+  ctx.fillStyle = gTip;
+  ctx.beginPath();
+  ctx.arc(0, 0, ryTip, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+/* ─── Dynamic light scatter on glass + wax ─── */
+function drawLightScatter(ctx: CanvasRenderingContext2D, time: number) {
+  const flicker = 0.92 + 0.08 * Math.sin(time * 0.004) * Math.sin(time * 0.0067 + 0.7);
+
+  ctx.save();
+  ctx.globalCompositeOperation = "source-over";
+
+  /* a) Wax surface glow — warm pooled light on melted wax */
+  const waxG = ctx.createRadialGradient(WICK.x, 136, 0, WICK.x, 136, 30);
+  waxG.addColorStop(0, `rgba(255,210,120,${(0.08 * flicker).toFixed(3)})`);
+  waxG.addColorStop(1, "transparent");
+  ctx.fillStyle = waxG;
+  ctx.beginPath();
+  ctx.save();
+  ctx.translate(WICK.x, 136);
+  ctx.scale(1, 4 / 30);
+  ctx.arc(0, 0, 30, 0, Math.PI * 2);
+  ctx.restore();
+  ctx.fill();
+
+  /* b) Left glass wall highlight */
+  const leftSway = Math.sin(time * 0.0025) * 1.5;
+  const leftG = ctx.createRadialGradient(46, 140 + leftSway, 0, 46, 140 + leftSway, 35);
+  leftG.addColorStop(0, `rgba(255,200,100,${(0.04 * flicker).toFixed(3)})`);
+  leftG.addColorStop(1, "transparent");
+  ctx.fillStyle = leftG;
+  ctx.beginPath();
+  ctx.save();
+  ctx.translate(46, 140 + leftSway);
+  ctx.scale(3 / 35, 1);
+  ctx.arc(0, 0, 35, 0, Math.PI * 2);
+  ctx.restore();
+  ctx.fill();
+
+  /* c) Right glass wall highlight — slightly dimmer, offset timing */
+  const rightSway = Math.sin(time * 0.003 + 1.2) * 1.2;
+  const rightG = ctx.createRadialGradient(134, 145 + rightSway, 0, 134, 145 + rightSway, 28);
+  rightG.addColorStop(0, `rgba(255,200,100,${(0.025 * flicker).toFixed(3)})`);
+  rightG.addColorStop(1, "transparent");
+  ctx.fillStyle = rightG;
+  ctx.beginPath();
+  ctx.save();
+  ctx.translate(134, 145 + rightSway);
+  ctx.scale(2.5 / 28, 1);
+  ctx.arc(0, 0, 28, 0, Math.PI * 2);
+  ctx.restore();
+  ctx.fill();
+
   ctx.restore();
 }
 
@@ -173,7 +249,7 @@ export default function ThankYouCandleAnimation({ className }: { className?: str
       if (lit) {
         if (ignFrame < 0) ignFrame = frame;
         const since = frame - ignFrame;
-        const rate = since < 15 ? 6 : 3;
+        const rate = since < 15 ? 6 : 2;
         for (let i = 0; i < rate; i++) {
           const p = mkFlame(time);
           if (since < 15) p.size *= 1.35;
@@ -208,7 +284,8 @@ export default function ThankYouCandleAnimation({ className }: { className?: str
         nextSmoke = frame + 35 + Math.floor(Math.random() * 50);
       }
 
-      /* update + draw */
+      /* update + draw (blurred so particles blend into flame body) */
+      ctx.filter = "blur(1.5px)";
       for (let i = ps.length - 1; i >= 0; i--) {
         const p = ps[i];
         p.life++;
@@ -235,6 +312,11 @@ export default function ThankYouCandleAnimation({ className }: { className?: str
         ctx.arc(p.x, p.y, sz, 0, Math.PI * 2);
         ctx.fill();
       }
+
+      ctx.filter = "none";
+
+      /* dynamic light scatter on glass + wax */
+      if (lit) drawLightScatter(ctx, time);
 
       /* hard cap on particles for safety */
       if (ps.length > 200) ps.splice(0, ps.length - 200);
@@ -264,12 +346,12 @@ export default function ThankYouCandleAnimation({ className }: { className?: str
           position: "absolute",
           left: "50%",
           top: WICK.y,
-          width: 220,
-          height: 220,
+          width: 300,
+          height: 300,
           borderRadius: "50%",
           transform: "translate(-50%,-50%)",
           background:
-            "radial-gradient(circle,rgba(255,200,80,0.06) 0%,rgba(255,155,40,0.02) 45%,transparent 70%)",
+            "radial-gradient(circle,rgba(255,200,80,0.12) 0%,rgba(255,155,40,0.05) 45%,transparent 70%)",
           opacity: lit ? 1 : 0,
           transition: "opacity 0.8s ease",
           pointerEvents: "none",
@@ -288,7 +370,7 @@ export default function ThankYouCandleAnimation({ className }: { className?: str
           borderRadius: "50%",
           transform: "translate(-50%,-50%)",
           background:
-            "radial-gradient(circle,rgba(255,200,80,0.14) 0%,rgba(255,155,40,0.04) 55%,transparent 72%)",
+            "radial-gradient(circle,rgba(255,200,80,0.22) 0%,rgba(255,155,40,0.08) 55%,transparent 72%)",
           opacity: lit ? 1 : 0,
           transition: "opacity 0.8s ease",
           pointerEvents: "none",

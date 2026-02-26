@@ -425,27 +425,27 @@ select:focus {
 
 /* Glass reflection flicker — two different periods for organic feel */
 @keyframes glass-flicker {
-  0%   { opacity: 0.035; }
-  14%  { opacity: 0.05; }
-  28%  { opacity: 0.03; }
-  42%  { opacity: 0.055; }
-  57%  { opacity: 0.032; }
-  71%  { opacity: 0.048; }
-  85%  { opacity: 0.038; }
-  100% { opacity: 0.035; }
+  0%   { opacity: 0.04; }
+  14%  { opacity: 0.08; }
+  28%  { opacity: 0.05; }
+  42%  { opacity: 0.10; }
+  57%  { opacity: 0.045; }
+  71%  { opacity: 0.075; }
+  85%  { opacity: 0.055; }
+  100% { opacity: 0.04; }
 }
 .glass-flicker {
   animation: glass-flicker 2.8s ease-in-out infinite;
 }
 
 @keyframes glass-flicker-alt {
-  0%   { opacity: 0.025; }
-  16%  { opacity: 0.04; }
-  33%  { opacity: 0.022; }
-  50%  { opacity: 0.038; }
-  66%  { opacity: 0.02; }
-  83%  { opacity: 0.035; }
-  100% { opacity: 0.025; }
+  0%   { opacity: 0.03; }
+  16%  { opacity: 0.065; }
+  33%  { opacity: 0.035; }
+  50%  { opacity: 0.08; }
+  66%  { opacity: 0.03; }
+  83%  { opacity: 0.06; }
+  100% { opacity: 0.03; }
 }
 .glass-flicker-alt {
   animation: glass-flicker-alt 3.3s ease-in-out infinite;
