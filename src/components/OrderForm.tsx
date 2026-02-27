@@ -606,12 +606,14 @@ export default function OrderForm() {
                 {/* Contact info */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                   <div>
-                    <label htmlFor="name" className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium">Name</label>
+                    <label htmlFor="name" className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium">
+                      Name {items.length === 0 && <span className="text-rose-gray normal-case tracking-normal font-normal">(optional)</span>}
+                    </label>
                     <input
                       type="text"
                       id="name"
                       name="name"
-                      required
+                      required={items.length > 0}
                       className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
                       placeholder="Your name"
                     />

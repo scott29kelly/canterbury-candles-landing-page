@@ -31,15 +31,15 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 function pColor(type: PType, t: number): string {
   switch (type) {
     case "blue":
-      return `rgba(80,140,255,${lerp(0.45, 0, t).toFixed(2)})`;
+      return `rgba(80,140,255,${lerp(0.18, 0, t).toFixed(2)})`;
     case "core":
-      return `rgba(255,${Math.round(lerp(252, 200, t))},${Math.round(lerp(235, 120, t))},${lerp(0.65, 0, t).toFixed(2)})`;
+      return `rgba(255,${Math.round(lerp(252, 200, t))},${Math.round(lerp(235, 120, t))},${lerp(0.35, 0, t).toFixed(2)})`;
     case "inner":
-      return `rgba(255,${Math.round(lerp(210, 150, t))},${Math.round(lerp(50, 0, t))},${lerp(0.50, 0, t).toFixed(2)})`;
+      return `rgba(255,${Math.round(lerp(210, 150, t))},${Math.round(lerp(50, 0, t))},${lerp(0.28, 0, t).toFixed(2)})`;
     case "outer":
-      return `rgba(255,${Math.round(lerp(160, 75, t))},${Math.round(lerp(45, 15, t))},${lerp(0.20, 0, t).toFixed(2)})`;
+      return `rgba(255,${Math.round(lerp(160, 75, t))},${Math.round(lerp(45, 15, t))},${lerp(0.12, 0, t).toFixed(2)})`;
     case "ember":
-      return `rgba(255,${Math.round(lerp(210, 130, t))},${Math.round(lerp(75, 20, t))},${lerp(0.85, 0, t).toFixed(2)})`;
+      return `rgba(255,${Math.round(lerp(210, 130, t))},${Math.round(lerp(75, 20, t))},${lerp(0.55, 0, t).toFixed(2)})`;
     case "smoke":
       return `rgba(180,175,170,${lerp(0.055, 0, t).toFixed(3)})`;
   }
@@ -154,26 +154,26 @@ function mkFlame(time: number): P {
   const r = Math.random();
   if (r < 0.2)
     return {
-      x: WICK.x + rng(-1.5, 1.5) * f, y: WICK.y + rng(2, 6),
-      vx: rng(-0.12, 0.12), vy: rng(-0.35, -0.65),
-      life: 0, maxLife: rng(10, 18), size: rng(3, 4.5), type: "blue", seed: Math.random(),
+      x: WICK.x + rng(-1, 1) * f, y: WICK.y + rng(1, 4),
+      vx: rng(-0.06, 0.06), vy: rng(-0.2, -0.4),
+      life: 0, maxLife: rng(14, 24), size: rng(4, 6), type: "blue", seed: Math.random(),
     };
   if (r < 0.45)
     return {
-      x: WICK.x + rng(-2, 2) * f, y: WICK.y + rng(-2, 3),
-      vx: rng(-0.1, 0.1), vy: rng(-0.65, -1.25),
-      life: 0, maxLife: rng(12, 22), size: rng(3.5, 5.5), type: "core", seed: Math.random(),
+      x: WICK.x + rng(-1.5, 1.5) * f, y: WICK.y + rng(-2, 2),
+      vx: rng(-0.06, 0.06), vy: rng(-0.35, -0.7),
+      life: 0, maxLife: rng(18, 30), size: rng(5, 7), type: "core", seed: Math.random(),
     };
   if (r < 0.7)
     return {
-      x: WICK.x + rng(-3.5, 3.5) * f, y: WICK.y + rng(-3, 3),
-      vx: rng(-0.18, 0.18), vy: rng(-0.85, -1.5),
-      life: 0, maxLife: rng(15, 25), size: rng(3.5, 6), type: "inner", seed: Math.random(),
+      x: WICK.x + rng(-2.5, 2.5) * f, y: WICK.y + rng(-3, 2),
+      vx: rng(-0.1, 0.1), vy: rng(-0.5, -0.9),
+      life: 0, maxLife: rng(20, 32), size: rng(5, 8), type: "inner", seed: Math.random(),
     };
   return {
-    x: WICK.x + rng(-5, 5) * f, y: WICK.y + rng(-4, 4),
-    vx: rng(-0.22, 0.22), vy: rng(-0.45, -0.85),
-    life: 0, maxLife: rng(18, 30), size: rng(5, 8), type: "outer", seed: Math.random(),
+    x: WICK.x + rng(-4, 4) * f, y: WICK.y + rng(-3, 3),
+    vx: rng(-0.12, 0.12), vy: rng(-0.3, -0.55),
+    life: 0, maxLife: rng(22, 36), size: rng(6, 10), type: "outer", seed: Math.random(),
   };
 }
 
@@ -249,7 +249,7 @@ export default function ThankYouCandleAnimation({ className }: { className?: str
       if (lit) {
         if (ignFrame < 0) ignFrame = frame;
         const since = frame - ignFrame;
-        const rate = since < 15 ? 6 : 2;
+        const rate = since < 15 ? 4 : 1;
         for (let i = 0; i < rate; i++) {
           const p = mkFlame(time);
           if (since < 15) p.size *= 1.35;
@@ -269,14 +269,12 @@ export default function ThankYouCandleAnimation({ className }: { className?: str
           ctx.fill();
         }
 
-        /* soft teardrop glow beneath particles */
-        drawFlameGlow(ctx, time);
       }
 
       /* sporadic embers */
       if (ph === "burning" && frame >= nextEmber) {
         ps.push(mkEmber());
-        nextEmber = frame + 15 + Math.floor(Math.random() * 28);
+        nextEmber = frame + 35 + Math.floor(Math.random() * 45);
       }
       /* sporadic smoke */
       if (ph === "burning" && frame >= nextSmoke) {
@@ -284,7 +282,7 @@ export default function ThankYouCandleAnimation({ className }: { className?: str
         nextSmoke = frame + 35 + Math.floor(Math.random() * 50);
       }
 
-      /* update + draw (blurred so particles blend into flame body) */
+      /* update + draw particles first (beneath flame glow) */
       ctx.filter = "blur(1.5px)";
       for (let i = ps.length - 1; i >= 0; i--) {
         const p = ps[i];
@@ -314,6 +312,9 @@ export default function ThankYouCandleAnimation({ className }: { className?: str
       }
 
       ctx.filter = "none";
+
+      /* soft teardrop glow on top of particles */
+      if (lit) drawFlameGlow(ctx, time);
 
       /* dynamic light scatter on glass + wax */
       if (lit) drawLightScatter(ctx, time);
@@ -395,8 +396,14 @@ export default function ThankYouCandleAnimation({ className }: { className?: str
         <ellipse cx={44} cy={103} rx={2.5} ry={18} fill="#FFC850" className={lit && !reduced ? "glass-flicker" : undefined} opacity={lit ? 0.035 : 0} style={{ transition: "opacity 0.6s ease" }} />
         <ellipse cx={136} cy={108} rx={2} ry={14} fill="#FFC850" className={lit && !reduced ? "glass-flicker-alt" : undefined} opacity={lit ? 0.025 : 0} style={{ transition: "opacity 0.6s ease" }} />
 
-        {/* neck / thread ring */}
-        <rect x={33} y={78} width={114} height={14} rx={3} fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.11)" strokeWidth={1} />
+        {/* neck / thread ring — fades out with the lid */}
+        <motion.rect
+          x={33} y={78} width={114} height={14} rx={3}
+          fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.11)" strokeWidth={1}
+          initial={{ opacity: 1 }}
+          animate={{ opacity: lidGone ? 0 : 1 }}
+          transition={{ duration: 0.4, delay: lidGone ? 0.3 : 0 }}
+        />
 
         {/* wax fill */}
         <rect x={38} y={134} width={104} height={128} rx={6} fill="#F5E8D0" opacity={0.85} />

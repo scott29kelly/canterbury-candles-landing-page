@@ -17,9 +17,6 @@ export async function POST(request: Request) {
     const email = typeof body.email === "string" ? body.email.trim() : "";
     const message = typeof body.message === "string" ? body.message.trim() : "";
 
-    if (!name) {
-      return NextResponse.json({ error: "Name is required." }, { status: 400 });
-    }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "A valid email address is required." }, { status: 400 });
     }
@@ -48,11 +45,11 @@ export async function POST(request: Request) {
       from: `"Canterbury Candles" <${SMTP_USER}>`,
       to: ORDER_RECIPIENT,
       replyTo: email,
-      subject: `Contact Message from ${name}`,
+      subject: name ? `Contact Message from ${name}` : `Contact Message from ${email}`,
       html: `
         <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
           <h2 style="color:#5a2a3a">New Contact Message</h2>
-          <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+          ${name ? `<p><strong>Name:</strong> ${escapeHtml(name)}</p>` : ""}
           <p><strong>Email:</strong> ${escapeHtml(email)}</p>
           <div style="margin:20px 0;padding:16px;background:#f8f4ef;border-left:3px solid #b8860b;border-radius:4px">
             <p style="margin:0;white-space:pre-wrap">${escapeHtml(message)}</p>
