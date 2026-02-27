@@ -195,4 +195,7 @@ export const SCENTS: Scent[] = [
 
 export const PRICES: Record<CandleSize, number> = { "8oz": 15, "16oz": 25 };
 
+/** Per-size availability for a single scent. */
+export type SizeAvailability = Record<CandleSize, boolean>;
+
 export const SCENT_NAMES: string[] = SCENTS.map((s) => s.name);

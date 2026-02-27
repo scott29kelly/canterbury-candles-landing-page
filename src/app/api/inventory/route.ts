@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
-import { getInventory, isScentAvailable } from "@/lib/inventory";
-import { SCENT_NAMES } from "@/data/products";
+import { getInventory } from "@/lib/inventory";
+import { SCENT_NAMES, type SizeAvailability } from "@/data/products";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const inventory = await getInventory();
 
-  const availability: Record<string, boolean> = {};
+  const availability: Record<string, SizeAvailability> = {};
   for (const name of SCENT_NAMES) {
-    availability[name] = isScentAvailable(inventory, name);
+    // Missing from sheet = both sizes available
+    availability[name] = inventory[name] ?? { "8oz": true, "16oz": true };
   }
 
   return NextResponse.json(

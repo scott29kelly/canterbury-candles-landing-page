@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
+import { type SizeAvailability } from "@/data/products";
 
 const POLL_INTERVAL_MS = 30_000; // 30 seconds
 
-export function useInventory(): Record<string, boolean> {
-  const [availability, setAvailability] = useState<Record<string, boolean>>({});
-  const prevRef = useRef<Record<string, boolean>>({});
+export function useInventory(): Record<string, SizeAvailability> {
+  const [availability, setAvailability] = useState<Record<string, SizeAvailability>>({});
+  const prevRef = useRef<Record<string, SizeAvailability>>({});
 
   useEffect(() => {
     let active = true;

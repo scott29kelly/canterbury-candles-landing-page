@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import AnimateIn from "./AnimateIn";
 import WarmDivider from "./WarmDivider";
-import { SCENTS, PRICES, PRODUCT_DETAILS, type Scent } from "@/data/products";
+import { SCENTS, PRICES, PRODUCT_DETAILS, type Scent, type SizeAvailability } from "@/data/products";
 import { useCart, type CandleSize } from "@/context/CartContext";
 import { useInventory } from "@/hooks/useInventory";
 import * as gtag from "@/lib/gtag";
@@ -185,21 +185,27 @@ function SizeRow({
   size,
   price,
   quantity,
+  soldOut,
 }: {
   scent: string;
   size: CandleSize;
   price: number;
   quantity: number;
+  soldOut: boolean;
 }) {
   const { dispatch } = useCart();
   const inCart = quantity > 0;
 
   return (
     <div className="flex items-center justify-between gap-1.5 sm:gap-3">
-      <span className="text-blush/80 text-xs sm:text-sm whitespace-nowrap">
+      <span className={`text-xs sm:text-sm whitespace-nowrap${soldOut ? " text-blush/40 line-through" : " text-blush/80"}`}>
         {size} &middot; ${price}
       </span>
-      {inCart ? (
+      {soldOut ? (
+        <span className="text-blush/40 text-[10px] tracking-wider uppercase">
+          Sold Out
+        </span>
+      ) : inCart ? (
         <QuantityStepper
           quantity={quantity}
           onIncrement={() =>
@@ -242,12 +248,14 @@ function ScentCard({
   onActivate,
   onDeactivate,
   available,
+  sizeAvailability,
 }: {
   scent: Scent;
   isActive: boolean;
   onActivate: () => void;
   onDeactivate: () => void;
   available: boolean;
+  sizeAvailability: SizeAvailability;
 }) {
   const { getItemsForScent, getScentQuantity } = useCart();
   const scentItems = getItemsForScent(scent.name);
@@ -428,12 +436,14 @@ function ScentCard({
                   size="8oz"
                   price={PRICES["8oz"]}
                   quantity={qty8}
+                  soldOut={!sizeAvailability["8oz"]}
                 />
                 <SizeRow
                   scent={scent.name}
                   size="16oz"
                   price={PRICES["16oz"]}
                   quantity={qty16}
+                  soldOut={!sizeAvailability["16oz"]}
                 />
               </div>
             </motion.div>
@@ -554,29 +564,34 @@ export default function Scents() {
             className="flex flex-wrap justify-center gap-5 md:gap-6"
             onClick={(e) => e.stopPropagation()}
           >
-            {SCENTS.map((scent, index) => (
-              <motion.div
-                key={scent.name}
-                className="w-[calc(50%-0.625rem)] sm:w-[calc(50%-0.625rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.125rem)] xl:w-[calc(25%-1.2rem)] 2xl:w-[calc(20%-1.286rem)]"
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.15 }}
-                transition={{
-                  duration: prefersReduced ? 0 : 1.4,
-                  ease: [0.25, 0.1, 0.25, 1],
-                  delay: prefersReduced ? 0 : getCardDelay(index, columnCount),
-                }}
-              >
-                <ScentCard
-                  scent={scent}
-                  isActive={activeCardName === scent.name}
-                  onActivate={() => setActiveCardName(scent.name)}
-                  onDeactivate={() => setActiveCardName(null)}
-                  available={inventory[scent.name] !== false}
-                />
-              </motion.div>
-            ))}
+            {SCENTS.map((scent, index) => {
+              const sizeAvail = inventory[scent.name] ?? { "8oz": true, "16oz": true };
+              const anyAvailable = sizeAvail["8oz"] || sizeAvail["16oz"];
+              return (
+                <motion.div
+                  key={scent.name}
+                  className="w-[calc(50%-0.625rem)] sm:w-[calc(50%-0.625rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.125rem)] xl:w-[calc(25%-1.2rem)] 2xl:w-[calc(20%-1.286rem)]"
+                  variants={cardVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.15 }}
+                  transition={{
+                    duration: prefersReduced ? 0 : 1.4,
+                    ease: [0.25, 0.1, 0.25, 1],
+                    delay: prefersReduced ? 0 : getCardDelay(index, columnCount),
+                  }}
+                >
+                  <ScentCard
+                    scent={scent}
+                    isActive={activeCardName === scent.name}
+                    onActivate={() => setActiveCardName(scent.name)}
+                    onDeactivate={() => setActiveCardName(null)}
+                    available={anyAvailable}
+                    sizeAvailability={sizeAvail}
+                  />
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </div>

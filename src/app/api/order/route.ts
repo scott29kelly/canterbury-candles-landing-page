@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { PRICES, SCENT_NAMES, type CandleSize } from "@/data/products";
-import { getInventory, isScentAvailable } from "@/lib/inventory";
+import { getInventory, isSizeAvailable } from "@/lib/inventory";
 
 interface OrderLineItem {
   scent: string;
@@ -142,15 +142,14 @@ export async function POST(request: Request) {
 
     const order = result.data;
 
-    // Check inventory — reject if any ordered scent is sold out
+    // Check inventory — reject if any ordered scent+size is sold out
     const inventory = await getInventory();
     const unavailable = order.items
-      .map((item) => item.scent)
-      .filter((scent) => !isScentAvailable(inventory, scent));
+      .filter((item) => !isSizeAvailable(inventory, item.scent, item.size));
     if (unavailable.length > 0) {
-      const names = unavailable.join(", ");
+      const names = unavailable.map((i) => `${i.scent} (${i.size})`).join(", ");
       return NextResponse.json(
-        { error: `Sorry, the following scent${unavailable.length > 1 ? "s are" : " is"} currently sold out: ${names}` },
+        { error: `Sorry, the following ${unavailable.length > 1 ? "are" : "is"} currently sold out: ${names}` },
         { status: 409 }
       );
     }

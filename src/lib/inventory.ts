@@ -1,6 +1,7 @@
 /**
  * Google Sheets inventory integration.
- * Reads a sheet named "Inventory" with columns: A = scent name, B = quantity (number, 0 = sold out).
+ * Reads a sheet with columns: A = scent name, B = 8oz quantity, C = 16oz quantity.
+ * If only two columns exist (legacy), the single quantity applies to both sizes.
  * Supports:
  * - Service account (private sheet): set GOOGLE_APPLICATION_CREDENTIALS to JSON path, or
  *   GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL + GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY in env.
@@ -10,9 +11,10 @@
 
 import path from "path";
 import { GoogleAuth } from "google-auth-library";
+import { type SizeAvailability } from "@/data/products";
 
 interface CacheEntry {
-  data: Record<string, boolean>;
+  data: Record<string, SizeAvailability>;
   timestamp: number;
 }
 
@@ -30,6 +32,26 @@ function parseQuantity(value: unknown): number {
   return 0;
 }
 
+/** Parse a single row into per-size availability. */
+function parseRow(row: unknown[]): SizeAvailability {
+  const qty8 = parseQuantity(row[1]);
+  // If column C is missing, fall back to column B for both sizes (backward compat)
+  const qty16 = row.length > 2 ? parseQuantity(row[2]) : qty8;
+  return { "8oz": qty8 > 0, "16oz": qty16 > 0 };
+}
+
+/** Convert raw Sheets rows to inventory map. */
+function rowsToInventory(rows: unknown[][]): Record<string, SizeAvailability> {
+  const inventory: Record<string, SizeAvailability> = {};
+  for (const row of rows) {
+    const name = typeof row[0] === "string" ? row[0].trim() : String(row[0] ?? "").trim();
+    if (name) {
+      inventory[name] = parseRow(row);
+    }
+  }
+  return inventory;
+}
+
 function getSheetId(): string | undefined {
   return process.env.GOOGLE_SHEET_ID;
 }
@@ -43,7 +65,7 @@ function useServiceAccount(): boolean {
 }
 
 /** Fetch inventory from Sheets using a Bearer token (service account). */
-async function fetchWithServiceAccount(sheetId: string): Promise<Record<string, boolean>> {
+async function fetchWithServiceAccount(sheetId: string): Promise<Record<string, SizeAvailability>> {
   const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL;
   const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY;
@@ -72,7 +94,7 @@ async function fetchWithServiceAccount(sheetId: string): Promise<Record<string, 
     return cache?.data ?? {};
   }
 
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A2:B`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A2:C`;
   const res = await fetch(url, {
     signal: AbortSignal.timeout(5000),
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -85,23 +107,15 @@ async function fetchWithServiceAccount(sheetId: string): Promise<Record<string, 
   }
 
   const json = (await res.json()) as { values?: unknown[][] };
-  const rows = json.values ?? [];
-  const inventory: Record<string, boolean> = {};
-  for (const row of rows) {
-    const name = typeof row[0] === "string" ? row[0].trim() : String(row[0] ?? "").trim();
-    if (name) {
-      inventory[name] = parseQuantity(row[1]) > 0;
-    }
-  }
-  return inventory;
+  return rowsToInventory(json.values ?? []);
 }
 
 /** Fetch inventory from Sheets using API key (public sheet). */
-async function fetchWithApiKey(sheetId: string): Promise<Record<string, boolean>> {
+async function fetchWithApiKey(sheetId: string): Promise<Record<string, SizeAvailability>> {
   const apiKey = process.env.GOOGLE_SHEETS_API_KEY;
   if (!apiKey) return cache?.data ?? {};
 
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A2:B?key=${apiKey}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A2:C?key=${apiKey}`;
   const res = await fetch(url, {
     signal: AbortSignal.timeout(5000),
   });
@@ -112,18 +126,10 @@ async function fetchWithApiKey(sheetId: string): Promise<Record<string, boolean>
   }
 
   const json = (await res.json()) as { values?: unknown[][] };
-  const rows = json.values ?? [];
-  const inventory: Record<string, boolean> = {};
-  for (const row of rows) {
-    const name = typeof row[0] === "string" ? row[0].trim() : String(row[0] ?? "").trim();
-    if (name) {
-      inventory[name] = parseQuantity(row[1]) > 0;
-    }
-  }
-  return inventory;
+  return rowsToInventory(json.values ?? []);
 }
 
-export async function getInventory(): Promise<Record<string, boolean>> {
+export async function getInventory(): Promise<Record<string, SizeAvailability>> {
   const sheetId = getSheetId();
   if (!sheetId) {
     return cache?.data ?? {};
@@ -152,11 +158,22 @@ export async function getInventory(): Promise<Record<string, boolean>> {
   }
 }
 
-/** Returns true if a scent is available. Missing from map = available. */
+/** Returns true if any size of a scent is available. Missing from map = available. */
 export function isScentAvailable(
-  inventory: Record<string, boolean>,
+  inventory: Record<string, SizeAvailability>,
   name: string
 ): boolean {
   if (!(name in inventory)) return true;
-  return inventory[name];
+  const sizes = inventory[name];
+  return sizes["8oz"] || sizes["16oz"];
+}
+
+/** Returns true if a specific size of a scent is available. Missing from map = available. */
+export function isSizeAvailable(
+  inventory: Record<string, SizeAvailability>,
+  name: string,
+  size: "8oz" | "16oz"
+): boolean {
+  if (!(name in inventory)) return true;
+  return inventory[name][size];
 }
