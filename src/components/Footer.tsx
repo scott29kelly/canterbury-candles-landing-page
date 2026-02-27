@@ -98,9 +98,9 @@ function useFlamePosition(
   return { ...position, hasHover };
 }
 
-/* ── Layer 1: Candlelight Glow ───────────────────────────── */
+/* ── Footer Glow (cursor-following radial gradient) ──────── */
 
-function CandlelightGlow({
+function FooterGlow({
   mouseX,
   mouseY,
   active,
@@ -110,52 +110,24 @@ function CandlelightGlow({
   active: boolean;
 }) {
   return (
-    <motion.div
-      className="absolute inset-0 z-[2] pointer-events-none overflow-hidden"
-      animate={{ opacity: active ? 1 : 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-    >
-      {/* Lead glow — smallest, tracks closest to cursor */}
-      <motion.div
-        className="absolute w-[250px] h-[250px] -translate-x-1/2 -translate-y-1/2"
-        animate={{ left: mouseX, top: mouseY }}
-        transition={{ type: "spring", stiffness: 80, damping: 20, mass: 0.8 }}
-        style={{
-          background:
-            "radial-gradient(circle, rgba(212,168,67,0.18) 0%, rgba(184,134,11,0.10) 35%, rgba(184,134,11,0.04) 55%, transparent 70%)",
-          filter: "blur(25px)",
-        }}
-      />
-      {/* Mid trail — lags behind cursor */}
-      <motion.div
-        className="absolute w-[350px] h-[350px] -translate-x-1/2 -translate-y-1/2"
-        animate={{ left: mouseX, top: mouseY }}
-        transition={{ type: "spring", stiffness: 30, damping: 18, mass: 1.2 }}
-        style={{
-          background:
-            "radial-gradient(circle, rgba(212,168,67,0.10) 0%, rgba(184,134,11,0.05) 40%, transparent 65%)",
-          filter: "blur(35px)",
-        }}
-      />
-      {/* Tail bloom — slowest, widest, creates the trailing tail */}
-      <motion.div
-        className="absolute w-[500px] h-[500px] -translate-x-1/2 -translate-y-1/2"
-        animate={{ left: mouseX, top: mouseY }}
-        transition={{ type: "spring", stiffness: 12, damping: 14, mass: 1.5 }}
-        style={{
-          background:
-            "radial-gradient(circle, rgba(245,225,220,0.06) 0%, rgba(212,168,67,0.03) 40%, transparent 65%)",
-          filter: "blur(45px)",
-          mixBlendMode: "screen",
-        }}
-      />
-    </motion.div>
+    <div
+      className="absolute z-[2] pointer-events-none"
+      style={{
+        width: 250,
+        height: 250,
+        transform: `translate(${mouseX - 125}px, ${mouseY - 125}px)`,
+        background:
+          "radial-gradient(circle, rgba(212,168,67,0.07) 0%, rgba(184,134,11,0.03) 40%, transparent 70%)",
+        opacity: active ? 1 : 0,
+        transition: "opacity 0.4s",
+      }}
+    />
   );
 }
 
-/* ── Layer 2: Footer Embers ──────────────────────────────── */
+/* ── Footer Embers (sparkle effect) ───────────────────────── */
 
-const MAX_EMBERS = 24;
+const MAX_EMBERS = 32;
 
 interface Ember {
   id: number;
@@ -182,26 +154,26 @@ function FooterEmbers({
     if (!active) return;
 
     const now = Date.now();
-    if (now - lastSpawn.current < 50) return;
+    if (now - lastSpawn.current < 25) return;
     lastSpawn.current = now;
 
-    const newEmber: Ember = {
+    const newEmbers: Ember[] = Array.from({ length: 2 }, () => ({
       id: nextId.current++,
-      x: mouseX + (Math.random() - 0.5) * 24,
-      y: mouseY - 10 - Math.random() * 20,
-      size: 3 + Math.random() * 4,
+      x: mouseX + (Math.random() - 0.5) * 16,
+      y: mouseY - 4 - Math.random() * 14,
+      size: 2 + Math.random() * 4,
       alt: Math.random() > 0.5,
-    };
+    }));
 
-    setEmbers((prev) => [...prev.slice(-(MAX_EMBERS - 1)), newEmber]);
+    setEmbers((prev) => [...prev.slice(-(MAX_EMBERS - 2)), ...newEmbers]);
   }, [mouseX, mouseY, active]);
 
   // Clean up embers after their animation completes
   useEffect(() => {
     if (embers.length === 0) return;
     const timer = setTimeout(() => {
-      setEmbers((prev) => prev.slice(1));
-    }, 6000);
+      setEmbers((prev) => prev.slice(2));
+    }, 3000);
     return () => clearTimeout(timer);
   }, [embers.length]);
 
@@ -223,8 +195,8 @@ function FooterEmbers({
             } 0%, transparent 70%)`,
             boxShadow: `0 0 4px rgba(212,168,67,0.6)`,
             animation: `${
-              ember.alt ? "card-ember-alt" : "card-ember"
-            } 5.5s ease-in-out forwards`,
+              ember.alt ? "footer-ember-alt" : "footer-ember"
+            } 2.5s ease-in-out forwards`,
           }}
         />
       ))}
@@ -232,42 +204,7 @@ function FooterEmbers({
   );
 }
 
-/* ── Layer 3: Cursor Flame ───────────────────────────────── */
-
-function CursorFlame({
-  mouseX,
-  mouseY,
-  active,
-}: {
-  mouseX: number;
-  mouseY: number;
-  active: boolean;
-}) {
-  return (
-    <motion.div
-      className="absolute inset-0 z-[4] pointer-events-none overflow-hidden"
-      animate={{ opacity: active ? 1 : 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-    >
-      <motion.div
-        className="absolute -translate-x-1/2 cursor-flame-container"
-        animate={{ left: mouseX, top: mouseY }}
-        transition={{ type: "spring", stiffness: 800, damping: 40, mass: 0.3 }}
-        style={{ width: 35, height: 65 }}
-      >
-        {/* Translate upward so flame sits above cursor */}
-        <div className="relative w-full h-full" style={{ transform: "translateY(-100%)" }}>
-          <div className="absolute inset-0 cursor-flame-outer rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]" />
-          <div className="absolute inset-[15%] cursor-flame-body rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]" />
-          <div className="absolute inset-[30%] cursor-flame-core rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]" />
-          <div className="absolute left-[25%] right-[25%] top-0 h-[40%] cursor-flame-tip rounded-[50%_50%_50%_50%_/_70%_70%_30%_30%]" />
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-/* ── Layer 4: Magnetic Link ──────────────────────────────── */
+/* ── Magnetic Link ────────────────────────────────────────── */
 
 function MagneticLink({
   href,
@@ -325,7 +262,7 @@ export default function Footer() {
   const footerRef = useRef<HTMLElement>(null);
   const prefersReduced = useReducedMotion();
   const enableEffects = !prefersReduced;
-  const { x, y, active, hasHover } = useFlamePosition(footerRef, enableEffects);
+  const { x, y, active } = useFlamePosition(footerRef, enableEffects);
 
   const linkClass =
     "text-blush/40 text-sm tracking-widest uppercase hover:text-gold transition-colors duration-300";
@@ -335,15 +272,12 @@ export default function Footer() {
       ref={footerRef}
       className="bg-burgundy grain relative overflow-hidden"
     >
-      {/* Interactive layers (respects reduced motion) */}
+      {/* Interactive glow + sparkle layers (respects reduced motion) */}
       {enableEffects && (
-        <CandlelightGlow mouseX={x} mouseY={y} active={active} />
-      )}
-      {enableEffects && (
-        <FooterEmbers mouseX={x} mouseY={y} active={active} />
-      )}
-      {enableEffects && hasHover && (
-        <CursorFlame mouseX={x} mouseY={y} active={active} />
+        <>
+          <FooterGlow mouseX={x} mouseY={y} active={active} />
+          <FooterEmbers mouseX={x} mouseY={y} active={active} />
+        </>
       )}
 
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 relative z-10">
