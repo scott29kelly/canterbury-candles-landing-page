@@ -387,10 +387,6 @@ export default function Footer() {
             <MagneticLink href="#order" className={linkClass}>
               Order
             </MagneticLink>
-            <span className="hidden sm:inline text-gold/20">&middot;</span>
-            <MagneticLink href="#contact" className={linkClass}>
-              Contact
-            </MagneticLink>
           </div>
 
           {/* Social */}

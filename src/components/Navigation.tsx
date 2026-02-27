@@ -10,7 +10,6 @@ const navLinks = [
   { label: "Our Process", href: "#story" },
   { label: "Scents", href: "#scents" },
   { label: "Order", href: "#order" },
-  { label: "Contact", href: "#contact" },
 ];
 
 function CartBadge({

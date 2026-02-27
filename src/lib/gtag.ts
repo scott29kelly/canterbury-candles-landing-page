@@ -77,8 +77,6 @@ export function promoCodeError(code: string, error: string) {
   event("promo_code_error", { code, error_message: error });
 }
 
-// --- Contact ---
-
 export function contactFormSubmit() {
   event("contact_form_submit");
 }

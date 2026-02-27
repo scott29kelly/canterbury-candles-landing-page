@@ -1,7 +1,7 @@
 /**
  * Google Sheets promo code integration.
- * Reads "Promo Codes" tab columns I:N starting at row 10:
- *   I = Code, J = Type, K = Value, L = Active, M = Min Purchase, N = Expiry Date.
+ * Reads "Promo Codes" tab columns A:F starting at row 2:
+ *   A = Code, B = Type, C = Value, D = Active, E = Min Purchase, F = Expiry Date.
  * Mirrors auth pattern from inventory.ts (service account or API key).
  * Own cache (30s TTL, separate from inventory cache).
  */
@@ -39,7 +39,7 @@ interface CacheEntry {
 let cache: CacheEntry | null = null;
 const CACHE_TTL_MS = 30_000; // 30 seconds
 const SHEETS_READONLY_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
-const RANGE = "'Promo Codes'!I10:N";
+const RANGE = "'Promo Codes'!A2:F";
 
 function getSheetId(): string | undefined {
   return process.env.GOOGLE_SHEET_ID;
@@ -65,7 +65,7 @@ function parseDate(val: unknown): Date | null {
 function parseRows(rows: unknown[][]): PromoCode[] {
   const codes: PromoCode[] = [];
   for (const row of rows) {
-    // I=Code, J=Type, K=Value, L=Active, M=Min Purchase, N=Expiry Date
+    // A=Code, B=Type, C=Value, D=Active, E=Min Purchase, F=Expiry Date
     const code = typeof row[0] === "string" ? row[0].trim().toUpperCase() : "";
     const rawType = typeof row[1] === "string" ? row[1].trim().toLowerCase() : "";
     const type = rawType === "flat" ? "flat" : "percent";

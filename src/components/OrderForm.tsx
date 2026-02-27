@@ -343,6 +343,12 @@ export default function OrderForm() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [messageText, setMessageText] = useState("");
+  const [submitMode, setSubmitMode] = useState<"order" | "message">("order");
+
+  const hasMessage = messageText.trim().length > 0;
+  const isMessageOnly = items.length === 0 && hasMessage;
+  const canSubmit = (items.length > 0 || isMessageOnly) && !isSubmitting;
 
   // Promo code state
   const [promoInput, setPromoInput] = useState("");
@@ -442,6 +448,39 @@ export default function OrderForm() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
+    if (isMessageOnly) {
+      // Message-only path
+      setSubmitMode("message");
+      try {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.get("name"),
+            email: formData.get("email"),
+            message: messageText.trim(),
+          }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => null);
+          throw new Error(data?.error || "Something went wrong. Please try again.");
+        }
+
+        gtag.contactFormSubmit();
+        setSubmitted(true);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+        gtag.contactFormError(message);
+        setSubmitError(message);
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
+    // Order path
+    setSubmitMode("order");
     gtag.beginCheckout(finalTotal, totalItems);
 
     try {
@@ -457,7 +496,7 @@ export default function OrderForm() {
           city: formData.get("city"),
           state: formData.get("state"),
           zip: formData.get("zip"),
-          message: formData.get("message") || undefined,
+          message: messageText.trim() || undefined,
           promoCode: promoCode || undefined,
           items,
           total: finalTotal,
@@ -504,7 +543,7 @@ export default function OrderForm() {
           <WarmDivider variant="narrow" className="mb-8" />
           <p className="text-rose-gray max-w-xl mx-auto text-lg leading-relaxed">
             Select your favorite scents above and we&apos;ll get back to you to
-            confirm your order.
+            confirm your order. Have a question? Just fill in your name, email, and a message below.
             <span className="block mt-1">
               <span className="text-gold font-medium">${PRICES["8oz"]} for 8oz</span>
               {" / "}
@@ -513,19 +552,52 @@ export default function OrderForm() {
           </p>
         </AnimateIn>
 
-        {/* Success overlay — portaled to body */}
-        {submitted && (
+        {/* Success overlay — portaled to body (orders only) */}
+        {submitted && submitMode === "order" && (
           <SuccessState
             onReset={() => {
               setSubmitted(false);
+              setSubmitMode("order");
               dispatch({ type: "CLEAR_CART" });
               setSubmitError(null);
+              setMessageText("");
               handleRemovePromo();
               document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
             }}
           />
         )}
 
+        {/* Inline message-sent confirmation */}
+        {submitted && submitMode === "message" && (
+          <AnimateIn className="text-center py-12">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gold/10 mb-6">
+              <svg className="w-7 h-7 text-gold" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <h3 className="font-display text-burgundy text-3xl md:text-4xl mb-4">
+              Message Sent
+            </h3>
+            <p className="text-rose-gray text-lg leading-relaxed max-w-md mx-auto mb-8">
+              We&apos;ve received your message and will get back to you soon.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setSubmitted(false);
+                setSubmitMode("order");
+                setMessageText("");
+                setSubmitError(null);
+              }}
+              className="text-gold text-sm tracking-widest uppercase hover:text-gold-light transition-colors duration-300 group inline-flex items-center gap-2"
+            >
+              <span className="w-4 h-px bg-gold group-hover:w-6 transition-all duration-300" />
+              Send another message
+            </button>
+          </AnimateIn>
+        )}
+
+        {!(submitted && submitMode === "message") && (
         <AnimateIn>
           <form
             onSubmit={handleSubmit}
@@ -563,72 +635,84 @@ export default function OrderForm() {
                   </div>
                 </div>
 
-                {/* Shipping address */}
-                <div className="space-y-6">
-                  <h3 className="text-burgundy text-xs tracking-widest uppercase mb-3 font-medium">
-                    Shipping Address
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-[1fr_9rem] gap-6 md:gap-8">
-                    <div>
-                      <label htmlFor="addressLine1" className="sr-only">Street address</label>
-                      <input
-                        type="text"
-                        id="addressLine1"
-                        name="addressLine1"
-                        autoComplete="street-address"
-                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
-                        placeholder="Street address"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="addressLine2" className="sr-only">Apt, suite, unit</label>
-                      <input
-                        type="text"
-                        id="addressLine2"
-                        name="addressLine2"
-                        autoComplete="address-line2"
-                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
-                        placeholder="Apt, suite"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-6 md:gap-8">
-                    <div>
-                      <label htmlFor="city" className="sr-only">City</label>
-                      <input
-                        type="text"
-                        id="city"
-                        name="city"
-                        autoComplete="address-level2"
-                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
-                        placeholder="City"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="state" className="sr-only">State</label>
-                      <input
-                        type="text"
-                        id="state"
-                        name="state"
-                        autoComplete="address-level1"
-                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
-                        placeholder="State"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="zip" className="sr-only">ZIP code</label>
-                      <input
-                        type="text"
-                        id="zip"
-                        name="zip"
-                        inputMode="numeric"
-                        autoComplete="postal-code"
-                        className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
-                        placeholder="ZIP"
-                      />
-                    </div>
-                  </div>
-                </div>
+                {/* Shipping address — hidden when cart is empty */}
+                <AnimatePresence initial={false}>
+                  {items.length > 0 && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="space-y-6">
+                        <h3 className="text-burgundy text-xs tracking-widest uppercase mb-3 font-medium">
+                          Shipping Address
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-[1fr_9rem] gap-6 md:gap-8">
+                          <div>
+                            <label htmlFor="addressLine1" className="sr-only">Street address</label>
+                            <input
+                              type="text"
+                              id="addressLine1"
+                              name="addressLine1"
+                              autoComplete="street-address"
+                              className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                              placeholder="Street address"
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor="addressLine2" className="sr-only">Apt, suite, unit</label>
+                            <input
+                              type="text"
+                              id="addressLine2"
+                              name="addressLine2"
+                              autoComplete="address-line2"
+                              className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                              placeholder="Apt, suite"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-6 md:gap-8">
+                          <div>
+                            <label htmlFor="city" className="sr-only">City</label>
+                            <input
+                              type="text"
+                              id="city"
+                              name="city"
+                              autoComplete="address-level2"
+                              className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                              placeholder="City"
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor="state" className="sr-only">State</label>
+                            <input
+                              type="text"
+                              id="state"
+                              name="state"
+                              autoComplete="address-level1"
+                              className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                              placeholder="State"
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor="zip" className="sr-only">ZIP code</label>
+                            <input
+                              type="text"
+                              id="zip"
+                              name="zip"
+                              inputMode="numeric"
+                              autoComplete="postal-code"
+                              className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                              placeholder="ZIP"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {/* Visual cart summary */}
                 <div id="cart">
@@ -756,18 +840,33 @@ export default function OrderForm() {
                   </div>
                 )}
 
-                {/* Special instructions */}
-                <div>
+                {/* Message */}
+                <div id="contact">
                   <label htmlFor="message" className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium">
-                    Special Instructions <span className="text-rose-gray normal-case tracking-normal font-normal">(optional)</span>
+                    Message <span className="text-rose-gray normal-case tracking-normal font-normal">(optional)</span>
                   </label>
                   <textarea
                     id="message"
                     name="message"
                     rows={3}
+                    value={messageText}
+                    onChange={(e) => setMessageText(e.target.value)}
                     className="w-full bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none resize-none"
-                    placeholder="Any special requests, delivery preferences, or questions..."
+                    placeholder="Order notes, custom requests, or any questions you may have..."
                   />
+                  <AnimatePresence>
+                    {items.length === 0 && hasMessage && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-gold/80 text-xs mt-2"
+                      >
+                        You can send a message without placing an order.
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Error message */}
@@ -794,19 +893,25 @@ export default function OrderForm() {
                         )}{" "}
                         total
                       </span>
+                    ) : hasMessage ? (
+                      <span className="text-rose-gray/60">
+                        Just a message &mdash; no items in cart
+                      </span>
                     ) : (
                       <span className="text-rose-gray/60">
-                        Select at least one scent to continue
+                        Add candles to order, or type a message below
                       </span>
                     )}
                   </div>
                   <button
                     type="submit"
-                    disabled={items.length === 0 || isSubmitting}
+                    disabled={!canSubmit}
                     className="group btn-shimmer text-burgundy px-10 py-4 text-sm tracking-widest uppercase font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-gold/25 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:bg-charcoal/10 disabled:text-charcoal/30 disabled:bg-none"
                   >
                     <span className="flex items-center gap-3">
-                      {isSubmitting ? "Submitting..." : "Submit Order"}
+                      {isSubmitting
+                        ? (isMessageOnly ? "Sending..." : "Submitting...")
+                        : (isMessageOnly ? "Send Message" : "Submit Order")}
                       {!isSubmitting && (
                         <svg
                           className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
@@ -823,6 +928,7 @@ export default function OrderForm() {
                 </div>
           </form>
         </AnimateIn>
+        )}
       </div>
     </section>
   );
