@@ -3,6 +3,14 @@
 import { type ReactNode } from "react";
 import { motion, type Variants } from "motion/react";
 
+const motionElements = {
+  div: motion.div,
+  section: motion.section,
+  article: motion.article,
+  li: motion.li,
+  span: motion.span,
+} as const;
+
 type AnimationVariant =
   | "fadeUp"
   | "fadeIn"
@@ -56,7 +64,7 @@ export default function AnimateIn({
   amount = 0.15,
   as = "div",
 }: AnimateInProps) {
-  const Component = motion.create(as);
+  const Component = motionElements[as];
 
   return (
     <Component
