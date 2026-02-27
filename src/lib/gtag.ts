@@ -62,3 +62,27 @@ export function navClick(label: string) {
 export function mobileMenu(action: "open" | "close") {
   event("mobile_menu", { action });
 }
+
+// --- Promo codes ---
+
+export function applyPromoCode(code: string, discountAmount: number) {
+  event("apply_promo_code", { code, discount: discountAmount });
+}
+
+export function removePromoCode(code: string) {
+  event("remove_promo_code", { code });
+}
+
+export function promoCodeError(code: string, error: string) {
+  event("promo_code_error", { code, error_message: error });
+}
+
+// --- Contact ---
+
+export function contactFormSubmit() {
+  event("contact_form_submit");
+}
+
+export function contactFormError(errorMessage: string) {
+  event("contact_form_error", { error_message: errorMessage });
+}

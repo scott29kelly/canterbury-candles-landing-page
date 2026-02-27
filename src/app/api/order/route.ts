@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { PRICES, SCENT_NAMES, type CandleSize } from "@/data/products";
 import { getInventory, isSizeAvailable } from "@/lib/inventory";
+import { validatePromoCode } from "@/lib/promoCodes";
 
 interface OrderLineItem {
   scent: string;
@@ -21,6 +22,8 @@ interface OrderPayload {
   message?: string;
   items: OrderLineItem[];
   total: number;
+  promoCode?: string;
+  discount?: number;
 }
 
 const VALID_SIZES: CandleSize[] = ["8oz", "16oz"];
@@ -76,6 +79,7 @@ function validatePayload(body: unknown): { data: OrderPayload; error?: never } |
       state: typeof b.state === "string" && b.state.trim() ? b.state.trim() : undefined,
       zip: typeof b.zip === "string" && b.zip.trim() ? b.zip.trim() : undefined,
       message: typeof b.message === "string" && b.message.trim() ? b.message.trim() : undefined,
+      promoCode: typeof b.promoCode === "string" && b.promoCode.trim() ? b.promoCode.trim() : undefined,
       items: b.items as OrderLineItem[],
       total: 0, // recalculated below
     },
@@ -120,6 +124,16 @@ function buildEmailHtml(order: OrderPayload): string {
         </thead>
         <tbody>${rows}</tbody>
         <tfoot>
+          ${order.discount && order.discount > 0 ? `
+          <tr>
+            <td colspan="3" style="padding:8px 12px;text-align:right">Subtotal:</td>
+            <td style="padding:8px 12px;text-align:right">$${order.total + order.discount}</td>
+          </tr>
+          <tr>
+            <td colspan="3" style="padding:8px 12px;text-align:right;color:#2d8a4e">Discount${order.promoCode ? ` (${escapeHtml(order.promoCode)})` : ""}:</td>
+            <td style="padding:8px 12px;text-align:right;color:#2d8a4e">-$${order.discount}</td>
+          </tr>
+          ` : ""}
           <tr>
             <td colspan="3" style="padding:12px;text-align:right;font-weight:bold">Total:</td>
             <td style="padding:12px;text-align:right;font-weight:bold;color:#b8860b">$${order.total}</td>
@@ -155,10 +169,25 @@ export async function POST(request: Request) {
     }
 
     // Recalculate total server-side — never trust the client
-    order.total = order.items.reduce(
+    const subtotal = order.items.reduce(
       (sum, item) => sum + PRICES[item.size] * item.quantity,
       0
     );
+
+    // Validate and apply promo code if provided
+    let discount = 0;
+    if (order.promoCode) {
+      const promoResult = await validatePromoCode(order.promoCode, subtotal);
+      if (promoResult.valid) {
+        discount = promoResult.discountAmount;
+        order.promoCode = promoResult.code; // normalized
+      } else {
+        return NextResponse.json({ error: promoResult.error }, { status: 400 });
+      }
+    }
+
+    order.discount = discount;
+    order.total = subtotal - discount;
 
     const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, ORDER_RECIPIENT } = process.env;
 

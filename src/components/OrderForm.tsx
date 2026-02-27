@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
@@ -344,6 +344,96 @@ export default function OrderForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Promo code state
+  const [promoInput, setPromoInput] = useState("");
+  const [promoCode, setPromoCode] = useState<string | null>(null);
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [promoLabel, setPromoLabel] = useState("");
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoApplying, setPromoApplying] = useState(false);
+
+  const finalTotal = promoCode ? Math.max(0, totalPrice - promoDiscount) : totalPrice;
+
+  // Re-validate discount when cart changes
+  const revalidatePromo = useCallback(async (code: string, subtotal: number) => {
+    if (!code || subtotal <= 0) {
+      setPromoCode(null);
+      setPromoDiscount(0);
+      setPromoLabel("");
+      return;
+    }
+    try {
+      const res = await fetch("/api/promo/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setPromoDiscount(data.discountAmount);
+        setPromoLabel(
+          data.type === "percent" ? `${data.value}% off` : `$${data.value} off`
+        );
+      } else {
+        setPromoCode(null);
+        setPromoDiscount(0);
+        setPromoLabel("");
+      }
+    } catch {
+      // Keep existing discount on network error
+    }
+  }, []);
+
+  useEffect(() => {
+    if (promoCode) {
+      revalidatePromo(promoCode, totalPrice);
+    }
+  }, [promoCode, totalPrice, revalidatePromo]);
+
+  const handleApplyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code) return;
+    setPromoError(null);
+    setPromoApplying(true);
+
+    try {
+      const res = await fetch("/api/promo/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal: totalPrice }),
+      });
+      const data = await res.json();
+
+      if (data.valid) {
+        setPromoCode(data.code);
+        setPromoDiscount(data.discountAmount);
+        setPromoLabel(
+          data.type === "percent" ? `${data.value}% off` : `$${data.value} off`
+        );
+        setPromoInput("");
+        setPromoError(null);
+        gtag.applyPromoCode(data.code, data.discountAmount);
+      } else {
+        setPromoError(data.error || "Invalid promo code.");
+        gtag.promoCodeError(code, data.error || "Invalid promo code.");
+      }
+    } catch {
+      setPromoError("Failed to validate code. Please try again.");
+      gtag.promoCodeError(code, "network_error");
+    } finally {
+      setPromoApplying(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    if (promoCode) gtag.removePromoCode(promoCode);
+    setPromoCode(null);
+    setPromoDiscount(0);
+    setPromoLabel("");
+    setPromoError(null);
+    setPromoInput("");
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitError(null);
@@ -352,7 +442,7 @@ export default function OrderForm() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-    gtag.beginCheckout(totalPrice, totalItems);
+    gtag.beginCheckout(finalTotal, totalItems);
 
     try {
       const res = await fetch("/api/order", {
@@ -368,8 +458,9 @@ export default function OrderForm() {
           state: formData.get("state"),
           zip: formData.get("zip"),
           message: formData.get("message") || undefined,
+          promoCode: promoCode || undefined,
           items,
-          total: totalPrice,
+          total: finalTotal,
         }),
       });
 
@@ -379,7 +470,7 @@ export default function OrderForm() {
       }
 
       const cartSummary = items.map((i) => `${i.scent} ${i.size} x${i.quantity}`).join(", ");
-      gtag.purchase(totalPrice, cartSummary);
+      gtag.purchase(finalTotal, cartSummary);
       setSubmitted(true);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
@@ -429,6 +520,7 @@ export default function OrderForm() {
               setSubmitted(false);
               dispatch({ type: "CLEAR_CART" });
               setSubmitError(null);
+              handleRemovePromo();
               document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
             }}
           />
@@ -584,12 +676,85 @@ export default function OrderForm() {
                         <p className="text-sm text-rose-gray">
                           <span className="text-burgundy font-medium">{totalItems}</span>{" "}
                           item{totalItems !== 1 ? "s" : ""} &middot;{" "}
-                          <span className="text-gold font-semibold">${totalPrice}</span> total
+                          {promoCode && promoDiscount > 0 ? (
+                            <>
+                              <span className="text-rose-gray/60 line-through">${totalPrice}</span>{" "}
+                              <span className="text-gold font-semibold">${finalTotal}</span> total
+                            </>
+                          ) : (
+                            <><span className="text-gold font-semibold">${totalPrice}</span> total</>
+                          )}
                         </p>
                       </div>
                     </div>
                   )}
                 </div>
+
+                {/* Promo code */}
+                {items.length > 0 && (
+                  <div>
+                    <label className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium">
+                      Promo Code <span className="text-rose-gray normal-case tracking-normal font-normal">(optional)</span>
+                    </label>
+                    {promoCode ? (
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="inline-flex items-center gap-2 bg-gold/10 text-charcoal text-sm px-4 py-2 rounded-full border border-gold/20">
+                          <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                          </svg>
+                          <span className="font-medium">{promoCode}</span>
+                          <span className="text-rose-gray">&middot;</span>
+                          <span className="text-gold font-semibold">{promoLabel}</span>
+                          {promoDiscount > 0 && (
+                            <>
+                              <span className="text-rose-gray">&middot;</span>
+                              <span className="text-green-700 font-medium">-${promoDiscount}</span>
+                            </>
+                          )}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleRemovePromo}
+                          className="text-rose-gray/60 hover:text-red-500 text-xs tracking-wider uppercase transition-colors duration-200"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex gap-3">
+                          <input
+                            type="text"
+                            value={promoInput}
+                            onChange={(e) => {
+                              setPromoInput(e.target.value);
+                              if (promoError) setPromoError(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleApplyPromo();
+                              }
+                            }}
+                            className="flex-1 bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
+                            placeholder="Enter code"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleApplyPromo}
+                            disabled={promoApplying || !promoInput.trim() || totalPrice <= 0}
+                            className="text-gold text-xs tracking-widest uppercase font-semibold hover:text-gold-light transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed px-2"
+                          >
+                            {promoApplying ? "Checking..." : "Apply"}
+                          </button>
+                        </div>
+                        {promoError && (
+                          <p className="text-red-600 text-xs mt-2">{promoError}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Special instructions */}
                 <div>
@@ -619,9 +784,14 @@ export default function OrderForm() {
                           {totalItems}
                         </span>{" "}
                         candle{totalItems !== 1 ? "s" : ""} &middot;{" "}
-                        <span className="text-gold font-semibold">
-                          ${totalPrice}
-                        </span>{" "}
+                        {promoCode && promoDiscount > 0 ? (
+                          <>
+                            <span className="text-rose-gray/60 line-through">${totalPrice}</span>{" "}
+                            <span className="text-gold font-semibold">${finalTotal}</span>
+                          </>
+                        ) : (
+                          <span className="text-gold font-semibold">${totalPrice}</span>
+                        )}{" "}
                         total
                       </span>
                     ) : (

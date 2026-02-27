@@ -6,6 +6,7 @@ import Hero from "@/components/Hero";
 import Story from "@/components/Story";
 import Scents from "@/components/Scents";
 import OrderForm from "@/components/OrderForm";
+import ContactForm from "@/components/ContactForm";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
         <Story />
         <Scents />
         <OrderForm />
+        <ContactForm />
       </main>
       <Footer />
     </CartProvider>
