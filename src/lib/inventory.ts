@@ -19,6 +19,7 @@ interface CacheEntry {
 }
 
 let cache: CacheEntry | null = null;
+export function clearInventoryCache(): void { cache = null; }
 const CACHE_TTL_MS = 10_000; // 10 seconds — low-traffic site, Sheets API allows 300 req/min
 const SHEETS_READONLY_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
 

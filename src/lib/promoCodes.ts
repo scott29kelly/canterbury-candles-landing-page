@@ -37,6 +37,7 @@ interface CacheEntry {
 }
 
 let cache: CacheEntry | null = null;
+export function clearPromoCache(): void { cache = null; }
 const CACHE_TTL_MS = 30_000; // 30 seconds
 const SHEETS_READONLY_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
 const RANGE = "'Promo Codes'!A2:F";

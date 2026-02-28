@@ -1,5 +1,6 @@
 import { isAdminAuthenticated } from "@/lib/admin/auth";
 import AuthGate from "@/components/admin/AuthGate";
+import AdminNav from "@/components/admin/AdminNav";
 
 export const metadata = {
   title: "Admin — Canterbury Candles",
@@ -24,6 +25,7 @@ export default async function AdminLayout({
             <span className="font-display text-lg text-burgundy">Canterbury Candles</span>
             <span className="text-xs text-rose-gray bg-burgundy/5 px-2 py-0.5 rounded-full">Admin</span>
           </div>
+          <AdminNav />
         </div>
       </header>
       <main className="max-w-6xl mx-auto px-4 py-6">
