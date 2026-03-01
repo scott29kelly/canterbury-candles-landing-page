@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { createSessionToken, COOKIE_NAME, isAdminAuthenticated } from "@/lib/admin/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      path: "/admin",
+      path: "/",
       maxAge: 24 * 60 * 60, // 24 hours
     });
 
@@ -28,4 +28,20 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
+}
+
+export async function DELETE() {
+  if (!(await isAdminAuthenticated())) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  const res = NextResponse.json({ success: true });
+  res.cookies.set(COOKIE_NAME, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+  return res;
 }
