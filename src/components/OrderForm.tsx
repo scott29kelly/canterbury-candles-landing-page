@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { motion, AnimatePresence, LayoutGroup } from "motion/react";
+import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from "motion/react";
 import AnimateIn from "./AnimateIn";
 import WarmDivider from "./WarmDivider";
 import ThankYouCandleAnimation from "./ThankYouCandleAnimation";
@@ -340,6 +340,7 @@ function PhoneInput() {
 
 export default function OrderForm() {
   const { items, dispatch, totalItems, totalPrice } = useCart();
+  const prefersReduced = useReducedMotion();
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -758,19 +759,60 @@ export default function OrderForm() {
                           </AnimatePresence>
                         </div>
                       </LayoutGroup>
-                      <div className="pt-3 border-t border-charcoal/10">
-                        <p className="text-sm text-rose-gray">
-                          <span className="text-burgundy font-medium">{totalItems}</span>{" "}
-                          item{totalItems !== 1 ? "s" : ""} &middot;{" "}
-                          {promoCode && promoDiscount > 0 ? (
-                            <>
-                              <span className="text-rose-gray/60 line-through">${totalPrice}</span>{" "}
-                              <span className="text-gold font-semibold">${finalTotal}</span> total
-                            </>
-                          ) : (
-                            <><span className="text-gold font-semibold">${totalPrice}</span> total</>
+                      <div className="pt-3 border-t border-charcoal/10 space-y-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-rose-gray">
+                            <span className="text-burgundy font-medium">{totalItems}</span>{" "}
+                            item{totalItems !== 1 ? "s" : ""}
+                          </span>
+                          <AnimatePresence mode="wait">
+                            {promoCode && promoDiscount > 0 ? (
+                              <motion.span
+                                key="discounted"
+                                initial={prefersReduced ? false : { opacity: 0, y: 4 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -4 }}
+                                transition={{ duration: 0.2 }}
+                                className="flex items-center gap-1.5"
+                              >
+                                <span className="text-rose-gray/40 line-through text-xs">${totalPrice}</span>
+                                <span className="text-gold font-semibold">${finalTotal}</span>
+                              </motion.span>
+                            ) : (
+                              <motion.span
+                                key="regular"
+                                initial={prefersReduced ? false : { opacity: 0, y: 4 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -4 }}
+                                transition={{ duration: 0.2 }}
+                                className="text-gold font-semibold"
+                              >
+                                ${totalPrice}
+                              </motion.span>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                        <AnimatePresence>
+                          {promoCode && promoDiscount > 0 && (
+                            <motion.div
+                              initial={prefersReduced ? false : { height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                              className="overflow-hidden"
+                            >
+                              <div className="flex items-center gap-1.5 text-xs text-gold/70">
+                                <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
+                                </svg>
+                                <span className="font-medium tracking-wide uppercase">{promoCode}</span>
+                                <span>&middot;</span>
+                                <span className="font-semibold text-gold">-${promoDiscount}</span>
+                              </div>
+                            </motion.div>
                           )}
-                        </p>
+                        </AnimatePresence>
                       </div>
                     </div>
                   )}
@@ -782,63 +824,148 @@ export default function OrderForm() {
                     <label className="block text-burgundy text-xs tracking-widest uppercase mb-3 font-medium">
                       Promo Code <span className="text-rose-gray normal-case tracking-normal font-normal">(optional)</span>
                     </label>
-                    {promoCode ? (
-                      <div className="flex items-center gap-3 flex-wrap">
-                        <span className="inline-flex items-center gap-2 bg-gold/10 text-charcoal text-sm px-4 py-2 rounded-full border border-gold/20">
-                          <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                          </svg>
-                          <span className="font-medium">{promoCode}</span>
-                          <span className="text-rose-gray">&middot;</span>
-                          <span className="text-gold font-semibold">{promoLabel}</span>
-                          {promoDiscount > 0 && (
-                            <>
-                              <span className="text-rose-gray">&middot;</span>
-                              <span className="text-green-700 font-medium">-${promoDiscount}</span>
-                            </>
-                          )}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={handleRemovePromo}
-                          className="text-rose-gray/60 hover:text-red-500 text-xs tracking-wider uppercase transition-colors duration-200"
+                    <AnimatePresence mode="wait">
+                      {promoCode ? (
+                        <motion.div
+                          key="promo-success"
+                          initial={prefersReduced ? false : { opacity: 0, scale: 0.97, y: 10 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={prefersReduced ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: -5 }}
+                          transition={{ duration: prefersReduced ? 0 : 0.5, ease: [0.16, 1, 0.3, 1] }}
+                          className="relative bg-gradient-to-br from-gold/[0.07] to-gold/[0.03] border border-gold/20 rounded-lg p-4 sm:p-5 overflow-hidden"
                         >
-                          Remove
-                        </button>
-                      </div>
-                    ) : (
-                      <div>
-                        <div className="flex gap-3">
-                          <input
-                            type="text"
-                            value={promoInput}
-                            onChange={(e) => {
-                              setPromoInput(e.target.value);
-                              if (promoError) setPromoError(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                handleApplyPromo();
-                              }
-                            }}
-                            className="flex-1 bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal placeholder-rose-gray/40 transition-all duration-300 focus:border-gold focus:shadow-none"
-                            placeholder="Enter code"
-                          />
-                          <button
-                            type="button"
-                            onClick={handleApplyPromo}
-                            disabled={promoApplying || !promoInput.trim() || totalPrice <= 0}
-                            className="text-gold text-xs tracking-widest uppercase font-semibold hover:text-gold-light transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed px-2"
-                          >
-                            {promoApplying ? "Checking..." : "Apply"}
-                          </button>
-                        </div>
-                        {promoError && (
-                          <p className="text-red-600 text-xs mt-2">{promoError}</p>
-                        )}
-                      </div>
-                    )}
+                          {/* Corner accents */}
+                          <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-gold/25" />
+                          <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-gold/25" />
+                          <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-gold/25" />
+                          <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-gold/25" />
+
+                          {/* Card sheen */}
+                          {!prefersReduced && (
+                            <div className="absolute inset-0 z-[1] pointer-events-none card-sheen" />
+                          )}
+
+                          <div className="relative z-[2] flex items-start gap-3 sm:gap-4">
+                            {/* Animated checkmark circle */}
+                            <motion.div
+                              initial={prefersReduced ? false : { scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={prefersReduced ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 20, delay: 0.15 }}
+                              className="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center flex-shrink-0 mt-0.5"
+                            >
+                              <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                <motion.path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M4.5 12.75l6 6 9-13.5"
+                                  initial={prefersReduced ? { pathLength: 1 } : { pathLength: 0 }}
+                                  animate={{ pathLength: 1 }}
+                                  transition={prefersReduced ? { duration: 0 } : { duration: 0.4, delay: 0.3, ease: "easeOut" }}
+                                />
+                              </svg>
+                            </motion.div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-medium text-charcoal tracking-wide text-sm">{promoCode}</span>
+                                <span className="bg-gold/10 text-gold text-xs font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full">
+                                  {promoLabel}
+                                </span>
+                              </div>
+                              {promoDiscount > 0 && (
+                                <motion.p
+                                  initial={prefersReduced ? false : { opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  transition={prefersReduced ? { duration: 0 } : { duration: 0.3, delay: 0.4 }}
+                                  className="text-sm mt-1.5"
+                                >
+                                  <span className="text-rose-gray">Saving </span>
+                                  <span className="text-gold font-semibold">-${promoDiscount}</span>
+                                  <span className="text-rose-gray"> on this order</span>
+                                </motion.p>
+                              )}
+                            </div>
+
+                            {/* Remove button */}
+                            <button
+                              type="button"
+                              onClick={handleRemovePromo}
+                              className="text-charcoal/30 hover:text-red-500 hover:bg-red-500/5 rounded-full p-1 transition-colors duration-200 flex-shrink-0"
+                              aria-label="Remove promo code"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="promo-input"
+                          initial={prefersReduced ? false : { opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -8 }}
+                          transition={{ duration: prefersReduced ? 0 : 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        >
+                          <div className="flex items-center gap-3">
+                            {/* Tag icon */}
+                            <svg className="w-4 h-4 text-gold/40 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
+                            </svg>
+                            <input
+                              type="text"
+                              value={promoInput}
+                              onChange={(e) => {
+                                setPromoInput(e.target.value);
+                                if (promoError) setPromoError(null);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  handleApplyPromo();
+                                }
+                              }}
+                              className="flex-1 bg-transparent border-0 border-b-2 border-charcoal/10 px-0 py-3 text-charcoal tracking-wide uppercase placeholder-rose-gray/40 placeholder:normal-case placeholder:tracking-normal transition-all duration-300 focus:border-gold focus:shadow-none"
+                              placeholder="Enter code"
+                            />
+                            <motion.button
+                              type="button"
+                              onClick={handleApplyPromo}
+                              disabled={promoApplying || !promoInput.trim() || totalPrice <= 0}
+                              whileHover={prefersReduced ? {} : { scale: 1.02 }}
+                              whileTap={prefersReduced ? {} : { scale: 0.98 }}
+                              className="text-gold text-xs tracking-widest uppercase font-semibold border border-gold/30 rounded-full px-4 py-2 hover:border-gold hover:bg-gold/5 transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gold/30 disabled:hover:bg-transparent flex-shrink-0 flex items-center gap-2"
+                            >
+                              {promoApplying ? (
+                                <>
+                                  <span className="w-3 h-3 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                                  Checking
+                                </>
+                              ) : (
+                                "Apply"
+                              )}
+                            </motion.button>
+                          </div>
+                          <AnimatePresence>
+                            {promoError && (
+                              <motion.p
+                                initial={prefersReduced ? false : { opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: prefersReduced ? 0 : 0.2 }}
+                                className="text-red-600/80 text-xs mt-2 flex items-center gap-1.5 overflow-hidden"
+                              >
+                                <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                                </svg>
+                                {promoError}
+                              </motion.p>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 )}
 
@@ -880,20 +1007,38 @@ export default function OrderForm() {
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-4">
                   <div className="text-rose-gray text-sm text-center sm:text-left">
                     {items.length > 0 ? (
-                      <span>
+                      <span className="inline-flex items-center gap-1 flex-wrap">
                         <span className="text-burgundy font-medium">
                           {totalItems}
                         </span>{" "}
                         candle{totalItems !== 1 ? "s" : ""} &middot;{" "}
-                        {promoCode && promoDiscount > 0 ? (
-                          <>
-                            <span className="text-rose-gray/60 line-through">${totalPrice}</span>{" "}
-                            <span className="text-gold font-semibold">${finalTotal}</span>
-                          </>
-                        ) : (
-                          <span className="text-gold font-semibold">${totalPrice}</span>
-                        )}{" "}
-                        total
+                        <AnimatePresence mode="wait">
+                          {promoCode && promoDiscount > 0 ? (
+                            <motion.span
+                              key="submit-discounted"
+                              initial={prefersReduced ? false : { opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -4 }}
+                              transition={{ duration: 0.2 }}
+                              className="inline-flex items-center gap-1"
+                            >
+                              <span className="text-rose-gray/40 line-through text-xs">${totalPrice}</span>
+                              <span className="text-gold font-semibold">${finalTotal}</span>
+                            </motion.span>
+                          ) : (
+                            <motion.span
+                              key="submit-regular"
+                              initial={prefersReduced ? false : { opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -4 }}
+                              transition={{ duration: 0.2 }}
+                              className="text-gold font-semibold"
+                            >
+                              ${totalPrice}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                        {" "}total
                       </span>
                     ) : hasMessage ? (
                       <span className="text-rose-gray/60">
