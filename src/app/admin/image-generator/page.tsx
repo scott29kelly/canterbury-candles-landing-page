@@ -175,7 +175,7 @@ export default function ImageGeneratorPage() {
         <SaveImageDialog
           imageBase64={saveItem.base64}
           imageMimeType={saveItem.mimeType}
-          suggestedFilename={slugify(activeItem?.prompt || "candle-image")}
+          suggestedFilename={`${slugify(saveItem?.prompt || "candle-image")}-${Date.now().toString(36)}`}
           onClose={() => setSavingId(null)}
         />
       )}

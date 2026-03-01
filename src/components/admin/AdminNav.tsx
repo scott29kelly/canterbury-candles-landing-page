@@ -8,6 +8,7 @@ const TABS = [
   { label: "Inventory", href: "/admin/inventory" },
   { label: "Promo Codes", href: "/admin/promo-codes" },
   { label: "Image Generator", href: "/admin/image-generator" },
+  { label: "Media", href: "/admin/media" },
 ];
 
 export default function AdminNav() {

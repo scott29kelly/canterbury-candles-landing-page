@@ -13,7 +13,7 @@ export const geminiProvider: ImageProvider = {
     try {
       const ai = getClient();
       const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash-preview-image-generation",
+        model: "gemini-3.1-flash-image-preview",
         contents: req.prompt,
         config: {
           responseModalities: ["TEXT", "IMAGE"],
@@ -53,7 +53,7 @@ export const geminiProvider: ImageProvider = {
       // Gemini uses multimodal conversation for editing — no explicit mask support.
       // We send the image + text prompt describing the desired edit.
       const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash-preview-image-generation",
+        model: "gemini-3.1-flash-image-preview",
         contents: [
           {
             role: "user",

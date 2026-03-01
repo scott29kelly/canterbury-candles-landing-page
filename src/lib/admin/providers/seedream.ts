@@ -34,7 +34,7 @@ export const seedreamProvider: ImageProvider = {
     ensureConfig();
     const start = Date.now();
     try {
-      const result = await fal.subscribe("fal-ai/seedream-v4", {
+      const result = await fal.subscribe("fal-ai/bytedance/seedream/v4.5/text-to-image", {
         input: {
           prompt: req.prompt,
           image_size: sizeToFal(req.size),
@@ -70,19 +70,13 @@ export const seedreamProvider: ImageProvider = {
     ensureConfig();
     const start = Date.now();
     try {
-      // Upload image and mask to fal temporary storage
+      // Upload image to fal temporary storage
       const imageBlob = new Blob([Buffer.from(req.image, "base64")], { type: "image/png" });
-      const maskBlob = new Blob([Buffer.from(req.mask, "base64")], { type: "image/png" });
+      const imageUrl = await fal.storage.upload(new File([imageBlob], "image.png", { type: "image/png" }));
 
-      const [imageUrl, maskUrl] = await Promise.all([
-        fal.storage.upload(new File([imageBlob], "image.png", { type: "image/png" })),
-        fal.storage.upload(new File([maskBlob], "mask.png", { type: "image/png" })),
-      ]);
-
-      const result = await fal.subscribe("fal-ai/seedream-v4/edit", {
+      const result = await fal.subscribe("fal-ai/bytedance/seedream/v4.5/edit", {
         input: {
-          image_url: imageUrl,
-          mask_url: maskUrl,
+          image_urls: [imageUrl],
           prompt: req.prompt,
         },
       }) as { data: { images: { url: string }[] } };

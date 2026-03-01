@@ -11,8 +11,8 @@ const SIZES = [
 
 const PROVIDERS: { value: ProviderName; label: string }[] = [
   { value: "openai", label: "GPT Image 1" },
-  { value: "gemini", label: "Gemini Pro" },
-  { value: "seedream", label: "Seedream 4" },
+  { value: "gemini", label: "Gemini 3.1 Flash" },
+  { value: "seedream", label: "Seedream 4.5" },
 ];
 
 interface Props {

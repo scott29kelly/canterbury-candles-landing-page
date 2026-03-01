@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
     const result = await uploadImage(base64, filename, mimeType);
     return NextResponse.json(result);
   } catch (err) {
+    console.error("[save] Cloudinary upload error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Save failed" },
       { status: 500 }

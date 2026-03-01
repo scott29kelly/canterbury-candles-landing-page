@@ -5,8 +5,8 @@ import type { ProviderName } from "@/lib/admin/providers/types";
 
 const PROVIDERS: { value: ProviderName; label: string }[] = [
   { value: "openai", label: "GPT Image 1" },
-  { value: "gemini", label: "Gemini Pro" },
-  { value: "seedream", label: "Seedream 4" },
+  { value: "gemini", label: "Gemini 3.1 Flash" },
+  { value: "seedream", label: "Seedream 4.5" },
 ];
 
 interface Props {
@@ -35,6 +35,7 @@ export default function ImageEditor({
   const [editPrompt, setEditPrompt] = useState("");
   const [provider, setProvider] = useState<ProviderName>(defaultProvider);
   const [imgDimensions, setImgDimensions] = useState({ w: 0, h: 0 });
+  const originalDimRef = useRef({ w: 0, h: 0 });
   const undoStackRef = useRef<ImageData[]>([]);
 
   // Load image and set up canvases
@@ -57,6 +58,7 @@ export default function ImageEditor({
       maskCanvas.height = h;
 
       setImgDimensions({ w, h });
+      originalDimRef.current = { w: img.width, h: img.height };
 
       const ctx = canvas.getContext("2d")!;
       ctx.drawImage(img, 0, 0, w, h);
@@ -152,15 +154,19 @@ export default function ImageEditor({
     const maskCanvas = maskCanvasRef.current;
     if (!maskCanvas) return "";
 
-    // Create a clean mask: white where painted, transparent (black) elsewhere
-    const tempCanvas = document.createElement("canvas");
-    tempCanvas.width = maskCanvas.width;
-    tempCanvas.height = maskCanvas.height;
-    const tempCtx = tempCanvas.getContext("2d")!;
+    // Create a clean mask at the ORIGINAL image dimensions so it matches the source image.
+    const { w: origW, h: origH } = originalDimRef.current;
+    const outW = origW || maskCanvas.width;
+    const outH = origH || maskCanvas.height;
 
+    // First, build a black/white mask at canvas (scaled) size
     const maskCtx = maskCanvas.getContext("2d")!;
     const maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
-    const outData = tempCtx.createImageData(maskCanvas.width, maskCanvas.height);
+    const scaledCanvas = document.createElement("canvas");
+    scaledCanvas.width = maskCanvas.width;
+    scaledCanvas.height = maskCanvas.height;
+    const scaledCtx = scaledCanvas.getContext("2d")!;
+    const outData = scaledCtx.createImageData(maskCanvas.width, maskCanvas.height);
 
     for (let i = 0; i < maskData.data.length; i += 4) {
       // If there's any paint (alpha > 0), make it white; otherwise black
@@ -176,9 +182,17 @@ export default function ImageEditor({
         outData.data[i + 3] = 255;
       }
     }
-    tempCtx.putImageData(outData, 0, 0);
+    scaledCtx.putImageData(outData, 0, 0);
 
-    return tempCanvas.toDataURL("image/png").split(",")[1];
+    // Scale up to original image dimensions
+    const finalCanvas = document.createElement("canvas");
+    finalCanvas.width = outW;
+    finalCanvas.height = outH;
+    const finalCtx = finalCanvas.getContext("2d")!;
+    finalCtx.imageSmoothingEnabled = false;
+    finalCtx.drawImage(scaledCanvas, 0, 0, outW, outH);
+
+    return finalCanvas.toDataURL("image/png").split(",")[1];
   };
 
   const handleApply = () => {

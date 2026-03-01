@@ -4,8 +4,8 @@ import type { ProviderName } from "@/lib/admin/providers/types";
 
 const PROVIDER_LABELS: Record<ProviderName, string> = {
   openai: "GPT Image 1",
-  gemini: "Gemini Pro",
-  seedream: "Seedream 4",
+  gemini: "Gemini 3.1 Flash",
+  seedream: "Seedream 4.5",
 };
 
 interface HistoryItem {
