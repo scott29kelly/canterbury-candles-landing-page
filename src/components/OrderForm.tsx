@@ -759,38 +759,13 @@ export default function OrderForm() {
                           </AnimatePresence>
                         </div>
                       </LayoutGroup>
-                      <div className="pt-4 border-t border-charcoal/10 space-y-1.5">
+                      <div className="pt-4 border-t border-charcoal/10 space-y-2">
                         <div className="flex items-center justify-between text-base">
                           <span className="text-rose-gray">
                             <span className="text-burgundy font-medium">{totalItems}</span>{" "}
                             item{totalItems !== 1 ? "s" : ""}
                           </span>
-                          <AnimatePresence mode="wait">
-                            {promoCode && promoDiscount > 0 ? (
-                              <motion.span
-                                key="discounted"
-                                initial={prefersReduced ? false : { opacity: 0, y: 4 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -4 }}
-                                transition={{ duration: 0.2 }}
-                                className="flex items-center gap-1.5"
-                              >
-                                <span className="text-rose-gray/40 line-through text-sm">${totalPrice}</span>
-                                <span className="text-gold font-semibold">${finalTotal}</span>
-                              </motion.span>
-                            ) : (
-                              <motion.span
-                                key="regular"
-                                initial={prefersReduced ? false : { opacity: 0, y: 4 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -4 }}
-                                transition={{ duration: 0.2 }}
-                                className="text-gold font-semibold"
-                              >
-                                ${totalPrice}
-                              </motion.span>
-                            )}
-                          </AnimatePresence>
+                          <span className="text-rose-gray">${totalPrice}</span>
                         </div>
                         <AnimatePresence>
                           {promoCode && promoDiscount > 0 && (
@@ -801,18 +776,17 @@ export default function OrderForm() {
                               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                               className="overflow-hidden"
                             >
-                              <div className="flex items-center gap-2 text-sm text-gold/70">
-                                <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
-                                </svg>
-                                <span className="font-medium tracking-wide uppercase">{promoCode}</span>
-                                <span>&middot;</span>
-                                <span className="font-semibold text-gold">-${promoDiscount}</span>
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-gold/70 uppercase tracking-wide">{promoCode} &middot; {promoLabel}</span>
+                                <span className="text-gold font-medium">-${promoDiscount}</span>
                               </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
+                        <div className="flex items-center justify-between text-base pt-1 border-t border-charcoal/5">
+                          <span className="text-charcoal font-medium">Total</span>
+                          <span className="text-gold font-semibold">${finalTotal}</span>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -872,18 +846,6 @@ export default function OrderForm() {
                                   {promoLabel}
                                 </span>
                               </div>
-                              {promoDiscount > 0 && (
-                                <motion.p
-                                  initial={prefersReduced ? false : { opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  transition={prefersReduced ? { duration: 0 } : { duration: 0.3, delay: 0.4 }}
-                                  className="text-base mt-2"
-                                >
-                                  <span className="text-rose-gray">Saving </span>
-                                  <span className="text-gold font-semibold">-${promoDiscount}</span>
-                                  <span className="text-rose-gray"> on this order</span>
-                                </motion.p>
-                              )}
                             </div>
 
                             {/* Remove button */}
@@ -1012,32 +974,7 @@ export default function OrderForm() {
                           {totalItems}
                         </span>{" "}
                         candle{totalItems !== 1 ? "s" : ""} &middot;{" "}
-                        <AnimatePresence mode="wait">
-                          {promoCode && promoDiscount > 0 ? (
-                            <motion.span
-                              key="submit-discounted"
-                              initial={prefersReduced ? false : { opacity: 0, y: 4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -4 }}
-                              transition={{ duration: 0.2 }}
-                              className="inline-flex items-center gap-1"
-                            >
-                              <span className="text-rose-gray/40 line-through text-sm">${totalPrice}</span>
-                              <span className="text-gold font-semibold">${finalTotal}</span>
-                            </motion.span>
-                          ) : (
-                            <motion.span
-                              key="submit-regular"
-                              initial={prefersReduced ? false : { opacity: 0, y: 4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -4 }}
-                              transition={{ duration: 0.2 }}
-                              className="text-gold font-semibold"
-                            >
-                              ${totalPrice}
-                            </motion.span>
-                          )}
-                        </AnimatePresence>
+                        <span className="text-gold font-semibold">${finalTotal}</span>
                         {" "}total
                       </span>
                     ) : hasMessage ? (
