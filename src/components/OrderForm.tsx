@@ -184,29 +184,29 @@ function CartItemRow({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="flex items-center flex-wrap gap-x-3 gap-y-1.5 md:gap-4 py-3 first:pt-0 last:pb-0"
+      className="flex items-center flex-wrap gap-x-3 gap-y-2 md:gap-5 py-4 first:pt-0 last:pb-0"
     >
       {/* Thumbnail */}
       {image && (
-        <div className="relative w-10 h-[53px] rounded overflow-hidden flex-shrink-0 bg-parchment">
+        <div className="relative w-16 h-[85px] sm:w-20 sm:h-[107px] rounded-lg shadow-sm overflow-hidden flex-shrink-0 bg-parchment">
           <Image
             src={image}
             alt={item.scent}
             fill
             className="object-cover"
-            sizes="40px"
+            sizes="(min-width: 640px) 80px, 64px"
           />
         </div>
       )}
 
       {/* Name */}
-      <span className="font-display text-charcoal text-sm flex-1 min-w-0 truncate">
+      <span className="font-display text-charcoal text-base sm:text-lg flex-1 min-w-0 truncate">
         {item.scent}
       </span>
 
       <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
         {/* Size toggle pills */}
-        <div className="flex rounded-full border border-gold/30 overflow-hidden text-[11px] font-medium leading-none">
+        <div className="flex rounded-full border border-gold/30 overflow-hidden text-xs font-medium leading-none">
           <button
             type="button"
             onClick={() => {
@@ -215,7 +215,7 @@ function CartItemRow({
                 dispatch({ type: "CHANGE_SIZE", scent: item.scent, fromSize: item.size, toSize: "8oz" });
               }
             }}
-            className={`px-2.5 py-1.5 transition-colors duration-200 ${
+            className={`px-3 py-2 transition-colors duration-200 ${
               item.size === "8oz"
                 ? "bg-gold text-burgundy"
                 : "text-rose-gray hover:text-gold"
@@ -231,7 +231,7 @@ function CartItemRow({
                 dispatch({ type: "CHANGE_SIZE", scent: item.scent, fromSize: item.size, toSize: "16oz" });
               }
             }}
-            className={`px-2.5 py-1.5 transition-colors duration-200 ${
+            className={`px-3 py-2 transition-colors duration-200 ${
               item.size === "16oz"
                 ? "bg-gold text-burgundy"
                 : "text-rose-gray hover:text-gold"
@@ -261,11 +261,11 @@ function CartItemRow({
                 });
               }
             }}
-            className="w-7 h-7 rounded-full border border-charcoal/15 text-charcoal/60 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-sm"
+            className="w-8 h-8 rounded-full border border-charcoal/15 text-charcoal/60 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-base"
           >
             &minus;
           </button>
-          <span className="w-6 text-center text-sm text-charcoal font-medium tabular-nums">
+          <span className="w-7 text-center text-base text-charcoal font-medium tabular-nums">
             {item.quantity}
           </span>
           <button
@@ -278,14 +278,14 @@ function CartItemRow({
                 delta: 1,
               })
             }
-            className="w-7 h-7 rounded-full border border-charcoal/15 text-charcoal/60 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-sm"
+            className="w-8 h-8 rounded-full border border-charcoal/15 text-charcoal/60 hover:border-gold hover:text-gold transition-colors duration-200 flex items-center justify-center text-base"
           >
             +
           </button>
         </div>
 
         {/* Line total */}
-        <span className="text-gold font-semibold text-sm w-14 text-right tabular-nums">
+        <span className="text-gold font-semibold text-base sm:text-lg w-16 sm:w-[4.5rem] text-right tabular-nums">
           ${lineTotal}
         </span>
 
@@ -296,11 +296,11 @@ function CartItemRow({
             gtag.removeFromCart(item.scent, item.size);
             dispatch({ type: "REMOVE_ITEM", scent: item.scent, size: item.size });
           }}
-          className="w-7 h-7 rounded-full text-charcoal/30 hover:text-red-500 hover:bg-red-50 transition-colors duration-200 hidden sm:flex items-center justify-center"
+          className="w-8 h-8 rounded-full text-charcoal/30 hover:text-red-500 hover:bg-red-50 transition-colors duration-200 hidden sm:flex items-center justify-center"
           aria-label={`Remove ${item.scent} ${item.size}`}
         >
           <svg
-            className="w-3.5 h-3.5"
+            className="w-4 h-4"
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
@@ -719,7 +719,7 @@ export default function OrderForm() {
 
                 {/* Visual cart summary */}
                 <div id="cart">
-                  <label className="block text-burgundy text-xs tracking-widest uppercase mb-4 font-medium">
+                  <label className="block text-burgundy text-xs tracking-widest uppercase mb-5 font-medium">
                     Your Cart
                   </label>
 
@@ -746,7 +746,7 @@ export default function OrderForm() {
                       </a>
                     </div>
                   ) : (
-                    <div className="border border-gold/15 rounded-lg p-3 sm:p-5 md:p-6 space-y-1">
+                    <div className="border border-gold/15 rounded-lg p-4 sm:p-6 md:p-8 space-y-2">
                       <LayoutGroup>
                         <div className="divide-y divide-charcoal/5">
                           <AnimatePresence initial={false}>
@@ -759,8 +759,8 @@ export default function OrderForm() {
                           </AnimatePresence>
                         </div>
                       </LayoutGroup>
-                      <div className="pt-3 border-t border-charcoal/10 space-y-1">
-                        <div className="flex items-center justify-between text-sm">
+                      <div className="pt-4 border-t border-charcoal/10 space-y-1.5">
+                        <div className="flex items-center justify-between text-base">
                           <span className="text-rose-gray">
                             <span className="text-burgundy font-medium">{totalItems}</span>{" "}
                             item{totalItems !== 1 ? "s" : ""}
@@ -775,7 +775,7 @@ export default function OrderForm() {
                                 transition={{ duration: 0.2 }}
                                 className="flex items-center gap-1.5"
                               >
-                                <span className="text-rose-gray/40 line-through text-xs">${totalPrice}</span>
+                                <span className="text-rose-gray/40 line-through text-sm">${totalPrice}</span>
                                 <span className="text-gold font-semibold">${finalTotal}</span>
                               </motion.span>
                             ) : (
@@ -801,7 +801,7 @@ export default function OrderForm() {
                               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                               className="overflow-hidden"
                             >
-                              <div className="flex items-center gap-1.5 text-xs text-gold/70">
+                              <div className="flex items-center gap-2 text-sm text-gold/70">
                                 <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
@@ -867,7 +867,7 @@ export default function OrderForm() {
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-medium text-charcoal tracking-wide text-sm">{promoCode}</span>
+                                <span className="font-medium text-charcoal tracking-wide text-base">{promoCode}</span>
                                 <span className="bg-gold/10 text-gold text-xs font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full">
                                   {promoLabel}
                                 </span>
@@ -877,7 +877,7 @@ export default function OrderForm() {
                                   initial={prefersReduced ? false : { opacity: 0 }}
                                   animate={{ opacity: 1 }}
                                   transition={prefersReduced ? { duration: 0 } : { duration: 0.3, delay: 0.4 }}
-                                  className="text-sm mt-1.5"
+                                  className="text-base mt-2"
                                 >
                                   <span className="text-rose-gray">Saving </span>
                                   <span className="text-gold font-semibold">-${promoDiscount}</span>
@@ -1005,7 +1005,7 @@ export default function OrderForm() {
 
                 {/* Submit */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-4">
-                  <div className="text-rose-gray text-sm text-center sm:text-left">
+                  <div className="text-rose-gray text-base text-center sm:text-left">
                     {items.length > 0 ? (
                       <span className="inline-flex items-center gap-1 flex-wrap">
                         <span className="text-burgundy font-medium">
@@ -1022,7 +1022,7 @@ export default function OrderForm() {
                               transition={{ duration: 0.2 }}
                               className="inline-flex items-center gap-1"
                             >
-                              <span className="text-rose-gray/40 line-through text-xs">${totalPrice}</span>
+                              <span className="text-rose-gray/40 line-through text-sm">${totalPrice}</span>
                               <span className="text-gold font-semibold">${finalTotal}</span>
                             </motion.span>
                           ) : (
@@ -1053,7 +1053,7 @@ export default function OrderForm() {
                   <button
                     type="submit"
                     disabled={!canSubmit}
-                    className="group btn-shimmer text-burgundy px-10 py-4 text-sm tracking-widest uppercase font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-gold/25 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:bg-charcoal/10 disabled:text-charcoal/30 disabled:bg-none"
+                    className="group btn-shimmer text-burgundy px-12 py-[18px] text-sm tracking-widest uppercase font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-gold/25 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:bg-charcoal/10 disabled:text-charcoal/30 disabled:bg-none"
                   >
                     <span className="flex items-center gap-3">
                       {isSubmitting
