@@ -3,7 +3,7 @@
 interface HistoryItem {
   id: string;
   parentId?: string;
-  provider: "gemini";
+  provider: "gemini" | "gpt-image";
   base64: string;
   mimeType: string;
   durationMs: number;
@@ -46,7 +46,7 @@ export default function ImageCard({ item, isActive, onClick, onEdit, onSave, onR
         />
         {item.id.includes("-edit") && (
           <span className="absolute top-1 left-1 text-[10px] bg-burgundy/80 text-white px-1.5 py-0.5 rounded">
-            Edited
+            {item.provider === "gpt-image" ? "Inpaint" : "Edited"}
           </span>
         )}
         <span className="absolute top-1 right-1 text-[10px] bg-charcoal/70 text-white px-1.5 py-0.5 rounded">

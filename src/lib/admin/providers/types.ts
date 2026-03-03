@@ -1,4 +1,4 @@
-export type ProviderName = "gemini";
+export type ProviderName = "gemini" | "gpt-image";
 
 export interface GenerationRequest {
   prompt: string;
@@ -8,6 +8,7 @@ export interface GenerationRequest {
 export interface EditRequest {
   image: string;   // base64-encoded image
   prompt: string;
+  mask?: string;   // base64-encoded PNG mask (transparent = edit area)
 }
 
 export interface GeneratedImage {
