@@ -47,6 +47,11 @@ export default function ImageGeneratorPage() {
         body: JSON.stringify(body),
       });
 
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text.startsWith("{") ? JSON.parse(text).error : `Server error ${res.status}`);
+      }
+
       const data = await res.json();
 
       if (data.success) {
@@ -96,6 +101,11 @@ export default function ImageGeneratorPage() {
             prompt: editPrompt,
           }),
         });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text.startsWith("{") ? JSON.parse(text).error : `Server error ${res.status}`);
+        }
 
         const data = await res.json();
 

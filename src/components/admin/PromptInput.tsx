@@ -18,6 +18,33 @@ interface Props {
 }
 
 const IMAGE_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const MAX_DIMENSION = 1024;
+const JPEG_QUALITY = 0.85;
+
+/** Resize an image file to fit within MAX_DIMENSION and return compressed base64. */
+function resizeImage(file: File): Promise<ReferenceImage> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        const scale = MAX_DIMENSION / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
+      const base64 = dataUrl.split(",")[1];
+      resolve({ base64, mimeType: "image/jpeg" });
+    };
+    img.onerror = () => reject(new Error("Failed to load image"));
+    img.src = URL.createObjectURL(file);
+  });
+}
 
 export default function PromptInput({
   prompt,
@@ -36,28 +63,14 @@ export default function PromptInput({
   }, [referenceImages]);
 
   const handleFiles = useCallback(
-    (files: FileList | File[]) => {
+    async (files: FileList | File[]) => {
       const imageFiles = Array.from(files).filter((f) =>
         f.type.startsWith("image/")
       );
       if (imageFiles.length === 0) return;
 
-      let loaded = 0;
-      const newImages: ReferenceImage[] = [];
-
-      imageFiles.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const dataUrl = reader.result as string;
-          const base64 = dataUrl.split(",")[1];
-          newImages.push({ base64, mimeType: file.type });
-          loaded++;
-          if (loaded === imageFiles.length) {
-            onReferenceImagesChange([...imagesRef.current, ...newImages]);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+      const newImages = await Promise.all(imageFiles.map(resizeImage));
+      onReferenceImagesChange([...imagesRef.current, ...newImages]);
     },
     [onReferenceImagesChange]
   );
