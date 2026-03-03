@@ -1,27 +1,18 @@
 "use client";
 
+import { useCallback, useRef } from "react";
 import { promptTemplates } from "@/lib/admin/promptTemplates";
-import type { ProviderName } from "@/lib/admin/providers/types";
 
-const SIZES = [
-  { value: "square", label: "Square (1024\u00d71024)" },
-  { value: "portrait", label: "Portrait (1024\u00d71536)" },
-  { value: "landscape", label: "Landscape (1536\u00d71024)" },
-];
-
-const PROVIDERS: { value: ProviderName; label: string }[] = [
-  { value: "openai", label: "GPT Image 1" },
-  { value: "gemini", label: "Gemini 3.1 Flash" },
-  { value: "seedream", label: "Seedream 4.5" },
-];
+interface ReferenceImage {
+  base64: string;
+  mimeType: string;
+}
 
 interface Props {
   prompt: string;
   onPromptChange: (prompt: string) => void;
-  size: string;
-  onSizeChange: (size: string) => void;
-  provider: ProviderName;
-  onProviderChange: (provider: ProviderName) => void;
+  referenceImage: ReferenceImage | null;
+  onReferenceImageChange: (img: ReferenceImage | null) => void;
   onGenerate: () => void;
   loading: boolean;
 }
@@ -29,13 +20,40 @@ interface Props {
 export default function PromptInput({
   prompt,
   onPromptChange,
-  size,
-  onSizeChange,
-  provider,
-  onProviderChange,
+  referenceImage,
+  onReferenceImageChange,
   onGenerate,
   loading,
 }: Props) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = useCallback(
+    (file: File) => {
+      if (!file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const base64 = dataUrl.split(",")[1];
+        onReferenceImageChange({ base64, mimeType: file.type });
+      };
+      reader.readAsDataURL(file);
+    },
+    [onReferenceImageChange]
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) handleFileSelect(file);
+    },
+    [handleFileSelect]
+  );
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+  }, []);
+
   return (
     <div className="space-y-4">
       {/* Template dropdown */}
@@ -76,50 +94,62 @@ export default function PromptInput({
         />
       </div>
 
-      {/* Size + Provider row */}
-      <div className="flex flex-wrap gap-4">
-        {/* Size selector */}
-        <div className="flex-1 min-w-[180px]">
-          <label className="block text-sm font-medium text-charcoal mb-1">
-            Size
-          </label>
-          <select
-            value={size}
-            onChange={(e) => onSizeChange(e.target.value)}
-            className="w-full px-3 py-2 border border-rose-gray/30 rounded-lg text-charcoal bg-white
-                       focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
-          >
-            {SIZES.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Reference image upload */}
+      <div>
+        <label className="block text-sm font-medium text-charcoal mb-1">
+          Reference Image <span className="text-rose-gray font-normal">(optional)</span>
+        </label>
 
-        {/* Provider selector */}
-        <div className="flex-1 min-w-[240px]">
-          <label className="block text-sm font-medium text-charcoal mb-2">
-            Provider
-          </label>
-          <div className="flex gap-2">
-            {PROVIDERS.map((p) => (
-              <button
-                key={p.value}
-                type="button"
-                onClick={() => onProviderChange(p.value)}
-                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${
-                    provider === p.value
-                      ? "bg-burgundy text-blush"
-                      : "bg-white border border-rose-gray/30 text-charcoal hover:border-burgundy/40"
-                  }`}
-              >
-                {p.label}
-              </button>
-            ))}
+        {referenceImage ? (
+          <div className="flex items-start gap-3 p-3 border border-rose-gray/30 rounded-lg bg-parchment/30">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`data:${referenceImage.mimeType};base64,${referenceImage.base64}`}
+              alt="Reference"
+              className="w-20 h-20 object-cover rounded-lg border border-rose-gray/20"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-charcoal">Reference image attached</p>
+              <p className="text-xs text-rose-gray mt-0.5">
+                This image will be sent alongside your prompt to guide generation.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onReferenceImageChange(null)}
+              className="text-rose-gray hover:text-red-600 transition-colors text-lg leading-none p-1"
+              aria-label="Remove reference image"
+            >
+              &times;
+            </button>
           </div>
-        </div>
+        ) : (
+          <div
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onClick={() => fileInputRef.current?.click()}
+            className="border-2 border-dashed border-rose-gray/30 rounded-lg p-6 text-center cursor-pointer
+                       hover:border-burgundy/40 hover:bg-parchment/30 transition-colors"
+          >
+            <p className="text-sm text-rose-gray">
+              Drop an image here or click to upload
+            </p>
+            <p className="text-xs text-rose-gray/60 mt-1">
+              e.g. a candle label design to incorporate into the product shot
+            </p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFileSelect(file);
+                e.target.value = "";
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Generate button */}

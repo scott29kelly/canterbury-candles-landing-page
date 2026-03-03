@@ -1,17 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/admin/auth";
-import { openaiProvider } from "@/lib/admin/providers/openai";
 import { geminiProvider } from "@/lib/admin/providers/gemini";
-import { seedreamProvider } from "@/lib/admin/providers/seedream";
-import type { ProviderName } from "@/lib/admin/providers/types";
 
 export const maxDuration = 60;
-
-const providers = {
-  openai: openaiProvider,
-  gemini: geminiProvider,
-  seedream: seedreamProvider,
-};
 
 export async function POST(req: NextRequest) {
   if (!(await isAdminAuthenticated())) {
@@ -19,18 +10,17 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { provider, prompt, size, quality } = await req.json();
+    const { prompt, referenceImage, referenceImageMimeType } = await req.json();
 
-    if (!provider || !prompt) {
-      return NextResponse.json({ error: "provider and prompt are required" }, { status: 400 });
+    if (!prompt) {
+      return NextResponse.json({ error: "prompt is required" }, { status: 400 });
     }
 
-    const impl = providers[provider as ProviderName];
-    if (!impl) {
-      return NextResponse.json({ error: `Unknown provider: ${provider}` }, { status: 400 });
-    }
-
-    const result = await impl.generate({ prompt, size, quality });
+    const result = await geminiProvider.generate({
+      prompt,
+      referenceImage,
+      referenceImageMimeType,
+    });
     return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json(

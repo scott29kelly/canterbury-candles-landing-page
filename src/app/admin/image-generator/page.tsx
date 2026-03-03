@@ -1,12 +1,16 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import type { ProviderName } from "@/lib/admin/providers/types";
 import PromptInput from "@/components/admin/PromptInput";
 import ResultsGallery from "@/components/admin/ResultsGallery";
 import ImageEditor from "@/components/admin/ImageEditor";
 import SaveImageDialog from "@/components/admin/SaveImageDialog";
 import type { HistoryItem } from "@/components/admin/ImageCard";
+
+interface ReferenceImage {
+  base64: string;
+  mimeType: string;
+}
 
 function slugify(text: string): string {
   return text
@@ -18,10 +22,8 @@ function slugify(text: string): string {
 
 export default function ImageGeneratorPage() {
   const [prompt, setPrompt] = useState("");
-  const [size, setSize] = useState("square");
-  const [provider, setProvider] = useState<ProviderName>("openai");
+  const [referenceImage, setReferenceImage] = useState<ReferenceImage | null>(null);
   const [loading, setLoading] = useState(false);
-  const [loadingProvider, setLoadingProvider] = useState<ProviderName | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -32,21 +34,26 @@ export default function ImageGeneratorPage() {
     if (!prompt.trim() || loading) return;
 
     setLoading(true);
-    setLoadingProvider(provider);
 
     try {
+      const body: Record<string, string> = { prompt };
+      if (referenceImage) {
+        body.referenceImage = referenceImage.base64;
+        body.referenceImageMimeType = referenceImage.mimeType;
+      }
+
       const res = await fetch("/api/admin/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider, prompt, size }),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
 
       if (data.success) {
         const item: HistoryItem = {
-          id: `${Date.now()}-${data.provider}`,
-          provider: data.provider,
+          id: `${Date.now()}-gemini`,
+          provider: "gemini",
           base64: data.base64,
           mimeType: data.mimeType,
           durationMs: data.durationMs,
@@ -61,9 +68,8 @@ export default function ImageGeneratorPage() {
       alert(`Network error: ${err instanceof Error ? err.message : "Unknown"}`);
     } finally {
       setLoading(false);
-      setLoadingProvider(null);
     }
-  }, [prompt, size, provider, loading]);
+  }, [prompt, referenceImage, loading]);
 
   const handleEdit = useCallback((id: string) => {
     setEditingId(id);
@@ -76,7 +82,7 @@ export default function ImageGeneratorPage() {
   }, []);
 
   const handleApplyEdit = useCallback(
-    async (editProvider: ProviderName, mask: string, editPrompt: string) => {
+    async (editPrompt: string) => {
       const item = history.find((h) => h.id === editingId);
       if (!item) return;
 
@@ -87,9 +93,7 @@ export default function ImageGeneratorPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            provider: editProvider,
             image: item.base64,
-            mask,
             prompt: editPrompt,
           }),
         });
@@ -98,8 +102,8 @@ export default function ImageGeneratorPage() {
 
         if (data.success) {
           const newItem: HistoryItem = {
-            id: `${Date.now()}-${data.provider}-edit`,
-            provider: data.provider,
+            id: `${Date.now()}-gemini-edit`,
+            provider: "gemini",
             base64: data.base64,
             mimeType: data.mimeType,
             durationMs: data.durationMs,
@@ -120,7 +124,6 @@ export default function ImageGeneratorPage() {
     [editingId, history]
   );
 
-  const activeItem = history.find((h) => h.id === activeId);
   const editItem = history.find((h) => h.id === editingId);
   const saveItem = history.find((h) => h.id === savingId);
 
@@ -129,7 +132,7 @@ export default function ImageGeneratorPage() {
       <div>
         <h1 className="font-display text-2xl text-burgundy">Image Generator</h1>
         <p className="text-rose-gray text-sm mt-1">
-          Generate product images using AI, compare results, edit via inpainting, and save to Cloudinary.
+          Generate product images using Gemini AI, optionally with a reference label design. Re-edit results and save to Cloudinary.
         </p>
       </div>
 
@@ -138,10 +141,8 @@ export default function ImageGeneratorPage() {
         <PromptInput
           prompt={prompt}
           onPromptChange={setPrompt}
-          size={size}
-          onSizeChange={setSize}
-          provider={provider}
-          onProviderChange={setProvider}
+          referenceImage={referenceImage}
+          onReferenceImageChange={setReferenceImage}
           onGenerate={handleGenerate}
           loading={loading}
         />
@@ -155,7 +156,6 @@ export default function ImageGeneratorPage() {
         onEdit={handleEdit}
         onSave={handleSave}
         loading={loading}
-        loadingProvider={loadingProvider}
       />
 
       {/* Editor panel */}
@@ -163,7 +163,6 @@ export default function ImageGeneratorPage() {
         <ImageEditor
           imageBase64={editItem.base64}
           imageMimeType={editItem.mimeType}
-          defaultProvider={editItem.provider}
           onApplyEdit={handleApplyEdit}
           onClose={() => setEditingId(null)}
           loading={editLoading}

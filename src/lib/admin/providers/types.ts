@@ -1,14 +1,13 @@
-export type ProviderName = "openai" | "gemini" | "seedream";
+export type ProviderName = "gemini";
 
 export interface GenerationRequest {
   prompt: string;
-  size?: string;
-  quality?: string;
+  referenceImage?: string;        // base64-encoded reference image
+  referenceImageMimeType?: string; // e.g. "image/png"
 }
 
 export interface EditRequest {
   image: string;   // base64-encoded image
-  mask: string;    // base64-encoded mask (white = edit region)
   prompt: string;
 }
 
