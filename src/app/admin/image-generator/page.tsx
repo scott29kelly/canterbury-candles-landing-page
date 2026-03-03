@@ -22,7 +22,7 @@ function slugify(text: string): string {
 
 export default function ImageGeneratorPage() {
   const [prompt, setPrompt] = useState("");
-  const [referenceImage, setReferenceImage] = useState<ReferenceImage | null>(null);
+  const [referenceImages, setReferenceImages] = useState<ReferenceImage[]>([]);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -36,10 +36,9 @@ export default function ImageGeneratorPage() {
     setLoading(true);
 
     try {
-      const body: Record<string, string> = { prompt };
-      if (referenceImage) {
-        body.referenceImage = referenceImage.base64;
-        body.referenceImageMimeType = referenceImage.mimeType;
+      const body: Record<string, unknown> = { prompt };
+      if (referenceImages.length > 0) {
+        body.referenceImages = referenceImages;
       }
 
       const res = await fetch("/api/admin/generate", {
@@ -69,7 +68,7 @@ export default function ImageGeneratorPage() {
     } finally {
       setLoading(false);
     }
-  }, [prompt, referenceImage, loading]);
+  }, [prompt, referenceImages, loading]);
 
   const handleEdit = useCallback((id: string) => {
     setEditingId(id);
@@ -141,8 +140,8 @@ export default function ImageGeneratorPage() {
         <PromptInput
           prompt={prompt}
           onPromptChange={setPrompt}
-          referenceImage={referenceImage}
-          onReferenceImageChange={setReferenceImage}
+          referenceImages={referenceImages}
+          onReferenceImagesChange={setReferenceImages}
           onGenerate={handleGenerate}
           loading={loading}
         />

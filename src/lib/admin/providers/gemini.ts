@@ -13,23 +13,25 @@ export const geminiProvider: ImageProvider = {
     try {
       const ai = getClient();
 
-      // If a reference image is provided, build multimodal contents
-      const contents = req.referenceImage
-        ? [
-            {
-              role: "user" as const,
-              parts: [
-                {
-                  inlineData: {
-                    data: req.referenceImage,
-                    mimeType: req.referenceImageMimeType || "image/png",
-                  },
-                },
-                { text: req.prompt },
-              ],
-            },
-          ]
-        : req.prompt;
+      // If reference images are provided, build multimodal contents
+      const images = req.referenceImages ?? [];
+      const contents =
+        images.length > 0
+          ? [
+              {
+                role: "user" as const,
+                parts: [
+                  ...images.map((img) => ({
+                    inlineData: {
+                      data: img.base64,
+                      mimeType: img.mimeType,
+                    },
+                  })),
+                  { text: req.prompt },
+                ],
+              },
+            ]
+          : req.prompt;
 
       const response = await ai.models.generateContent({
         model: "gemini-3.1-flash-image-preview",

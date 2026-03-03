@@ -2,8 +2,7 @@ export type ProviderName = "gemini";
 
 export interface GenerationRequest {
   prompt: string;
-  referenceImage?: string;        // base64-encoded reference image
-  referenceImageMimeType?: string; // e.g. "image/png"
+  referenceImages?: { base64: string; mimeType: string }[];
 }
 
 export interface EditRequest {

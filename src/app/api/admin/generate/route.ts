@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { prompt, referenceImage, referenceImageMimeType } = await req.json();
+    const { prompt, referenceImages } = await req.json();
 
     if (!prompt) {
       return NextResponse.json({ error: "prompt is required" }, { status: 400 });
@@ -18,8 +18,7 @@ export async function POST(req: NextRequest) {
 
     const result = await geminiProvider.generate({
       prompt,
-      referenceImage,
-      referenceImageMimeType,
+      referenceImages,
     });
     return NextResponse.json(result);
   } catch (err) {
