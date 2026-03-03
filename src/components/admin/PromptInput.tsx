@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { promptTemplates } from "@/lib/admin/promptTemplates";
+import type { PromptTemplate } from "@/lib/admin/promptTemplates";
 
 interface ReferenceImage {
   base64: string;
@@ -55,6 +56,7 @@ export default function PromptInput({
   loading,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | null>(null);
 
   // Keep a ref to the latest images so async reader.onload never uses a stale closure
   const imagesRef = useRef(referenceImages);
@@ -106,10 +108,10 @@ export default function PromptInput({
         <select
           className="w-full px-3 py-2 border border-rose-gray/30 rounded-lg text-charcoal bg-white
                      focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
-          value=""
+          value={selectedTemplate?.name ?? ""}
           onChange={(e) => {
             const tmpl = promptTemplates.find((t) => t.name === e.target.value);
-            if (tmpl) onPromptChange(tmpl.prompt);
+            setSelectedTemplate(tmpl ?? null);
           }}
         >
           <option value="">Select a template...</option>
@@ -119,6 +121,35 @@ export default function PromptInput({
             </option>
           ))}
         </select>
+
+        {/* Template preview card */}
+        {selectedTemplate && (
+          <div className="mt-2 bg-parchment/50 border border-rose-gray/20 rounded-lg p-3">
+            <p className="text-sm text-charcoal font-medium">{selectedTemplate.name}</p>
+            <p className="text-xs text-rose-gray mt-0.5">{selectedTemplate.description}</p>
+            <div className="flex gap-2 mt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  onPromptChange(selectedTemplate.prompt);
+                  setSelectedTemplate(null);
+                }}
+                className="px-3 py-1.5 bg-burgundy text-blush rounded-lg text-sm font-medium
+                           hover:bg-burgundy-light transition-colors"
+              >
+                Apply Template
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedTemplate(null)}
+                className="px-3 py-1.5 bg-rose-gray/10 text-charcoal rounded-lg text-sm
+                           hover:bg-rose-gray/20 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Prompt textarea */}
@@ -129,6 +160,12 @@ export default function PromptInput({
         <textarea
           value={prompt}
           onChange={(e) => onPromptChange(e.target.value)}
+          onKeyDown={(e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+              e.preventDefault();
+              if (!loading && prompt.trim()) onGenerate();
+            }
+          }}
           rows={4}
           className="w-full px-3 py-2 border border-rose-gray/30 rounded-lg text-charcoal resize-y
                      focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
@@ -138,9 +175,20 @@ export default function PromptInput({
 
       {/* Reference images */}
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-1">
-          Reference Images <span className="text-rose-gray font-normal">(optional)</span>
-        </label>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-sm font-medium text-charcoal">
+            Reference Images <span className="text-rose-gray font-normal">(optional)</span>
+          </label>
+          {referenceImages.length > 0 && (
+            <button
+              type="button"
+              onClick={() => onReferenceImagesChange([])}
+              className="text-xs text-red-600 hover:text-red-800 transition-colors"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
 
         {/* Thumbnail row */}
         {referenceImages.length > 0 && (
@@ -207,14 +255,19 @@ export default function PromptInput({
       </div>
 
       {/* Generate button */}
-      <button
-        onClick={onGenerate}
-        disabled={loading || !prompt.trim()}
-        className="w-full py-3 bg-burgundy text-blush rounded-lg font-medium text-lg
-                   hover:bg-burgundy-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? "Generating..." : "Generate Image"}
-      </button>
+      <div>
+        <button
+          onClick={onGenerate}
+          disabled={loading || !prompt.trim()}
+          className="w-full py-3 bg-burgundy text-blush rounded-lg font-medium text-lg
+                     hover:bg-burgundy-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Generating..." : "Generate Image"}
+        </button>
+        <p className="text-xs text-rose-gray/60 text-center mt-1.5">
+          Ctrl+Enter to generate
+        </p>
+      </div>
     </div>
   );
 }

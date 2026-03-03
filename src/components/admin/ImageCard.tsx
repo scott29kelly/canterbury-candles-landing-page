@@ -2,6 +2,7 @@
 
 interface HistoryItem {
   id: string;
+  parentId?: string;
   provider: "gemini";
   base64: string;
   mimeType: string;
@@ -15,15 +16,27 @@ interface Props {
   onClick: () => void;
   onEdit: () => void;
   onSave: () => void;
+  onRemove?: () => void;
 }
 
-export default function ImageCard({ item, isActive, onClick, onEdit, onSave }: Props) {
+export default function ImageCard({ item, isActive, onClick, onEdit, onSave, onRemove }: Props) {
   return (
     <div
-      className={`cursor-pointer rounded-lg overflow-hidden border-2 transition-all
+      className={`group/card cursor-pointer rounded-lg overflow-hidden border-2 transition-all relative
         ${isActive ? "border-gold shadow-lg" : "border-transparent hover:border-rose-gray/40"}`}
       onClick={onClick}
     >
+      {onRemove && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onRemove(); }}
+          className="absolute -top-1.5 -right-1.5 z-10 w-5 h-5 bg-red-600 text-white rounded-full text-xs
+                     leading-none flex items-center justify-center opacity-0 group-hover/card:opacity-100
+                     transition-opacity"
+          aria-label="Remove from history"
+        >
+          &times;
+        </button>
+      )}
       <div className="relative aspect-square bg-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -31,6 +44,11 @@ export default function ImageCard({ item, isActive, onClick, onEdit, onSave }: P
           alt="Generated candle image"
           className="w-full h-full object-cover"
         />
+        {item.id.includes("-edit") && (
+          <span className="absolute top-1 left-1 text-[10px] bg-burgundy/80 text-white px-1.5 py-0.5 rounded">
+            Edited
+          </span>
+        )}
         <span className="absolute top-1 right-1 text-[10px] bg-charcoal/70 text-white px-1.5 py-0.5 rounded">
           {(item.durationMs / 1000).toFixed(1)}s
         </span>

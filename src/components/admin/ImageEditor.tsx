@@ -5,6 +5,7 @@ import { useState } from "react";
 interface Props {
   imageBase64: string;
   imageMimeType: string;
+  defaultPrompt?: string;
   onApplyEdit: (prompt: string) => void;
   onClose: () => void;
   loading: boolean;
@@ -13,11 +14,12 @@ interface Props {
 export default function ImageEditor({
   imageBase64,
   imageMimeType,
+  defaultPrompt = "",
   onApplyEdit,
   onClose,
   loading,
 }: Props) {
-  const [editPrompt, setEditPrompt] = useState("");
+  const [editPrompt, setEditPrompt] = useState(defaultPrompt);
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-rose-gray/10 p-4 space-y-4">
@@ -45,19 +47,28 @@ export default function ImageEditor({
           <textarea
             value={editPrompt}
             onChange={(e) => setEditPrompt(e.target.value)}
+            onKeyDown={(e) => {
+              if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                e.preventDefault();
+                if (!loading && editPrompt.trim()) onApplyEdit(editPrompt);
+              }
+            }}
             rows={3}
             className="w-full px-3 py-2 border border-rose-gray/30 rounded-lg text-charcoal resize-y
                        focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
             placeholder="Describe the edit you want (e.g. 'make the background warmer', 'add soft bokeh')..."
           />
-          <button
-            onClick={() => onApplyEdit(editPrompt)}
-            disabled={loading || !editPrompt.trim()}
-            className="px-6 py-2 bg-burgundy text-blush rounded-lg font-medium
-                       hover:bg-burgundy-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Applying..." : "Apply Edit"}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => onApplyEdit(editPrompt)}
+              disabled={loading || !editPrompt.trim()}
+              className="px-6 py-2 bg-burgundy text-blush rounded-lg font-medium
+                         hover:bg-burgundy-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Applying..." : "Apply Edit"}
+            </button>
+            <span className="text-xs text-rose-gray/60">Ctrl+Enter</span>
+          </div>
         </div>
       </div>
     </div>

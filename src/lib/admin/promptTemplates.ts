@@ -1,5 +1,6 @@
 export interface PromptTemplate {
   name: string;
+  description: string;
   prompt: string;
 }
 
@@ -62,6 +63,7 @@ photo style).`;
 export const promptTemplates: PromptTemplate[] = [
   {
     name: "Hero Shot — Auto (match scent)",
+    description: "Automatically matches background props and mood to the scent on the label.",
     prompt: heroPrompt(`BACKGROUND / SCENE VARIATION RULES
 - The scene MUST vary per scent while staying "on-brand":
   wooden kitchen table + warm natural light + soft background blur.
@@ -83,6 +85,7 @@ export const promptTemplates: PromptTemplate[] = [
   },
   {
     name: "Hero Shot — Bakery & Warm Spices",
+    description: "Warm kitchen baking scene with cinnamon, vanilla, pastries, and golden amber light.",
     prompt: heroPrompt(`BACKGROUND / SCENE DIRECTION — BAKERY & WARM SPICES
 - Setting: warm, inviting kitchen baking scene.
 - Wooden kitchen table with a light dusting of flour.
@@ -99,6 +102,7 @@ export const promptTemplates: PromptTemplate[] = [
   },
   {
     name: "Hero Shot — Fresh Fruit & Citrus",
+    description: "Bright airy kitchen with citrus fruits, fresh mint, and crisp morning light.",
     prompt: heroPrompt(`BACKGROUND / SCENE DIRECTION — FRESH FRUIT & CITRUS
 - Setting: bright, airy kitchen with a fresh summer feel.
 - Wooden kitchen table, lighter tone (birch or maple feel).
@@ -115,6 +119,7 @@ export const promptTemplates: PromptTemplate[] = [
   },
   {
     name: "Hero Shot — Floral & Garden",
+    description: "Soft botanical scene with fresh-cut flowers, eucalyptus, and golden-hour glow.",
     prompt: heroPrompt(`BACKGROUND / SCENE DIRECTION — FLORAL & GARDEN
 - Setting: soft, botanical, garden-adjacent kitchen scene.
 - Wooden kitchen table draped with a linen runner or cloth.
@@ -131,6 +136,7 @@ export const promptTemplates: PromptTemplate[] = [
   },
   {
     name: "Hero Shot — Coffee & Rich",
+    description: "Moody coffee-house scene with roasted beans, espresso, dark chocolate, and warm low light.",
     prompt: heroPrompt(`BACKGROUND / SCENE DIRECTION — COFFEE & RICH
 - Setting: warm, moody coffee-house-meets-kitchen scene.
 - Dark-toned wooden kitchen table (walnut or espresso finish).
@@ -147,6 +153,7 @@ export const promptTemplates: PromptTemplate[] = [
   },
   {
     name: "Hero Shot — Cozy & Fireside",
+    description: "Warm winter-evening scene with knit textures, fairy lights, and fireplace glow.",
     prompt: heroPrompt(`BACKGROUND / SCENE DIRECTION — COZY & FIRESIDE
 - Setting: warm, intimate winter-evening kitchen scene.
 - Wooden kitchen table with a chunky knit table runner or wool texture.
@@ -164,6 +171,7 @@ export const promptTemplates: PromptTemplate[] = [
   },
   {
     name: "Hero Shot — Clean & Spa",
+    description: "Serene minimalist spa scene with smooth stones, sea salt, eucalyptus, and diffused light.",
     prompt: heroPrompt(`BACKGROUND / SCENE DIRECTION — CLEAN & SPA
 - Setting: serene, minimalist spa-like kitchen scene.
 - Light-toned wooden kitchen table (natural oak or ash).

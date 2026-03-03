@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import PromptInput from "@/components/admin/PromptInput";
 import ResultsGallery from "@/components/admin/ResultsGallery";
-import ImageEditor from "@/components/admin/ImageEditor";
-import SaveImageDialog from "@/components/admin/SaveImageDialog";
 import type { HistoryItem } from "@/components/admin/ImageCard";
 
 interface ReferenceImage {
@@ -12,12 +10,31 @@ interface ReferenceImage {
   mimeType: string;
 }
 
+const HISTORY_STORAGE_KEY = "image-generator-history";
+const MAX_HISTORY_ITEMS = 20;
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
     .slice(0, 40);
+}
+
+function loadHistory(): HistoryItem[] {
+  try {
+    const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+    if (!raw) return [];
+    const items = JSON.parse(raw);
+    if (Array.isArray(items)) return items.slice(0, MAX_HISTORY_ITEMS);
+  } catch { /* ignore */ }
+  return [];
+}
+
+function saveHistory(items: HistoryItem[]) {
+  try {
+    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(items.slice(0, MAX_HISTORY_ITEMS)));
+  } catch { /* ignore — quota exceeded, etc. */ }
 }
 
 export default function ImageGeneratorPage() {
@@ -29,11 +46,32 @@ export default function ImageGeneratorPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [editLoading, setEditLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Hydrate history from localStorage on mount
+  useEffect(() => {
+    const stored = loadHistory();
+    if (stored.length > 0) {
+      setHistory(stored);
+      setActiveId(stored[0].id);
+    }
+  }, []);
+
+  // Persist history to localStorage whenever it changes
+  const isHydrated = useRef(false);
+  useEffect(() => {
+    if (!isHydrated.current) {
+      isHydrated.current = true;
+      return;
+    }
+    saveHistory(history);
+  }, [history]);
 
   const handleGenerate = useCallback(async () => {
     if (!prompt.trim() || loading) return;
 
     setLoading(true);
+    setError(null);
 
     try {
       const body: Record<string, unknown> = { prompt };
@@ -66,10 +104,10 @@ export default function ImageGeneratorPage() {
         setHistory((prev) => [item, ...prev]);
         setActiveId(item.id);
       } else {
-        alert(`Generation failed: ${data.error || "Unknown error"}`);
+        setError(`Generation failed: ${data.error || "Unknown error"}`);
       }
     } catch (err) {
-      alert(`Network error: ${err instanceof Error ? err.message : "Unknown"}`);
+      setError(`Network error: ${err instanceof Error ? err.message : "Unknown"}`);
     } finally {
       setLoading(false);
     }
@@ -91,6 +129,7 @@ export default function ImageGeneratorPage() {
       if (!item) return;
 
       setEditLoading(true);
+      setError(null);
 
       try {
         const res = await fetch("/api/admin/edit", {
@@ -112,6 +151,7 @@ export default function ImageGeneratorPage() {
         if (data.success) {
           const newItem: HistoryItem = {
             id: `${Date.now()}-gemini-edit`,
+            parentId: item.id,
             provider: "gemini",
             base64: data.base64,
             mimeType: data.mimeType,
@@ -122,16 +162,30 @@ export default function ImageGeneratorPage() {
           setActiveId(newItem.id);
           setEditingId(newItem.id);
         } else {
-          alert(`Edit failed: ${data.error || "Unknown error"}`);
+          setError(`Edit failed: ${data.error || "Unknown error"}`);
         }
       } catch (err) {
-        alert(`Network error: ${err instanceof Error ? err.message : "Unknown"}`);
+        setError(`Network error: ${err instanceof Error ? err.message : "Unknown"}`);
       } finally {
         setEditLoading(false);
       }
     },
     [editingId, history]
   );
+
+  const handleRemove = useCallback((id: string) => {
+    setHistory((prev) => prev.filter((h) => h.id !== id));
+    if (activeId === id) setActiveId(null);
+    if (editingId === id) setEditingId(null);
+    if (savingId === id) setSavingId(null);
+  }, [activeId, editingId, savingId]);
+
+  const handleClearHistory = useCallback(() => {
+    setHistory([]);
+    setActiveId(null);
+    setEditingId(null);
+    setSavingId(null);
+  }, []);
 
   const editItem = history.find((h) => h.id === editingId);
   const saveItem = history.find((h) => h.id === savingId);
@@ -157,36 +211,54 @@ export default function ImageGeneratorPage() {
         />
       </div>
 
-      {/* Results */}
+      {/* Error banner */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+          <div className="flex-1">
+            <p className="text-red-800 text-sm font-medium">Something went wrong</p>
+            <p className="text-red-700 text-sm mt-0.5">{error}</p>
+          </div>
+          <div className="flex gap-2 flex-shrink-0">
+            <button
+              onClick={handleGenerate}
+              disabled={loading || !prompt.trim()}
+              className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => setError(null)}
+              className="text-red-400 hover:text-red-600 transition-colors text-lg leading-none"
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Results + inline edit/save panels */}
       <ResultsGallery
         history={history}
         activeId={activeId}
         onSelect={setActiveId}
         onEdit={handleEdit}
         onSave={handleSave}
+        onRemove={handleRemove}
+        onClearHistory={handleClearHistory}
         loading={loading}
+        editing={editItem ? {
+          defaultPrompt: editItem.prompt.startsWith("Edit: ") ? editItem.prompt.slice(6) : "",
+          onApplyEdit: handleApplyEdit,
+          onClose: () => setEditingId(null),
+          loading: editLoading,
+        } : null}
+        saving={saveItem ? {
+          imageBase64: saveItem.base64,
+          imageMimeType: saveItem.mimeType,
+          suggestedFilename: `${slugify(saveItem?.prompt || "candle-image")}-${Date.now().toString(36)}`,
+          onClose: () => setSavingId(null),
+        } : null}
       />
-
-      {/* Editor panel */}
-      {editItem && (
-        <ImageEditor
-          imageBase64={editItem.base64}
-          imageMimeType={editItem.mimeType}
-          onApplyEdit={handleApplyEdit}
-          onClose={() => setEditingId(null)}
-          loading={editLoading}
-        />
-      )}
-
-      {/* Save dialog */}
-      {saveItem && (
-        <SaveImageDialog
-          imageBase64={saveItem.base64}
-          imageMimeType={saveItem.mimeType}
-          suggestedFilename={`${slugify(saveItem?.prompt || "candle-image")}-${Date.now().toString(36)}`}
-          onClose={() => setSavingId(null)}
-        />
-      )}
     </div>
   );
 }
