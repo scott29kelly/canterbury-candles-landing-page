@@ -3,35 +3,9 @@ export interface PromptTemplate {
   prompt: string;
 }
 
-export const promptTemplates: PromptTemplate[] = [
-  {
-    name: "Product Shot — White Background",
-    prompt:
-      "Professional e-commerce product photo of a hand-poured candle in a clear mason jar with a bronze lid, using the attached label design. Clean white background, soft studio lighting, slight shadow beneath. Shot at eye level, sharp focus, high resolution.",
-  },
-  {
-    name: "Product Shot — Kitchen Scene",
-    prompt:
-      "Generate a product photo of a candle with this label design in a warm kitchen setting. The candle is in a mason jar with a bronze lid, placed on a marble countertop next to fresh herbs and a wooden cutting board. Warm natural lighting, inviting atmosphere.",
-  },
-  {
-    name: "Lifestyle — Cozy Evening",
-    prompt:
-      "Cozy lifestyle photo of a hand-poured candle in a mason jar with a bronze lid, using this label. Placed on a wooden table beside a soft knitted blanket and an open book. Warm golden-hour light streaming through a window, shallow depth of field, inviting and relaxing atmosphere.",
-  },
-  {
-    name: "Flat Lay — Editorial",
-    prompt:
-      "Overhead flat lay photo of a hand-poured candle in a mason jar with bronze lid, featuring this label design. Surrounded by dried flowers, eucalyptus sprigs, a small wooden tray, and natural linen fabric. Soft diffused lighting, neutral earth tones, minimalist editorial styling.",
-  },
-  {
-    name: "Gift Set — Holiday",
-    prompt:
-      "Festive product photo of a candle gift set. A hand-poured candle in a mason jar with this label, wrapped with a ribbon, placed on a rustic wooden surface with pinecones, cinnamon sticks, and fairy lights. Warm holiday atmosphere, soft bokeh background.",
-  },
-  {
-    name: "Hero Product Shot — Lineup",
-    prompt: `You are creating a production-ready hero product image for the
+// Shared core used by every hero-shot variant — only the scene direction changes.
+function heroPrompt(sceneRules: string): string {
+  return `You are creating a production-ready hero product image for the
 "Canterbury Candles" lineup using TWO input images.
 
 INPUTS
@@ -76,7 +50,19 @@ LABEL REMASTERING (make Image A production-ready)
 - Keep the scent name exactly as shown in Image A (same wording/spelling),
   but render it sharp and readable.
 
-BACKGROUND / SCENE VARIATION RULES (this is the fix)
+${sceneRules}
+
+OUTPUT
+Return a single image only: a new hero product placement shot featuring
+the remastered label from Image A, with scent-appropriate background
+variation (still on a wooden kitchen table, still in the Canterbury Candles
+photo style).`;
+}
+
+export const promptTemplates: PromptTemplate[] = [
+  {
+    name: "Hero Shot — Auto (match scent)",
+    prompt: heroPrompt(`BACKGROUND / SCENE VARIATION RULES
 - The scene MUST vary per scent while staying "on-brand":
   wooden kitchen table + warm natural light + soft background blur.
 - Choose background props and color mood that match the scent theme and
@@ -93,12 +79,104 @@ BACKGROUND / SCENE VARIATION RULES (this is the fix)
   - background depth cues (window glow, shelves, kitchen items, etc.)
   - color palette to complement the scent image
 - Keep the jar as the clear hero subject; props remain secondary and out of
-  focus.
-
-OUTPUT
-Return a single image only: a new hero product placement shot featuring
-the remastered label from Image A, with scent-appropriate background
-variation (still on a wooden kitchen table, still in the Canterbury Candles
-photo style).`,
+  focus.`),
+  },
+  {
+    name: "Hero Shot — Bakery & Warm Spices",
+    prompt: heroPrompt(`BACKGROUND / SCENE DIRECTION — BAKERY & WARM SPICES
+- Setting: warm, inviting kitchen baking scene.
+- Wooden kitchen table with a light dusting of flour.
+- Props (soft-focus, secondary): cinnamon sticks, vanilla pods, a small
+  bowl of brown sugar, a wire cooling rack with fresh pastries, a wooden
+  rolling pin, scattered star anise or cloves.
+- Warm amber/golden lighting from the side, as if from an oven or
+  afternoon sun through a kitchen window.
+- Color palette: warm browns, creamy whites, golden honey tones.
+- Background: soft bokeh of kitchen shelves, a mixing bowl, or a window
+  with warm light streaming in.
+- Keep the jar as the clear hero subject; props remain secondary and out of
+  focus.`),
+  },
+  {
+    name: "Hero Shot — Fresh Fruit & Citrus",
+    prompt: heroPrompt(`BACKGROUND / SCENE DIRECTION — FRESH FRUIT & CITRUS
+- Setting: bright, airy kitchen with a fresh summer feel.
+- Wooden kitchen table, lighter tone (birch or maple feel).
+- Props (soft-focus, secondary): sliced citrus fruits (lemon, orange, lime),
+  a glass of iced water with fruit slices, fresh mint sprigs, a small bowl
+  of mixed berries, droplets of condensation on surfaces.
+- Bright, clean natural lighting — slightly cooler and crisper than other
+  variants, as if morning sun is flooding through an open window.
+- Color palette: vibrant yellows, oranges, greens against the natural wood.
+- Background: soft bokeh of a bright window, a fruit bowl, or garden
+  greenery visible outside.
+- Keep the jar as the clear hero subject; props remain secondary and out of
+  focus.`),
+  },
+  {
+    name: "Hero Shot — Floral & Garden",
+    prompt: heroPrompt(`BACKGROUND / SCENE DIRECTION — FLORAL & GARDEN
+- Setting: soft, botanical, garden-adjacent kitchen scene.
+- Wooden kitchen table draped with a linen runner or cloth.
+- Props (soft-focus, secondary): a small vase of fresh-cut flowers
+  (lavender, roses, wildflowers), eucalyptus sprigs, dried botanicals,
+  a ceramic dish with loose petals, a sprig of rosemary or thyme.
+- Warm but gentle diffused lighting — soft golden-hour glow as if near
+  a garden window, slightly hazy and romantic.
+- Color palette: soft greens, muted purples, blush pinks, cream, sage.
+- Background: soft bokeh of window with garden-light glow, potted herbs,
+  or trailing greenery.
+- Keep the jar as the clear hero subject; props remain secondary and out of
+  focus.`),
+  },
+  {
+    name: "Hero Shot — Coffee & Rich",
+    prompt: heroPrompt(`BACKGROUND / SCENE DIRECTION — COFFEE & RICH
+- Setting: warm, moody coffee-house-meets-kitchen scene.
+- Dark-toned wooden kitchen table (walnut or espresso finish).
+- Props (soft-focus, secondary): scattered roasted coffee beans, a small
+  espresso cup on a saucer, a burlap coffee sack, a square of dark
+  chocolate, a wooden scoop, a cinnamon stick or two.
+- Warm, low-angled side lighting with deeper shadows — slightly moodier
+  and more dramatic than other variants, rich and intimate.
+- Color palette: deep browns, espresso, chocolate, warm caramel, cream.
+- Background: soft bokeh of dark kitchen shelves, a French press, or a
+  dimly lit window with warm amber glow.
+- Keep the jar as the clear hero subject; props remain secondary and out of
+  focus.`),
+  },
+  {
+    name: "Hero Shot — Cozy & Fireside",
+    prompt: heroPrompt(`BACKGROUND / SCENE DIRECTION — COZY & FIRESIDE
+- Setting: warm, intimate winter-evening kitchen scene.
+- Wooden kitchen table with a chunky knit table runner or wool texture.
+- Props (soft-focus, secondary): a soft knitted blanket draped nearby,
+  a ceramic mug of cocoa or tea, a small stack of old books, pinecones,
+  a strand of warm fairy lights, a cinnamon stick.
+- Warm golden-amber lighting as if from a fireplace or candlelight —
+  rich, glowing, and enveloping.
+- Color palette: deep burgundy, burnt orange, warm ivory, rich caramel,
+  forest green accents.
+- Background: soft bokeh of warm fairy lights, a fireplace glow, or
+  frosted window panes with warm interior light.
+- Keep the jar as the clear hero subject; props remain secondary and out of
+  focus.`),
+  },
+  {
+    name: "Hero Shot — Clean & Spa",
+    prompt: heroPrompt(`BACKGROUND / SCENE DIRECTION — CLEAN & SPA
+- Setting: serene, minimalist spa-like kitchen scene.
+- Light-toned wooden kitchen table (natural oak or ash).
+- Props (soft-focus, secondary): a smooth stone or two, a small white
+  ceramic dish with sea salt, a sprig of eucalyptus, a folded white
+  linen towel, a small glass bottle of clear oil, a single green leaf.
+- Bright, even, diffused natural lighting — clean and calming, no harsh
+  shadows.
+- Color palette: whites, soft greys, pale greens, natural wood, touches
+  of seafoam or sky blue.
+- Background: soft bokeh of a bright, airy space — white walls, a
+  window with sheer curtains, or a simple shelf with a green plant.
+- Keep the jar as the clear hero subject; props remain secondary and out of
+  focus.`),
   },
 ];
