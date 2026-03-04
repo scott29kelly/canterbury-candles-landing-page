@@ -100,15 +100,14 @@ export default function EditStudio({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
       transition={{ duration: 0.3 }}
-      className="rounded-xl overflow-hidden shadow-lg border border-rose-gray/10"
-      style={{ backgroundColor: "#2D2226" }}
+      className="bg-white rounded-xl overflow-hidden shadow-sm border border-rose-gray/10"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-white/10">
-        <h2 className="font-display text-lg text-blush">Edit Studio</h2>
+      <div className="flex items-center justify-between px-5 py-3 border-b border-rose-gray/10">
+        <h2 className="font-display text-lg text-burgundy">Edit Studio</h2>
         <button
           onClick={onClose}
-          className="text-blush/60 hover:text-blush transition-colors text-xl leading-none px-1"
+          className="text-rose-gray hover:text-charcoal transition-colors text-xl leading-none px-1"
         >
           &times;
         </button>
@@ -117,7 +116,7 @@ export default function EditStudio({
       {/* Main content: tool strip | canvas | controls */}
       <div className="grid grid-cols-[48px_1fr_320px] min-h-[400px]">
         {/* Tool strip */}
-        <div className="flex flex-col items-center gap-1 py-3 border-r border-white/10">
+        <div className="flex flex-col items-center gap-1 py-3 border-r border-rose-gray/10">
           <ToolButton
             icon={<BrushIcon />}
             label="Brush (B)"
@@ -131,7 +130,7 @@ export default function EditStudio({
             onClick={() => setTool("eraser")}
           />
 
-          <div className="w-6 border-t border-white/10 my-1" />
+          <div className="w-6 border-t border-rose-gray/10 my-1" />
 
           <ToolButton
             icon={<UndoIcon />}
@@ -146,7 +145,7 @@ export default function EditStudio({
             onClick={() => canvasRef.current?.redo()}
           />
 
-          <div className="w-6 border-t border-white/10 my-1" />
+          <div className="w-6 border-t border-rose-gray/10 my-1" />
 
           <ToolButton
             icon={<TrashIcon />}
@@ -157,7 +156,7 @@ export default function EditStudio({
         </div>
 
         {/* Canvas area */}
-        <div className="flex flex-col items-center justify-center p-4 overflow-auto">
+        <div className="flex flex-col items-center justify-center p-4 overflow-auto bg-parchment/30">
           <div className="max-h-[60vh] flex items-center justify-center">
             <MaskCanvas
               ref={canvasRef}
@@ -175,22 +174,22 @@ export default function EditStudio({
           <div className="flex items-center gap-2 mt-3">
             <button
               onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))}
-              className="w-7 h-7 rounded bg-white/10 text-blush/80 hover:bg-white/20 transition-colors text-sm flex items-center justify-center"
+              className="w-7 h-7 rounded border border-rose-gray/20 bg-white text-charcoal hover:bg-parchment transition-colors text-sm flex items-center justify-center"
             >
               -
             </button>
-            <span className="text-blush/60 text-xs w-12 text-center">
+            <span className="text-rose-gray text-xs w-12 text-center">
               {Math.round(zoom * 100)}%
             </span>
             <button
               onClick={() => setZoom((z) => Math.min(3, z + 0.25))}
-              className="w-7 h-7 rounded bg-white/10 text-blush/80 hover:bg-white/20 transition-colors text-sm flex items-center justify-center"
+              className="w-7 h-7 rounded border border-rose-gray/20 bg-white text-charcoal hover:bg-parchment transition-colors text-sm flex items-center justify-center"
             >
               +
             </button>
             <button
               onClick={() => setZoom(1)}
-              className="text-blush/40 text-xs hover:text-blush/70 transition-colors ml-1"
+              className="text-rose-gray/60 text-xs hover:text-charcoal transition-colors ml-1"
             >
               Reset
             </button>
@@ -198,10 +197,10 @@ export default function EditStudio({
         </div>
 
         {/* Controls panel */}
-        <div className="border-l border-white/10 p-4 flex flex-col gap-4 bg-[#3A2A2E]">
+        <div className="border-l border-rose-gray/10 p-4 flex flex-col gap-4 bg-white">
           {/* Edit prompt */}
           <div>
-            <label className="block text-xs font-medium text-blush/70 mb-1">
+            <label className="block text-sm font-medium text-charcoal mb-1">
               Edit prompt
             </label>
             <textarea
@@ -209,27 +208,25 @@ export default function EditStudio({
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 bg-white/10 border border-white/10 rounded-lg text-blush text-sm
-                         resize-y focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold
-                         placeholder:text-blush/30"
+              className="w-full px-3 py-2 border border-rose-gray/30 rounded-lg text-charcoal text-sm
+                         resize-y focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
               placeholder="Describe the edit..."
             />
-            <p className="text-blush/30 text-[10px] mt-0.5">Ctrl+Enter to apply</p>
+            <p className="text-rose-gray/60 text-[10px] mt-0.5">Ctrl+Enter to apply</p>
           </div>
 
           {/* Provider indicator */}
           <div
-            className="rounded-lg px-3 py-2.5 text-sm transition-all duration-300"
-            style={{
-              backgroundColor: hasMask ? "rgba(92,36,52,0.3)" : "rgba(200,169,81,0.15)",
-            }}
+            className={`rounded-lg px-3 py-2.5 text-sm transition-all duration-300 ${
+              hasMask ? "bg-burgundy/10" : "bg-gold/10"
+            }`}
           >
             {hasMask ? (
-              <div className="flex items-center gap-2 text-blush">
+              <div className="flex items-center gap-2 text-burgundy">
                 <PaintIcon />
                 <div>
                   <p className="font-medium text-xs">GPT Image</p>
-                  <p className="text-blush/50 text-[10px]">Targeted inpaint</p>
+                  <p className="text-burgundy/50 text-[10px]">Targeted inpaint</p>
                 </div>
               </div>
             ) : (
@@ -237,7 +234,7 @@ export default function EditStudio({
                 <SparkleIcon />
                 <div>
                   <p className="font-medium text-xs">Gemini</p>
-                  <p className="text-gold/50 text-[10px]">Full re-edit</p>
+                  <p className="text-gold/60 text-[10px]">Full re-edit</p>
                 </div>
               </div>
             )}
@@ -255,7 +252,7 @@ export default function EditStudio({
 
           {/* Brush size slider */}
           <div>
-            <label className="block text-xs font-medium text-blush/70 mb-1">
+            <label className="block text-sm font-medium text-charcoal mb-1">
               Brush size
             </label>
             <div className="flex items-center gap-2">
@@ -267,32 +264,32 @@ export default function EditStudio({
                 onChange={(e) => setBrushSize(Number(e.target.value))}
                 className="flex-1 accent-gold h-1"
               />
-              <span className="text-blush/60 text-xs w-10 text-right">{brushSize}px</span>
+              <span className="text-rose-gray text-xs w-10 text-right">{brushSize}px</span>
             </div>
           </div>
 
           {/* Mask controls */}
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-blush/70">
+            <label className="block text-sm font-medium text-charcoal">
               Mask
             </label>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowMask(true)}
-                className={`flex-1 py-1.5 rounded text-xs transition-colors ${
+                className={`flex-1 py-1.5 rounded text-xs transition-colors border ${
                   showMask
-                    ? "bg-white/20 text-blush"
-                    : "bg-white/5 text-blush/40 hover:bg-white/10"
+                    ? "bg-burgundy/10 text-burgundy border-burgundy/20"
+                    : "bg-white text-rose-gray border-rose-gray/20 hover:bg-parchment/30"
                 }`}
               >
                 Show
               </button>
               <button
                 onClick={() => setShowMask(false)}
-                className={`flex-1 py-1.5 rounded text-xs transition-colors ${
+                className={`flex-1 py-1.5 rounded text-xs transition-colors border ${
                   !showMask
-                    ? "bg-white/20 text-blush"
-                    : "bg-white/5 text-blush/40 hover:bg-white/10"
+                    ? "bg-burgundy/10 text-burgundy border-burgundy/20"
+                    : "bg-white text-rose-gray border-rose-gray/20 hover:bg-parchment/30"
                 }`}
               >
                 Hide
@@ -301,13 +298,13 @@ export default function EditStudio({
             <div className="flex gap-2">
               <button
                 onClick={() => canvasRef.current?.invertMask()}
-                className="flex-1 py-1.5 bg-white/5 text-blush/60 rounded text-xs hover:bg-white/10 transition-colors"
+                className="flex-1 py-1.5 bg-white text-rose-gray border border-rose-gray/20 rounded text-xs hover:bg-parchment/30 transition-colors"
               >
                 Invert
               </button>
               <button
                 onClick={() => canvasRef.current?.clearMask()}
-                className="flex-1 py-1.5 bg-white/5 text-blush/60 rounded text-xs hover:bg-white/10 transition-colors"
+                className="flex-1 py-1.5 bg-white text-rose-gray border border-rose-gray/20 rounded text-xs hover:bg-parchment/30 transition-colors"
               >
                 Clear
               </button>
@@ -315,8 +312,8 @@ export default function EditStudio({
           </div>
 
           {/* Shortcut hints */}
-          <div className="mt-auto pt-2 border-t border-white/10">
-            <p className="text-blush/25 text-[10px] leading-relaxed">
+          <div className="mt-auto pt-2 border-t border-rose-gray/10">
+            <p className="text-rose-gray text-[10px] leading-relaxed">
               B brush &middot; E eraser &middot; [ ] size &middot; Ctrl+Z undo &middot; Ctrl+Shift+Z redo &middot; Esc close
             </p>
           </div>
@@ -345,8 +342,8 @@ function ToolButton({
       title={label}
       className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
         active
-          ? "bg-gold/20 text-gold"
-          : "text-blush/40 hover:text-blush/70 hover:bg-white/5"
+          ? "bg-burgundy/10 text-burgundy"
+          : "text-rose-gray hover:text-charcoal hover:bg-parchment/30"
       }`}
     >
       {icon}

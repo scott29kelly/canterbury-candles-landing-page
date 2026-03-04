@@ -79,6 +79,7 @@ const MaskCanvas = forwardRef<MaskCanvasHandle, MaskCanvasProps>(function MaskCa
   const imageCanvasRef = useRef<HTMLCanvasElement>(null);
   const maskCanvasRef = useRef<HTMLCanvasElement>(null);
   const cursorCanvasRef = useRef<HTMLCanvasElement>(null);
+  const loadedImageRef = useRef<HTMLImageElement | null>(null);
 
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const isDrawing = useRef(false);
@@ -94,35 +95,31 @@ const MaskCanvas = forwardRef<MaskCanvasHandle, MaskCanvasProps>(function MaskCa
   useEffect(() => {
     const img = new Image();
     img.onload = () => {
-      const { naturalWidth: w, naturalHeight: h } = img;
-      setCanvasSize({ width: w, height: h });
-
-      // Set all canvases to image dimensions
-      [imageCanvasRef, maskCanvasRef, cursorCanvasRef].forEach((ref) => {
-        const c = ref.current;
-        if (c) {
-          c.width = w;
-          c.height = h;
-        }
-      });
-
-      // Draw image on bottom layer
-      const ctx = imageCanvasRef.current?.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(img, 0, 0, w, h);
-      }
-
-      // Initialize undo stack with empty state
-      const maskCtx = maskCanvasRef.current?.getContext("2d");
-      if (maskCtx) {
-        undoStack.current = [maskCtx.getImageData(0, 0, w, h)];
-        redoStack.current = [];
-        setUndoLen(0);
-        setRedoLen(0);
-      }
+      loadedImageRef.current = img;
+      setCanvasSize({ width: img.naturalWidth, height: img.naturalHeight });
     };
     img.src = `data:${imageMimeType};base64,${imageBase64}`;
   }, [imageBase64, imageMimeType]);
+
+  // Draw image once canvases are mounted with correct dimensions
+  useEffect(() => {
+    const img = loadedImageRef.current;
+    if (!img || !canvasSize.width) return;
+
+    const ctx = imageCanvasRef.current?.getContext("2d");
+    if (ctx) {
+      ctx.drawImage(img, 0, 0, canvasSize.width, canvasSize.height);
+    }
+
+    // Initialize undo stack with empty state
+    const maskCtx = maskCanvasRef.current?.getContext("2d");
+    if (maskCtx) {
+      undoStack.current = [maskCtx.getImageData(0, 0, canvasSize.width, canvasSize.height)];
+      redoStack.current = [];
+      setUndoLen(0);
+      setRedoLen(0);
+    }
+  }, [canvasSize]);
 
   // Update mask canvas visibility
   useEffect(() => {
@@ -370,11 +367,15 @@ const MaskCanvas = forwardRef<MaskCanvasHandle, MaskCanvasProps>(function MaskCa
         <>
           <canvas
             ref={imageCanvasRef}
+            width={canvasSize.width}
+            height={canvasSize.height}
             className="block rounded-lg"
             style={{ maxWidth: "100%", height: "auto" }}
           />
           <canvas
             ref={maskCanvasRef}
+            width={canvasSize.width}
+            height={canvasSize.height}
             className="absolute top-0 left-0 rounded-lg"
             style={{
               maxWidth: "100%",
@@ -384,6 +385,8 @@ const MaskCanvas = forwardRef<MaskCanvasHandle, MaskCanvasProps>(function MaskCa
           />
           <canvas
             ref={cursorCanvasRef}
+            width={canvasSize.width}
+            height={canvasSize.height}
             className="absolute top-0 left-0 rounded-lg"
             style={{
               maxWidth: "100%",

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { promptTemplates } from "@/lib/admin/promptTemplates";
-import type { PromptTemplate } from "@/lib/admin/promptTemplates";
 
 interface ReferenceImage {
   base64: string;
@@ -56,7 +55,6 @@ export default function PromptInput({
   loading,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | null>(null);
 
   // Keep a ref to the latest images so async reader.onload never uses a stale closure
   const imagesRef = useRef(referenceImages);
@@ -108,10 +106,12 @@ export default function PromptInput({
         <select
           className="w-full px-3 py-2 border border-rose-gray/30 rounded-lg text-charcoal bg-white
                      focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
-          value={selectedTemplate?.name ?? ""}
+          value=""
           onChange={(e) => {
             const tmpl = promptTemplates.find((t) => t.name === e.target.value);
-            setSelectedTemplate(tmpl ?? null);
+            if (tmpl) {
+              onPromptChange(tmpl.prompt);
+            }
           }}
         >
           <option value="">Select a template...</option>
@@ -121,35 +121,6 @@ export default function PromptInput({
             </option>
           ))}
         </select>
-
-        {/* Template preview card */}
-        {selectedTemplate && (
-          <div className="mt-2 bg-parchment/50 border border-rose-gray/20 rounded-lg p-3">
-            <p className="text-sm text-charcoal font-medium">{selectedTemplate.name}</p>
-            <p className="text-xs text-rose-gray mt-0.5">{selectedTemplate.description}</p>
-            <div className="flex gap-2 mt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  onPromptChange(selectedTemplate.prompt);
-                  setSelectedTemplate(null);
-                }}
-                className="px-3 py-1.5 bg-burgundy text-blush rounded-lg text-sm font-medium
-                           hover:bg-burgundy-light transition-colors"
-              >
-                Apply Template
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedTemplate(null)}
-                className="px-3 py-1.5 bg-rose-gray/10 text-charcoal rounded-lg text-sm
-                           hover:bg-rose-gray/20 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Prompt textarea */}
