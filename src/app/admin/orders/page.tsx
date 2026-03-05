@@ -201,14 +201,13 @@ export default function OrdersPage() {
               const itemCount = order.items.reduce((s, i) => s + i.quantity, 0);
 
               return (
-                <tr key={order.orderId} className="border-b border-rose-gray/5 align-top">
+                <tr key={order.orderId} className={`border-b border-rose-gray/5 align-top ${isExpanded ? "border-l-4 border-l-burgundy" : ""}`}>
                   <td colSpan={6} className="p-0">
                     {/* Summary row */}
                     <button
                       type="button"
                       onClick={() => setExpandedId(isExpanded ? null : order.orderId)}
-                      className="w-full text-left grid grid-cols-[1fr_1fr_1fr_auto_auto_auto] items-center px-4 py-2
-                                 hover:bg-parchment/30 transition-colors"
+                      className={`w-full text-left grid grid-cols-[1fr_1fr_1fr_auto_auto_auto] items-center px-4 py-2 ${isExpanded ? "bg-gold/10 font-medium" : "hover:bg-parchment/30"} transition-colors`}
                     >
                       <span className="font-mono text-xs text-charcoal">{order.orderId}</span>
                       <span className="text-charcoal text-xs">{formatDate(order.createdAt)}</span>
@@ -227,6 +226,27 @@ export default function OrdersPage() {
                     {/* Expanded detail */}
                     {isExpanded && (
                       <div className="px-4 pb-4 pt-2 bg-parchment/20 border-t border-rose-gray/10">
+                        {/* Status actions */}
+                        {nextStatuses.length > 0 && (
+                          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-rose-gray/10">
+                            <span className="text-sm text-rose-gray font-medium">Update Status:</span>
+                            {nextStatuses.map((s) => (
+                              <button
+                                key={s}
+                                onClick={() => handleStatusClick(order.orderId, s)}
+                                disabled={updating === order.orderId}
+                                className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
+                                  s === "Cancelled"
+                                    ? "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
+                                    : "bg-burgundy text-blush hover:bg-burgundy-light shadow-sm"
+                                }`}
+                              >
+                                {updating === order.orderId ? "Updating..." : s === "Confirmed" ? "Confirm" : s === "Shipped" ? "Mark Shipped" : s === "Delivered" ? "Mark Delivered" : "Cancel"}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                           {/* Customer info */}
                           <div>
@@ -329,26 +349,6 @@ export default function OrdersPage() {
                           </div>
                         )}
 
-                        {/* Status actions */}
-                        {nextStatuses.length > 0 && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-rose-gray font-medium">Actions:</span>
-                            {nextStatuses.map((s) => (
-                              <button
-                                key={s}
-                                onClick={() => handleStatusClick(order.orderId, s)}
-                                disabled={updating === order.orderId}
-                                className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${
-                                  s === "Cancelled"
-                                    ? "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
-                                    : "bg-burgundy text-blush hover:bg-burgundy-light"
-                                }`}
-                              >
-                                {updating === order.orderId ? "Updating..." : s === "Confirmed" ? "Confirm" : s === "Shipped" ? "Mark Shipped" : s === "Delivered" ? "Mark Delivered" : "Cancel"}
-                              </button>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     )}
                   </td>
