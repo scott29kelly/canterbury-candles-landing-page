@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 
 type OrderStatus = "Pending" | "Confirmed" | "Shipped" | "Delivered" | "Cancelled";
@@ -64,11 +64,13 @@ export default function OrdersPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [filter, setFilter] = useState<"All" | OrderStatus>("All");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
-
-  // Cancel confirmation
   const [cancelTarget, setCancelTarget] = useState<string | null>(null);
+
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  const selectedOrder = orders.find((o) => o.orderId === selectedId) ?? null;
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -92,6 +94,33 @@ export default function OrdersPage() {
     fetchOrders();
   }, [fetchOrders]);
 
+  // Close drawer on Escape
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape" && selectedId) {
+        setSelectedId(null);
+      }
+    }
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [selectedId]);
+
+  // Auto-deselect when filter hides the selected order
+  useEffect(() => {
+    if (!selectedId) return;
+    const filtered = filter === "All" ? orders : orders.filter((o) => o.status === filter);
+    if (!filtered.some((o) => o.orderId === selectedId)) {
+      setSelectedId(null);
+    }
+  }, [filter, orders, selectedId]);
+
+  // Focus close button when drawer opens
+  useEffect(() => {
+    if (selectedId && closeButtonRef.current) {
+      closeButtonRef.current.focus();
+    }
+  }, [selectedId]);
+
   function showSuccess(msg: string) {
     setSuccess(msg);
     setTimeout(() => setSuccess(""), 3000);
@@ -110,7 +139,6 @@ export default function OrdersPage() {
         const data = await res.json();
         throw new Error(data.error || "Failed to update status");
       }
-      // Optimistic update
       setOrders((prev) =>
         prev.map((o) =>
           o.orderId === orderId
@@ -196,167 +224,199 @@ export default function OrdersPage() {
               </tr>
             )}
             {filtered.map((order) => {
-              const isExpanded = expandedId === order.orderId;
-              const nextStatuses = STATUS_TRANSITIONS[order.status] ?? [];
+              const isSelected = selectedId === order.orderId;
               const itemCount = order.items.reduce((s, i) => s + i.quantity, 0);
 
               return (
-                <tr key={order.orderId} className={`border-b border-rose-gray/5 align-top ${isExpanded ? "border-l-4 border-l-burgundy" : ""}`}>
-                  <td colSpan={6} className="p-0">
-                    {/* Summary row */}
-                    <button
-                      type="button"
-                      onClick={() => setExpandedId(isExpanded ? null : order.orderId)}
-                      className={`w-full text-left grid grid-cols-[1fr_1fr_1fr_auto_auto_auto] items-center px-4 py-2 ${isExpanded ? "bg-gold/10 font-medium" : "hover:bg-parchment/30"} transition-colors`}
-                    >
-                      <span className="font-mono text-xs text-charcoal">{order.orderId}</span>
-                      <span className="text-charcoal text-xs">{formatDate(order.createdAt)}</span>
-                      <span className="text-charcoal truncate">{order.name}</span>
-                      <span className="text-center text-charcoal w-16">{itemCount}</span>
-                      <span className="text-right text-charcoal w-20">${order.total}</span>
-                      <span className="text-center w-28">
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[order.status]}`}
-                        >
-                          {order.status}
-                        </span>
-                      </span>
-                    </button>
-
-                    {/* Expanded detail */}
-                    {isExpanded && (
-                      <div className="px-4 pb-4 pt-2 bg-parchment/20 border-t border-rose-gray/10">
-                        {/* Status actions */}
-                        {nextStatuses.length > 0 && (
-                          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-rose-gray/10">
-                            <span className="text-sm text-rose-gray font-medium">Update Status:</span>
-                            {nextStatuses.map((s) => (
-                              <button
-                                key={s}
-                                onClick={() => handleStatusClick(order.orderId, s)}
-                                disabled={updating === order.orderId}
-                                className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
-                                  s === "Cancelled"
-                                    ? "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
-                                    : "bg-burgundy text-blush hover:bg-burgundy-light shadow-sm"
-                                }`}
-                              >
-                                {updating === order.orderId ? "Updating..." : s === "Confirmed" ? "Confirm" : s === "Shipped" ? "Mark Shipped" : s === "Delivered" ? "Mark Delivered" : "Cancel"}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          {/* Customer info */}
-                          <div>
-                            <h3 className="font-medium text-charcoal text-xs uppercase tracking-wide mb-2">
-                              Customer
-                            </h3>
-                            <p className="text-sm text-charcoal">{order.name}</p>
-                            <p className="text-sm">
-                              <a href={`mailto:${order.email}`} className="text-burgundy hover:underline">
-                                {order.email}
-                              </a>
-                            </p>
-                            {order.phone && (
-                              <p className="text-sm">
-                                <a href={`tel:${order.phone}`} className="text-burgundy hover:underline">
-                                  {order.phone}
-                                </a>
-                              </p>
-                            )}
-                          </div>
-
-                          {/* Address */}
-                          <div>
-                            <h3 className="font-medium text-charcoal text-xs uppercase tracking-wide mb-2">
-                              Shipping Address
-                            </h3>
-                            {order.addressLine1 ? (
-                              <div className="text-sm text-charcoal">
-                                <p>{order.addressLine1}</p>
-                                {order.addressLine2 && <p>{order.addressLine2}</p>}
-                                <p>
-                                  {order.city}{order.city && order.state ? ", " : ""}
-                                  {order.state} {order.zip}
-                                </p>
-                              </div>
-                            ) : (
-                              <p className="text-sm text-rose-gray italic">Not provided</p>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Items table */}
-                        <div className="mb-4">
-                          <h3 className="font-medium text-charcoal text-xs uppercase tracking-wide mb-2">
-                            Items
-                          </h3>
-                          <table className="w-full text-sm">
-                            <thead>
-                              <tr className="border-b border-rose-gray/10">
-                                <th className="text-left py-1 font-medium text-charcoal">Scent</th>
-                                <th className="text-center py-1 font-medium text-charcoal">Size</th>
-                                <th className="text-center py-1 font-medium text-charcoal">Qty</th>
-                                <th className="text-right py-1 font-medium text-charcoal">Total</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {order.items.map((item, i) => (
-                                <tr key={i} className="border-b border-rose-gray/5">
-                                  <td className="py-1 text-charcoal">{item.scent}</td>
-                                  <td className="py-1 text-center text-charcoal">{item.size}</td>
-                                  <td className="py-1 text-center text-charcoal">{item.quantity}</td>
-                                  <td className="py-1 text-right text-charcoal">${item.lineTotal}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-
-                        {/* Totals */}
-                        <div className="flex justify-end mb-4">
-                          <div className="text-sm space-y-1">
-                            <div className="flex justify-between gap-8">
-                              <span className="text-rose-gray">Subtotal:</span>
-                              <span className="text-charcoal">${order.subtotal}</span>
-                            </div>
-                            {order.discount > 0 && (
-                              <div className="flex justify-between gap-8">
-                                <span className="text-green-700">
-                                  Discount{order.promoCode ? ` (${order.promoCode})` : ""}:
-                                </span>
-                                <span className="text-green-700">-${order.discount}</span>
-                              </div>
-                            )}
-                            <div className="flex justify-between gap-8 font-medium border-t border-rose-gray/10 pt-1">
-                              <span className="text-charcoal">Total:</span>
-                              <span className="text-charcoal">${order.total}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Special instructions */}
-                        {order.message && (
-                          <div className="mb-4">
-                            <h3 className="font-medium text-charcoal text-xs uppercase tracking-wide mb-1">
-                              Special Instructions
-                            </h3>
-                            <p className="text-sm text-charcoal bg-white rounded-lg p-2 border border-rose-gray/10">
-                              {order.message}
-                            </p>
-                          </div>
-                        )}
-
-                      </div>
-                    )}
+                <tr
+                  key={order.orderId}
+                  onClick={() => setSelectedId(isSelected ? null : order.orderId)}
+                  className={`border-b border-rose-gray/5 border-l-4 cursor-pointer transition-colors ${
+                    isSelected
+                      ? "border-l-burgundy bg-gold/10"
+                      : "border-l-transparent hover:bg-parchment/30"
+                  }`}
+                >
+                  <td className="px-4 py-2 font-mono text-xs text-charcoal">{order.orderId}</td>
+                  <td className="px-4 py-2 text-xs text-charcoal">{formatDate(order.createdAt)}</td>
+                  <td className="px-4 py-2 text-charcoal truncate max-w-[160px]">{order.name}</td>
+                  <td className="px-4 py-2 text-center text-charcoal">{itemCount}</td>
+                  <td className="px-4 py-2 text-right text-charcoal">${order.total}</td>
+                  <td className="px-4 py-2 text-center">
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[order.status]}`}>
+                      {order.status}
+                    </span>
                   </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile backdrop */}
+      {selectedId && (
+        <div
+          className="fixed inset-0 z-[45] bg-charcoal/30 md:hidden"
+          onClick={() => setSelectedId(null)}
+        />
+      )}
+
+      {/* Slide-out drawer */}
+      <div
+        role="complementary"
+        aria-label="Order details"
+        className={`fixed top-0 right-0 h-full w-[420px] max-w-[85vw] z-[45] bg-white shadow-xl border-l border-rose-gray/20 transform transition-transform duration-300 ${
+          selectedId ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {selectedOrder && (
+          <div className="flex flex-col h-full">
+            {/* Sticky header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-rose-gray/10 bg-parchment/30">
+              <div>
+                <h2 className="font-display text-lg text-burgundy">{selectedOrder.name}</h2>
+                <p className="text-xs font-mono text-rose-gray">{selectedOrder.orderId}</p>
+              </div>
+              <button
+                ref={closeButtonRef}
+                onClick={() => setSelectedId(null)}
+                aria-label="Close order details"
+                className="p-1.5 rounded-lg hover:bg-rose-gray/10 transition-colors text-charcoal"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M5 5l10 10M15 5L5 15" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Scrollable body */}
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+              {/* Status + Actions */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xs font-medium text-rose-gray uppercase tracking-wide">Status</span>
+                  <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[selectedOrder.status]}`}>
+                    {selectedOrder.status}
+                  </span>
+                </div>
+                {(STATUS_TRANSITIONS[selectedOrder.status] ?? []).length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {(STATUS_TRANSITIONS[selectedOrder.status] ?? []).map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => handleStatusClick(selectedOrder.orderId, s)}
+                        disabled={updating === selectedOrder.orderId}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
+                          s === "Cancelled"
+                            ? "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
+                            : "bg-burgundy text-blush hover:bg-burgundy-light shadow-sm"
+                        }`}
+                      >
+                        {updating === selectedOrder.orderId
+                          ? "Updating..."
+                          : s === "Confirmed"
+                          ? "Confirm"
+                          : s === "Shipped"
+                          ? "Mark Shipped"
+                          : s === "Delivered"
+                          ? "Mark Delivered"
+                          : "Cancel"}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Contact */}
+              <div>
+                <h3 className="text-xs font-medium text-rose-gray uppercase tracking-wide mb-2">Contact</h3>
+                <div className="space-y-1.5 text-sm">
+                  <a href={`mailto:${selectedOrder.email}`} className="flex items-center gap-2 text-burgundy hover:underline">
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="4" width="16" height="12" rx="2" />
+                      <path d="M2 6l8 5 8-5" />
+                    </svg>
+                    {selectedOrder.email}
+                  </a>
+                  {selectedOrder.phone && (
+                    <a href={`tel:${selectedOrder.phone}`} className="flex items-center gap-2 text-burgundy hover:underline">
+                      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 3h4l2 5-2.5 1.5A11 11 0 0010.5 13.5L12 11l5 2v4a1 1 0 01-1 1A16 16 0 012 4a1 1 0 011-1z" />
+                      </svg>
+                      {selectedOrder.phone}
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Shipping Address */}
+              <div>
+                <h3 className="text-xs font-medium text-rose-gray uppercase tracking-wide mb-2">Shipping Address</h3>
+                {selectedOrder.addressLine1 ? (
+                  <div className="text-sm text-charcoal">
+                    <p>{selectedOrder.addressLine1}</p>
+                    {selectedOrder.addressLine2 && <p>{selectedOrder.addressLine2}</p>}
+                    <p>
+                      {selectedOrder.city}{selectedOrder.city && selectedOrder.state ? ", " : ""}
+                      {selectedOrder.state} {selectedOrder.zip}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-rose-gray italic">Not provided</p>
+                )}
+              </div>
+
+              {/* Items */}
+              <div>
+                <h3 className="text-xs font-medium text-rose-gray uppercase tracking-wide mb-2">Items</h3>
+                <div className="space-y-2">
+                  {selectedOrder.items.map((item, i) => (
+                    <div key={i} className="flex items-baseline justify-between text-sm">
+                      <div>
+                        <span className="text-charcoal">{item.scent}</span>
+                        <span className="text-rose-gray ml-1.5">{item.size} &times; {item.quantity}</span>
+                      </div>
+                      <span className="text-charcoal font-medium">${item.lineTotal}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Totals */}
+              <div className="border-t border-rose-gray/10 pt-3">
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-rose-gray">Subtotal</span>
+                    <span className="text-charcoal">${selectedOrder.subtotal}</span>
+                  </div>
+                  {selectedOrder.discount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-green-700">
+                        Discount{selectedOrder.promoCode ? ` (${selectedOrder.promoCode})` : ""}
+                      </span>
+                      <span className="text-green-700">-${selectedOrder.discount}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-medium border-t border-rose-gray/10 pt-1">
+                    <span className="text-charcoal">Total</span>
+                    <span className="text-charcoal">${selectedOrder.total}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Special Instructions */}
+              {selectedOrder.message && (
+                <div>
+                  <h3 className="text-xs font-medium text-rose-gray uppercase tracking-wide mb-2">Special Instructions</h3>
+                  <p className="text-sm text-charcoal bg-parchment/30 rounded-lg p-3 border border-rose-gray/10">
+                    {selectedOrder.message}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <ConfirmDialog
