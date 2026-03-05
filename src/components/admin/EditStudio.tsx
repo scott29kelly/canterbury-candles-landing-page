@@ -27,8 +27,20 @@ export default function EditStudio({
   const [zoom, setZoom] = useState(1);
   const canvasRef = useRef<MaskCanvasHandle>(null);
   const promptRef = useRef<HTMLTextAreaElement>(null);
+  const canvasAreaRef = useRef<HTMLDivElement>(null);
+  const fitZoomRef = useRef(1);
 
   const provider = hasMask ? "gpt-image" : "gemini";
+
+  const handleImageSize = useCallback((imgW: number, imgH: number) => {
+    const container = canvasAreaRef.current;
+    if (!container) return;
+    const containerW = container.clientWidth;
+    const containerH = container.clientHeight;
+    const fit = Math.min(1, (containerW - 32) / imgW, (containerH - 80) / imgH);
+    fitZoomRef.current = fit;
+    setZoom(fit);
+  }, []);
 
   const handleApply = useCallback(() => {
     if (loading || !editPrompt.trim()) return;
@@ -156,7 +168,7 @@ export default function EditStudio({
         </div>
 
         {/* Canvas area */}
-        <div className="flex flex-col items-center justify-center p-4 overflow-auto bg-parchment/30">
+        <div ref={canvasAreaRef} className="flex flex-col items-center justify-center p-4 overflow-auto bg-parchment/30">
           <div className="max-h-[60vh] flex items-center justify-center">
             <MaskCanvas
               ref={canvasRef}
@@ -167,6 +179,7 @@ export default function EditStudio({
               showMask={showMask}
               zoom={zoom}
               onMaskChange={setHasMask}
+              onImageSize={handleImageSize}
             />
           </div>
 
@@ -188,7 +201,7 @@ export default function EditStudio({
               +
             </button>
             <button
-              onClick={() => setZoom(1)}
+              onClick={() => setZoom(fitZoomRef.current)}
               className="text-rose-gray/60 text-xs hover:text-charcoal transition-colors ml-1"
             >
               Reset

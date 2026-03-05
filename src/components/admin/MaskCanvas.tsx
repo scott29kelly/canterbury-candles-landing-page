@@ -28,6 +28,7 @@ interface MaskCanvasProps {
   showMask: boolean;
   zoom: number;
   onMaskChange: (hasMask: boolean) => void;
+  onImageSize?: (w: number, h: number) => void;
 }
 
 const DEFAULT_MASK_COLOR = "rgba(92, 36, 52, 0.45)";
@@ -72,6 +73,7 @@ const MaskCanvas = forwardRef<MaskCanvasHandle, MaskCanvasProps>(function MaskCa
     showMask,
     zoom,
     onMaskChange,
+    onImageSize,
   },
   ref
 ) {
@@ -97,9 +99,10 @@ const MaskCanvas = forwardRef<MaskCanvasHandle, MaskCanvasProps>(function MaskCa
     img.onload = () => {
       loadedImageRef.current = img;
       setCanvasSize({ width: img.naturalWidth, height: img.naturalHeight });
+      onImageSize?.(img.naturalWidth, img.naturalHeight);
     };
     img.src = `data:${imageMimeType};base64,${imageBase64}`;
-  }, [imageBase64, imageMimeType]);
+  }, [imageBase64, imageMimeType, onImageSize]);
 
   // Draw image once canvases are mounted with correct dimensions
   useEffect(() => {

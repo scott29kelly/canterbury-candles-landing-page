@@ -37,7 +37,7 @@ export const openaiProvider: ImageProvider = {
         model: "gpt-image-1",
         image: imageFile,
         prompt: req.prompt,
-        size: "auto" as "1024x1024",
+        size: "auto" as "1024x1024", // TS workaround — API accepts "auto" for GPT image models
         response_format: "b64_json",
       };
 
