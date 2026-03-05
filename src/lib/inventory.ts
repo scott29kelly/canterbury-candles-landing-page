@@ -95,7 +95,7 @@ async function fetchWithServiceAccount(sheetId: string): Promise<Record<string, 
     return cache?.data ?? {};
   }
 
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A2:C`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Inventory!A2:C`;
   const res = await fetch(url, {
     signal: AbortSignal.timeout(5000),
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -116,7 +116,7 @@ async function fetchWithApiKey(sheetId: string): Promise<Record<string, SizeAvai
   const apiKey = process.env.GOOGLE_SHEETS_API_KEY;
   if (!apiKey) return cache?.data ?? {};
 
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A2:C?key=${apiKey}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Inventory!A2:C?key=${apiKey}`;
   const res = await fetch(url, {
     signal: AbortSignal.timeout(5000),
   });

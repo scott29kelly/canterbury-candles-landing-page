@@ -4,7 +4,7 @@ import { readRange, updateRange } from "@/lib/admin/sheets";
 import { clearInventoryCache } from "@/lib/inventory";
 import { SCENTS, SCENT_NAMES } from "@/data/products";
 
-const RANGE = "Sheet1!A2:C";
+const RANGE = "Inventory!A2:C";
 
 interface InventoryRow {
   name: string;

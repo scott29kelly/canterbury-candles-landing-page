@@ -3,6 +3,7 @@ import nodemailer from "nodemailer";
 import { PRICES, SCENT_NAMES, type CandleSize } from "@/data/products";
 import { getInventory, isSizeAvailable } from "@/lib/inventory";
 import { validatePromoCode } from "@/lib/promoCodes";
+import { persistOrder } from "@/lib/admin/orders";
 
 interface OrderLineItem {
   scent: string;
@@ -214,7 +215,35 @@ export async function POST(request: Request) {
       html: buildEmailHtml(order),
     });
 
-    return NextResponse.json({ success: true });
+    // Persist order to Google Sheets (non-blocking — email is primary)
+    let orderId: string | undefined;
+    try {
+      orderId = await persistOrder({
+        name: order.name,
+        email: order.email,
+        phone: order.phone,
+        addressLine1: order.addressLine1,
+        addressLine2: order.addressLine2,
+        city: order.city,
+        state: order.state,
+        zip: order.zip,
+        message: order.message,
+        items: order.items.map((item) => ({
+          scent: item.scent,
+          size: item.size,
+          quantity: item.quantity,
+          lineTotal: PRICES[item.size] * item.quantity,
+        })),
+        subtotal,
+        promoCode: order.promoCode,
+        discount,
+        total: order.total,
+      });
+    } catch (persistErr) {
+      console.error("Failed to persist order to Sheets:", persistErr);
+    }
+
+    return NextResponse.json({ success: true, orderId });
   } catch (err) {
     console.error("Order submission failed:", err);
     return NextResponse.json(
