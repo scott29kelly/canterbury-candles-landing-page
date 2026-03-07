@@ -1,6 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { SCENTS } from "@/data/products";
+
+const SLOT_OPTIONS = [
+  { value: "hero", label: "Hero Image" },
+  { value: "story-prepare", label: "Story: Prepare" },
+  { value: "story-blend", label: "Story: Blend" },
+  { value: "story-pour", label: "Story: Pour" },
+  ...SCENTS.map((s) => ({
+    value: `product-${s.name.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "-")}`,
+    label: s.name,
+  })),
+];
 
 interface Props {
   imageBase64: string;
@@ -19,7 +31,13 @@ export default function SaveImageDialog({
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<{ url: string; publicId: string } | null>(null);
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
+
+  // Slot picker state
+  const [showSlotPicker, setShowSlotPicker] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState("");
+  const [publishing, setPublishing] = useState(false);
+  const [published, setPublished] = useState(false);
+  const [publishError, setPublishError] = useState("");
 
   async function handleSave() {
     setSaving(true);
@@ -50,17 +68,35 @@ export default function SaveImageDialog({
     }
   }
 
-  async function handleCopy() {
-    if (!result) return;
-    await navigator.clipboard.writeText(result.url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  async function handlePublish() {
+    if (!result || !selectedSlot) return;
+    setPublishing(true);
+    setPublishError("");
+
+    try {
+      const res = await fetch("/api/admin/assign-slot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ publicId: result.publicId, slot: selectedSlot }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Publish failed");
+      }
+
+      setPublished(true);
+    } catch (err) {
+      setPublishError(err instanceof Error ? err.message : "Publish failed");
+    } finally {
+      setPublishing(false);
+    }
   }
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-rose-gray/10 p-4 space-y-3 mt-2">
       <div className="flex items-center justify-between">
-        <h3 className="font-display text-base text-burgundy">Save to Cloudinary</h3>
+        <h3 className="font-display text-base text-burgundy">Save Image</h3>
         <button
           onClick={onClose}
           className="text-rose-gray hover:text-charcoal transition-colors text-xl leading-none"
@@ -83,9 +119,6 @@ export default function SaveImageDialog({
                          focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
               placeholder="e.g. lavender-candle-product-shot"
             />
-            <p className="text-xs text-rose-gray mt-1">
-              Saved to canterbury-candles/products/ folder
-            </p>
           </div>
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -96,42 +129,92 @@ export default function SaveImageDialog({
             className="w-full py-2 bg-burgundy text-blush rounded-lg font-medium text-sm
                        hover:bg-burgundy-light transition-colors disabled:opacity-50"
           >
-            {saving ? "Uploading..." : "Save to Cloudinary"}
+            {saving ? "Saving..." : "Save Image"}
           </button>
         </>
-      ) : (
-        <>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 space-y-2">
-            <p className="text-green-800 font-medium text-sm">Saved successfully!</p>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                readOnly
-                value={result.url}
-                className="flex-1 text-xs px-2 py-1.5 bg-white border border-green-200 rounded text-charcoal"
-              />
-              <button
-                onClick={handleCopy}
-                className="px-3 py-1.5 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
-              >
-                {copied ? "Copied!" : "Copy"}
-              </button>
-            </div>
-            <a
-              href="/admin/media"
-              className="inline-block text-xs text-green-700 hover:text-green-900 underline mt-1"
-            >
-              View in Media Library
-            </a>
-          </div>
-
+      ) : published ? (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3 space-y-2">
+          <p className="text-green-800 font-medium text-sm">Live on your store!</p>
           <button
             onClick={onClose}
-            className="w-full py-2 bg-rose-gray/10 text-charcoal rounded-lg font-medium text-sm
-                       hover:bg-rose-gray/20 transition-colors"
+            className="w-full py-2 bg-burgundy text-blush rounded-lg font-medium text-sm
+                       hover:bg-burgundy-light transition-colors"
           >
             Done
           </button>
+        </div>
+      ) : (
+        <>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <p className="text-green-800 font-medium text-sm">Image saved!</p>
+          </div>
+
+          {!showSlotPicker ? (
+            <div className="flex gap-2">
+              <button
+                onClick={onClose}
+                className="flex-1 py-2 bg-burgundy text-blush rounded-lg font-medium text-sm
+                           hover:bg-burgundy-light transition-colors"
+              >
+                Done
+              </button>
+              <button
+                onClick={() => setShowSlotPicker(true)}
+                className="flex-1 py-2 bg-gold/10 text-gold rounded-lg font-medium text-sm
+                           hover:bg-gold/20 transition-colors"
+              >
+                Use on Landing Page
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-charcoal">
+                Choose a location
+              </label>
+              <select
+                value={selectedSlot}
+                onChange={(e) => setSelectedSlot(e.target.value)}
+                className="w-full px-3 py-2 border border-rose-gray/30 rounded-lg text-charcoal text-sm
+                           focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
+              >
+                <option value="">Select a slot...</option>
+                <optgroup label="Page Sections">
+                  {SLOT_OPTIONS.slice(0, 4).map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Product Images">
+                  {SLOT_OPTIONS.slice(4).map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+
+              {publishError && <p className="text-red-600 text-sm">{publishError}</p>}
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowSlotPicker(false)}
+                  className="flex-1 py-2 bg-rose-gray/10 text-charcoal rounded-lg font-medium text-sm
+                             hover:bg-rose-gray/20 transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={handlePublish}
+                  disabled={!selectedSlot || publishing}
+                  className="flex-1 py-2 bg-burgundy text-blush rounded-lg font-medium text-sm
+                             hover:bg-burgundy-light transition-colors disabled:opacity-50"
+                >
+                  {publishing ? "Publishing..." : "Publish to Store"}
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

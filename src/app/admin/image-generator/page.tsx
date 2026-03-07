@@ -213,17 +213,12 @@ export default function ImageGeneratorPage() {
   const saveItem = history.find((h) => h.id === savingId);
   const isLoading = loading || editLoading;
 
-  const providerLabel = (p: string) => {
-    if (p === "gpt-image") return "GPT Image";
-    return p.charAt(0).toUpperCase() + p.slice(1);
-  };
-
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl text-burgundy">Image Generator</h1>
         <p className="text-rose-gray text-sm mt-1">
-          Generate product images using AI, re-edit with inpainting, and save to Cloudinary.
+          Generate and edit product images for your store.
         </p>
       </div>
 
@@ -248,7 +243,7 @@ export default function ImageGeneratorPage() {
             <div className="aspect-square max-h-[512px] mx-auto flex flex-col items-center justify-center bg-parchment animate-pulse">
               <div className="w-12 h-12 border-4 border-burgundy/30 border-t-burgundy rounded-full animate-spin" />
               <p className="mt-4 text-rose-gray text-sm">
-                Generating with Gemini... ({elapsedSeconds}s)
+                Generating... ({elapsedSeconds}s)
               </p>
               <p className="mt-1 text-rose-gray/60 text-xs">
                 Typically takes 10–30 seconds
@@ -263,15 +258,6 @@ export default function ImageGeneratorPage() {
                 alt="Generated candle image"
                 className="w-full max-h-[512px] object-contain mx-auto"
               />
-              {/* Provider + duration badges */}
-              <div className="absolute top-3 left-3 flex gap-2">
-                <span className="text-xs bg-charcoal/70 text-white px-2 py-1 rounded-full">
-                  {providerLabel(activeItem.provider)}
-                </span>
-                <span className="text-xs bg-charcoal/70 text-white px-2 py-1 rounded-full">
-                  {(activeItem.durationMs / 1000).toFixed(1)}s
-                </span>
-              </div>
               {/* Loading overlay */}
               {isLoading && (
                 <div className="absolute inset-0 bg-white/60 flex flex-col items-center justify-center">
@@ -293,7 +279,7 @@ export default function ImageGeneratorPage() {
                   onClick={() => handleSave(activeItem.id)}
                   className="px-4 py-2 bg-gold/10 text-gold rounded-lg text-sm hover:bg-gold/20 transition-colors font-medium"
                 >
-                  Save to Cloudinary
+                  Save Image
                 </button>
               </div>
               {/* Inline save panel */}

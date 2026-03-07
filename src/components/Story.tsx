@@ -70,7 +70,7 @@ function ParallaxImage({
   );
 }
 
-export default function Story() {
+export default function Story({ imageOverrides }: { imageOverrides?: Record<string, string> }) {
   return (
     <section id="story" className="py-16 md:py-24 lg:py-36 bg-blush relative">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16">
@@ -106,7 +106,7 @@ export default function Story() {
                 className="w-full md:w-3/5 relative"
               >
                 <ParallaxImage
-                  src={step.image}
+                  src={imageOverrides?.[step.title.toLowerCase()] || step.image}
                   alt={step.alt}
                   priority={i === 0}
                 />

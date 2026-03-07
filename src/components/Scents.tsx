@@ -477,11 +477,20 @@ function ScentCard({
 }
 
 /* ─── Main Scents Section ─── */
-export default function Scents() {
+export default function Scents({ productImageOverrides }: { productImageOverrides?: Record<string, string> }) {
   const [activeCardName, setActiveCardName] = useState<string | null>(null);
   const inventory = useInventory();
   const columnCount = useColumnCount();
   const prefersReduced = useReducedMotion();
+
+  const scents = useMemo(() => {
+    if (!productImageOverrides || Object.keys(productImageOverrides).length === 0) return SCENTS;
+    return SCENTS.map((s) => {
+      const slug = s.name.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "-");
+      const override = productImageOverrides[slug];
+      return override ? { ...s, image: override } : s;
+    });
+  }, [productImageOverrides]);
 
   const handleBackgroundClick = useCallback(() => {
     setActiveCardName(null);
@@ -564,7 +573,7 @@ export default function Scents() {
             className="flex flex-wrap justify-center gap-5 md:gap-6"
             onClick={(e) => e.stopPropagation()}
           >
-            {SCENTS.map((scent, index) => {
+            {scents.map((scent, index) => {
               const sizeAvail = inventory[scent.name] ?? { "8oz": true, "16oz": true };
               const anyAvailable = sizeAvail["8oz"] || sizeAvail["16oz"];
               return (

@@ -30,7 +30,7 @@ export default function EditStudio({
   const canvasAreaRef = useRef<HTMLDivElement>(null);
   const fitZoomRef = useRef(1);
 
-  const provider = hasMask ? "gpt-image" : "gemini";
+  const provider = hasMask ? "fal" : "gemini";
 
   const handleImageSize = useCallback((imgW: number, imgH: number) => {
     const container = canvasAreaRef.current;
@@ -226,31 +226,6 @@ export default function EditStudio({
               placeholder="Describe the edit..."
             />
             <p className="text-rose-gray/60 text-[10px] mt-0.5">Ctrl+Enter to apply</p>
-          </div>
-
-          {/* Provider indicator */}
-          <div
-            className={`rounded-lg px-3 py-2.5 text-sm transition-all duration-300 ${
-              hasMask ? "bg-burgundy/10" : "bg-gold/10"
-            }`}
-          >
-            {hasMask ? (
-              <div className="flex items-center gap-2 text-burgundy">
-                <PaintIcon />
-                <div>
-                  <p className="font-medium text-xs">GPT Image</p>
-                  <p className="text-burgundy/50 text-[10px]">Targeted inpaint</p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 text-gold">
-                <SparkleIcon />
-                <div>
-                  <p className="font-medium text-xs">Gemini</p>
-                  <p className="text-gold/60 text-[10px]">Full re-edit</p>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Apply button */}

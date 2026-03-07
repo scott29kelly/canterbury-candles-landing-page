@@ -139,7 +139,7 @@ function AmbientWarmth({
   );
 }
 
-export default function Hero() {
+export default function Hero({ heroImageUrl }: { heroImageUrl?: string }) {
   const sectionRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
   const prefersReduced = useReducedMotion();
@@ -308,7 +308,16 @@ export default function Hero() {
 
               {/* Main product image */}
               <div className="relative aspect-[3/4] lg:max-h-[calc(100dvh-10rem)] rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
-                {prefersReduced ? (
+                {heroImageUrl ? (
+                  <Image
+                    src={heroImageUrl}
+                    alt="Canterbury Candles branded mason jar candle with rustic ingredients"
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="(max-width: 768px) 80vw, (max-width: 1024px) 50vw, 40vw"
+                  />
+                ) : prefersReduced ? (
                   <Image
                     src="/images/logo-header-hero-shot.jpeg"
                     alt="Canterbury Candles branded mason jar candle with rustic ingredients"
